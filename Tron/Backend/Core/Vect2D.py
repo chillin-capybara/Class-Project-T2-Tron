@@ -4,15 +4,36 @@ class Vect2D(object):
 	"""
 	Two dimensional Vector object in cartesian coordinates
 	"""
-	x = 0
-	y = 0
+	__x = 0
+	__y = 0
+
+	@property
+	def x(self):
+		"""helloooo"""
+		return self.__x
+
+	@x.setter
+	def x(self, new_value):
+		if type(new_value) == int:
+			self.__x = new_value
+		else:
+			raise TypeError
+	
+	@property
+	def y(self):
+		return self.__y
+	
+	@y.setter
+	def y(self, new_value):
+		if type(new_value) == int:
+			self.__y = new_value
+		else:
+			raise TypeError
 
 	def __init__(self, x:int, y:int):
 		"""
 		Initialize a 2D vector with x, y values
 		"""
-		if not (type(x) == int and type(y) == int):
-			raise TypeError
 		self.x = x
 		self.y = y
 

@@ -6,29 +6,35 @@ class TestVect2D(unittest.TestCase):
 	"""
 	Test the Vect2D class functionality
 	"""
-	def test_coordinates(self):
+	def test_setters(self):
+		"""Test exceptions for false typing"""
+		t = Vect2D(0,0)
+
 		with self.assertRaises(TypeError):
-			t = Vect2D(1j, True)
+			t.x = True
+
+		with self.assertRaises(TypeError):
+			t.x = 5j
+
+		with self.assertRaises(TypeError):
+			t.x = "Hello"
+		
+		with self.assertRaises(TypeError):
+			t.y = True
+
+		with self.assertRaises(TypeError):
+			t.y = "Hello"
+
+		with self.assertRaises(TypeError):
+			t.y = 5j
+		
+		# Check the constructor for validation
+		with self.assertRaises(TypeError):
+			t = Vect2D("Hello", "Bello")
 
 
 	def test_length(self):
 		t = Vect2D(1,1)
 		self.assertAlmostEqual(t.length(), math.sqrt(2))
-	
-	def test_angle(self):
-		# Angle of the x unit
-		t = Vect2D(1,0)
-		self.assertAlmostEqual(t.angle(), 0)
-
-		# Angle of the y unit
-		t = Vect2D(0,1)
-		self.assertAlmostEqual(t.angle(), math.pi/2)
-
-		# 45deg
-		t = Vect2D(1,1)
-		self.assertAlmostEqual(t.angle(), math.pi/4)
-
-		#135deg
-		# TODO Add more tests
 		 
 		
