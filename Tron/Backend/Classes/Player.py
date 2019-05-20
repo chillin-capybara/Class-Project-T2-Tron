@@ -27,7 +27,7 @@ class Player(object):
 		Get the current position of the Player
 
 		Returns:
-			Player coordinates as (x,y) Vector
+			Player coordinates as Vect2D
 		"""
 		raise NotImplementedError
 
@@ -36,7 +36,7 @@ class Player(object):
 		Get the current velocity of the Player
 
 		Returns:
-			Velocity as (x,y) Vector
+			Velocity as Vect2D
 		"""
 	
 	def getTrack(self):
