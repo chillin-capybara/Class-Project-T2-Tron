@@ -52,4 +52,5 @@ class Vect2D(object):
 		Get the angle of the vector.
 		TODO: TEST IT
 		"""
+		print("HEllo!")
 		return math.atan(self.y / self.x)
