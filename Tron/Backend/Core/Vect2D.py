@@ -49,6 +49,7 @@ class Vect2D(object):
 	
 	def angle(self):
 		"""
-		Get the angle of the vector
+		Get the angle of the vector.
+		TODO: TEST IT
 		"""
-		raise NotImplementedError
+		return math.atan(self.y / self.x)
