@@ -30,7 +30,7 @@ class Vect2D(object):
 		else:
 			raise TypeError
 
-	def __init__(self, x:int, y:int):
+	def __init__(self, x, y):
 		"""
 		Initialize a 2D vector with x, y values
 		"""
