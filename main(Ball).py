@@ -122,6 +122,9 @@ class BallApp(App):
         MyKeyboardListener(game)
         return game
 
+        print ("Hello")
+        print("bye")
+
 
 if __name__ == '__main__':
     BallApp().run()
