@@ -14,12 +14,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-  
-		clientReadyMsg = 'clientReady' + player.getName(self) #TODO check getName is a string
-  		clientReadyMsg +=  '\r\n'
-		bClientReadyMsg = clientReadyMsg.encode('UTF-8') #TODO check bClientReadyMsg is bytes
-    
-		return bClientReadyMsg
+		raise NotImplementedError
 	
 	def server_ready(self, game):
 		"""
@@ -31,12 +26,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-
-		serverReadyMsg = 'serverReady' + game.getName(self) #TODO check getName is a string
-  		serverReadyMsg +=  '\r\n'
-		bServerReadyMsg = serverReadyMsg.encode('UTF-8') #TODO check bServerReadyMsg is bytes
-  
-		return bServerReadyMsg
+		raise NotImplementedError
 	
 	def server_error(self, msg):
 		"""
@@ -48,28 +38,18 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-
-		serverErrorMsg = 'serverError: ' + msg
-		serverErrorMsg += '\r\n'
-		bServerErrorMsg = serverErrorMsg.encode('UTF-8') #TODO check bServerErrorMsg is bytes
-
-		return bServerErrorMsg
+		raise NotImplementedError
 	
 	def client_error(self, msg):
 		"""
-		Get a byte coded client error message
+		Get a byte coded server error message
 
 		Args:
 			msg: str	Error description (message)
 		Returns:
 			bytes
 		"""
-		
- 		clientErrorMsg = 'clientError: ' + msg
-		clientErrorMsg += '\r\n'
-		bClientErrorMsg = clientErrorMsg.encode('UTF-8') #TODO check bClientErrorMsg is bytes
-
-		return bClientErrorMsg
+		raise NotImplementedError
 	
 	def client_start(self):
 		"""
@@ -78,11 +58,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-		clientStartMsg = 'clientStart'
-		clientStartMsg += '\r\n'
-		bClientStartMsg = clientStartMsg.encode('UTF-8') #TODO check bClientStartMsg is bytes
-		
-		return bClientStartMsg
+		raise NotImplementedError
 	
 	def countdown(self, seconds):
 		"""
@@ -91,12 +67,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-  
-		serverCountdownMsg = 'serverCountdown: ' + seconds
-		serverCountdownMsg += '\r\n'
-		bServerCountdownMsg = serverCountdownMsg.encode('UTF-8')	
-  
-		return bServerCountdownMsg
+		raise NotImplementedError
 	
 	def ingame(self, game):
 		"""
@@ -108,12 +79,7 @@ class CommProt:
 		Return:
 			bytes
 		"""
-  
-		inGameMsg = 'inGame: ' + game.getName(self)
-		inGameMsg += '\r\n'
-		bInGameMsg = inGameMsg.encode('UTF-8')
-
-		return bInGameMsg
+		raise NotImplementedError
 
 	def pause(self):
 		"""
@@ -122,12 +88,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-  
-		pauseRequest = 'pauseRequest'
-		pauseRequest += '\r\n'
-		bPauseRequest = pauseRequest.encode('UTF-8')
-
-		return bPauseRequest
+		raise NotImplementedError
 
 	def continue_game(self, seconds):
 		"""
@@ -136,12 +97,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-  
-		continueRequest = 'continueRequest'
-		continueRequest += '\r\n'
-		bContinueRequest = continueRequest.encode('UTF-8')
-
-		return bContinueRequest
+		raise NotImplementedError
 	
 	def ack_pause(self):
 		"""
@@ -150,12 +106,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-
-		pauseAck = 'pauseAck'
-		pauseAck += '\r\n'
-		bPauseAck = pauseAck.encode('UTF-8')
-  	
-		return bPauseAck
+		raise NotImplementedError
 
 	def ack_continue(self):
 		"""
@@ -164,11 +115,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-		continueAck = 'continueAck'
-		continueAck += '\r\n'
-		bContinueAck = continueAck.encode('UTF-8')
-  	
-		return bContinueAck
+		raise NotImplementedError
 	
 	def exit_game(self):
 		"""
@@ -177,11 +124,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-		exitGameRequest = 'exitGameRequest'
-		exitGameRequest += '\r\n'
-		bExitGameRequest = exitGameRequest.encode('UTF-8')
-
-		return bExitGameRequest
+		raise NotImplementedError
 	
 	def end_game(self):
 		"""
@@ -190,11 +133,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-		endGameRequest = 'endGameRequest'
-		endGameRequest += '\r\n'
-		bEndGameRequest = endGameRequest.encode('UTF-8')
-
-		return bEndGameRequest
+		raise NotImplementedError
 	
 	def revenge(self):
 		"""
@@ -203,11 +142,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-		revengeGameRequest = 'revengeGameRequest'
-		revengeGameRequest += '\r\n'
-		bRevengeGameRequest = revengeGameRequest.encode('UTF-8')
-
-		return bRevengeGameRequest
+		raise NotImplementedError
 	
 	def ack_revenge(self):
 		"""
@@ -216,11 +151,7 @@ class CommProt:
 		Returns:
 			bytes
 		"""
-		revengeAck = 'revengeAck'
-		revengeAck += '\r\n'
-		bRevengeAck = revengeAck.encode('UTF-8')
-  	
-		return bRevengeAck
+		raise NotImplementedError
 
 	
 
