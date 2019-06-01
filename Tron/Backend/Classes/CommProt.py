@@ -152,6 +152,25 @@ class CommProt:
 			bytes
 		"""
 		raise NotImplementedError
-
 	
+	def string_to_bytes(self, string):
+		"""
+		Convert a string to bytes considering the choosen encoding
+
+		Args:
+			string (str): String to convert
+		
+		Retruns:
+			bytes: Converted string
+		
+		Raises:
+			TypeError: string is not a str
+		"""
+		raise NotImplementedError
+
+	def dict_to_jsonbytes(self, dict):
+		"""
+		TODO: DOCSTIRNG
+		"""
+		raise NotImplementedError
 

@@ -147,3 +147,14 @@ class Player(object):
 			CommError: Error while communicating the pause request
 		"""
 		raise NotImplementedError
+	
+	def move(self, time):
+		"""
+		Update the players position based on the velocity and the spent time
+		
+		Args:
+			time: Spent time
+		Raises:
+			TypeError: time is not an integer
+		"""
+		raise NotImplementedError

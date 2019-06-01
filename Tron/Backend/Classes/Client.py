@@ -3,6 +3,12 @@ class Client(object):
 	Client Interface for the game server
 	"""
 
+	def attachPlayersUpdated(self, callback):
+		"""
+		TODO: DOC
+		"""
+		raise NotImplementedError
+
 	def Connect(self, server, port):
 		"""
 		Connect to the server using the port

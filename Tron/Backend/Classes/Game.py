@@ -1,3 +1,5 @@
+from Client import Client
+from TCPCLient import TCPCLient
 
 class Game(object):
 	"""
@@ -9,6 +11,12 @@ class Game(object):
 	Players = [] # List of players participating in the game
 
 	Arena = None # Arena object of the current game
+
+	__client = TCPCLient()
+
+	def __init__(self):
+		# Attach the Player update event to the tcp receive event
+		self.__client.attachPlayersUpdated(self.UpdatePlayers)
 
 	def UpdatePlayers(self, players):
 		"""

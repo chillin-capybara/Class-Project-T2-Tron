@@ -53,6 +53,7 @@ class Event(object):
 			TypeError: other is not callable
 		"""
 		self.attach(other)
+		return self
 	
 	def __isub__(self, other):
 		"""
@@ -66,11 +67,24 @@ class Event(object):
 			ValueError: other is not attached to the event
 		"""
 		self.detach(other)
+		return self
 	
 	def call(self, sender, *args, **kwargs):
 		"""
 		Call the event with all the attached event handlers
 		"""
 
+		kwargs['sender'] = sender
+
 		for cb in self.__callables:
-			cb.__call__()
+			cb(**kwargs)
+
+
+def ev_handler(sender, msg):
+	print("SENDER: " + sender)
+	print(msg)
+
+
+myevent = Event()
+myevent.attach(ev_handler)
+myevent.call("MYSQL", msg="MyMePRINTPIRPIASPDIASPDIssage")
