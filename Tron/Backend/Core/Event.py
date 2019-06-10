@@ -72,13 +72,37 @@ class Event(object):
 	def call(self, sender, *args, **kwargs):
 		"""
 		Call the event with all the attached event handlers
+
+		Args:
+			sender (obj): Object that triggers the event
+			...
+			...
+			Free parameters
+			
+		Raises:
+			Anything that event handlers can raise
 		"""
 
-		kwargs['sender'] = sender
+		kwargs['sender'] = sender # Define the sender of the call parameters
 
 		for cb in self.__callables:
-			cb(**kwargs)
+			cb(**kwargs)          # Call with values
+	
+	def __call__(self, sender, *args, **kwargs):
+		"""
+		Call the event with all the attached event handlers
 
+		Args:
+			sender (obj): Object that triggers the event
+			...
+			...
+			Free parameters
+			
+		Raises:
+			Anything that event handlers can raise
+		"""
+
+		self.call(sender, *args, **kwargs)
 
 def ev_handler(sender, msg):
 	print("SENDER: " + sender)
