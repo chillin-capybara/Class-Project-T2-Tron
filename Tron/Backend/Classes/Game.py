@@ -18,6 +18,15 @@ class Game(object):
 		# Attach the Player update event to the tcp receive event
 		self.__client.attachPlayersUpdated(self.UpdatePlayers)
 
+	def getPlayers(self) -> list:
+		"""
+		Get the list of players in the game
+
+		Returns:
+			list
+		"""
+		return self.Players
+
 	def UpdatePlayers(self, players):
 		"""
 		Update the players of the current game, based on the receved data from Client

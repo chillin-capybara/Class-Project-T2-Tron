@@ -1,6 +1,8 @@
-from Server import Server                # Server interface
+from .Server import Server                # Server interface
+from .TCPThreads import SenderThread, ReceiverThread
 from ..Core.Exceptions import ServerError  #ServerError Exception
-from Arena import Arena
+from ..Core.core_functions import get_timestamp
+from .Arena import Arena
 import socket
 
 class TCPServer(Server):
@@ -15,6 +17,8 @@ class TCPServer(Server):
 	__playernumber = 0          # Number of players
 	__comm_proto = None         # Communication protocol
 	__players = []              # Array of players
+	__playerThreads = []        # Array of TCP Threads for the players in async communication
+	__player_index = 0          # Player index currently to be added
 	__sock = None # Serversocket
 	__settings_locked = False   # Check if server settings are locked
 
@@ -123,13 +127,40 @@ class TCPServer(Server):
 		# TODO: Add ServerError when the server is not running
 		return self.__players
 
+	def __create_threads(self, sock: socket.socket, player_id: int):
+		"""
+		Create send and receive threads for every client connecting to the server
+
+		Args:
+			sock (socket): Accepted connection socket
+			player_id (int): Index of the player on the server
+		Raises:
+			TypeError: sock is not a socket
+			ServerError: ???
+		"""
+		senderThread = SenderThread(sock, player_id)
+		receiverThread = ReceiverThread(sock, player_id)
+
+		# Start the Threads
+		senderThread.start()
+		receiverThread.start()
+
+		# Append the threads for the players
+		self.__playerThreads.append((senderThread, receiverThread))
+
+
 	def Start(self):
 		
 		try:
 			# Start listening on socket
-			self.__sock.listen()
-			client_sock = self.__sock.accept()
-			# TODO: Start new thread for client_socket
+			while(True):
+				self.__sock.listen()
+				client_sock = self.__sock.accept()
+
+				# TODO: Start new thread for client_socket
+				self.__create_threads(client_sock, self.__player_index)
+				self.__player_index += 1
+
 		except:
 			pass
 
