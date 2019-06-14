@@ -88,6 +88,9 @@ class CommProt:
 
 		Returns:
 			bytes
+		Raises:
+			TypeError: seconds is not an integer
+			ValueError: seconds is smaller than 1
 		"""
 		raise NotImplementedError
 	

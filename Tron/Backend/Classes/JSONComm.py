@@ -1,8 +1,8 @@
 from CommProt import CommProt
 from Game import Game
 from Player import Player
-from ..Core.Vect2D import Vect2D
-from ..Core.core_functions import get_timestamp
+from Tron.Backend.Core.Vect2D import Vect2D
+from Tron.Backend.Core.core_functions import get_timestamp
 import json
 
 class JSONComm(CommProt):
@@ -48,10 +48,14 @@ class JSONComm(CommProt):
 		NOTE:
 			{"type":"server_error", "message": "this is the message"}
 		"""
+
+		if type(msg) is not str:
+			raise TypeError
+
 		msgdict = {'type': 'server_error', 'message': msg}
 		return self.dict_to_jsonbytes(msgdict)
 	
-	def client_error(self, msg):
+	def client_error(self, msg: str):
 		"""
 		Get a byte coded client error message
 
@@ -62,7 +66,9 @@ class JSONComm(CommProt):
 		NOTE:
 			{"type":"client_error", "message": "this is the message"}
 		"""
-
+		if type(msg) is not str:
+			raise TypeError
+		
 		msgdict = {
 			'type': 'client_error',
 			'message': msg
@@ -124,6 +130,9 @@ class JSONComm(CommProt):
 			bytes
 		"""
 
+		if type(player) is not Player:
+			raise TypeError
+		
 		msgdict = {
 			'type': 'client_ready',
 			'playername' : player.getName(),
@@ -141,11 +150,41 @@ class JSONComm(CommProt):
 			player_id (int): Index of the player on the server
 		Return:
 			bytes
+		Raises:
+			TypeError: player_id is not integer
 		"""
+		if type(player_id) is not int:
+			raise TypeError
 
 		msgdict = {
 			'type': 'client_ready_ack',
 			'player_id': player_id,
 			'timestamp': get_timestamp()
 		}
+		return self.dict_to_jsonbytes(msgdict)
+	
+	def countdown(self, seconds: int):
+		"""
+		Get a byte coded countdown message (server-side)
+
+		Returns:
+			bytes
+		Raises:
+			TypeError: seconds is not an integer
+			ValueError: seconds is smaller than 1
+		"""
+		# Type and range verification
+		if type(seconds) is not int:
+			raise TypeError
+		
+		if seconds < 1:
+			raise ValueError
+		
+		# Generate bytes message
+		msgdict = {
+			'type': 'countdown',
+			'seconds': seconds,
+			'timestamp': get_timestamp()
+		}
+
 		return self.dict_to_jsonbytes(msgdict)
