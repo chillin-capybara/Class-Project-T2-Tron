@@ -3,6 +3,7 @@ from .TCPThreads import SenderThread, ReceiverThread
 from ..Core.Exceptions import ServerError  #ServerError Exception
 from ..Core.core_functions import get_timestamp
 from .Arena import Arena
+import logging
 import socket
 
 class TCPServer(Server):
@@ -68,6 +69,8 @@ class TCPServer(Server):
 			raise ServerError("Cannot change the arena, while the server is running")
 		
 		self.__Arena = arena
+
+		logging.debug("Arena set to " + str(arena))
 	
 	def getArena(self):
 		"""
@@ -102,6 +105,8 @@ class TCPServer(Server):
 		
 		# Set the player number
 		self.__playernumber = players
+
+		logging.debug("Number of players set to %d" % players)
 
 	
 	def getPlayerNumber(self):
@@ -148,6 +153,8 @@ class TCPServer(Server):
 		# Append the threads for the players
 		self.__playerThreads.append((senderThread, receiverThread))
 
+		logging.debug("Networking threads created for client")
+
 
 	def Start(self):
 		
@@ -155,10 +162,12 @@ class TCPServer(Server):
 			# Start listening on socket
 			while(True):
 				self.__sock.listen()
-				client_sock = self.__sock.accept()
+				conn, address = self.__sock.accept()
+
+				logging.info("New TCP Connection accepted: " + str(address))
 
 				# TODO: Start new thread for client_socket
-				self.__create_threads(client_sock, self.__player_index)
+				self.__create_threads(conn, self.__player_index)
 				self.__player_index += 1
 
 		except:
