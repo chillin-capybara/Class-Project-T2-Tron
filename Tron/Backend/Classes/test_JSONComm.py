@@ -4,6 +4,7 @@ sys.path.append("/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron"
 import unittest
 from JSONComm import JSONComm
 from CommProt import CommProt
+from Tron.Backend.Classes.Factory import Factory
 from Tron.Backend.Core.core_functions import get_timestamp
 from Tron.Backend.Classes.Player import Player
 from Tron.Backend.Classes.HumanPlayer import HumanPlayer
@@ -26,13 +27,13 @@ class TestJSONComm(unittest.TestCase):
 		# Test string message
 		self.assertEqual(
 			comm.client_error("Test error"),
-			bytec('{"type": "client_error", "message": "Test error"}')
+			bytec('{"type": "client_error", "message": "Test error", "timestamp": %d}' % get_timestamp())
 			)
 		
 		# Message is empty string
 		self.assertEqual(
 			comm.client_error(""),
-			bytec('{"type": "client_error", "message": ""}')
+			bytec('{"type": "client_error", "message": "", "timestamp": %d}' % get_timestamp())
 			)
 		
 		# Test Case: Message is integer
@@ -241,3 +242,47 @@ class TestJSONComm(unittest.TestCase):
 			comm.revenge_ack(),
 			bytec('{"type": "revenge_ack", "timestamp": %d}' % get_timestamp())
 		)
+	
+	# TODO: Write tests for the processor functions
+	def test_process_client_ready_ack(self):
+		"""
+		Test the client ready ack message processor.
+		"""
+		comm = JSONComm()
+		# Test for a request with 0
+		testmsg = comm.client_ready_ack(0)
+		
+		self.assertEqual(
+			(CommProt.CLIENT_READY_ACK, 0),
+			comm.process_response(testmsg)
+		)
+
+		# Test for a request with 100
+		testmsg = comm.client_ready_ack(100)
+		
+		self.assertEqual(
+			(CommProt.CLIENT_READY_ACK, 100),
+			comm.process_response(testmsg)
+		)
+
+		# Test TypeError with string
+		testmsg = bytec('{"type": "client_ready_ack", "player_id": "21", "timestamp": %d}' % get_timestamp())
+		with self.assertRaises(TypeError):
+			comm.process_response(testmsg)
+		
+		# Test TypeError with float
+		testmsg = bytec('{"type": "client_ready_ack", "player_id": 0.987, "timestamp": %d}' % get_timestamp())
+		with self.assertRaises(TypeError):
+			comm.process_response(testmsg)
+	
+	def test_process_client_ready(self):
+		"""
+		Test clietn ready messaage processor
+		"""
+		comm = JSONComm()
+		pl = Factory.Player("Testname", 2)
+
+		# Test for a request with 0
+		testmsg = comm.client_ready(pl)
+
+		# TODO: Write testing with Player object

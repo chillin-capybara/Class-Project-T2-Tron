@@ -1,6 +1,7 @@
 from CommProt import CommProt
 from Game import Game
 from Player import Player
+from Tron.Backend.Classes.Factory import Factory
 from Tron.Backend.Core.Vect2D import Vect2D
 from Tron.Backend.Core.core_functions import get_timestamp
 import json
@@ -106,7 +107,8 @@ class JSONComm(CommProt):
 		
 		msgdict = {
 			'type': 'client_error',
-			'message': msg
+			'message': msg,
+			'timestamp' : get_timestamp()
 		}
 		return self.dict_to_jsonbytes(msgdict)
 	
@@ -266,5 +268,152 @@ class JSONComm(CommProt):
 		
 		return self.dict_to_jsonbytes(msgdict)
 	
-	def process_response(self):
+	def process_response(self, response: bytes):
+		"""
+		Process incoming requests in JSONComm format, return type and result
+		Args:
+			response (bytes): Incoming response, received packet content
+		Raises:
+			ValueError: Invalid format
+			TypeError: Response is not bytes
+		"""
+
+		if type(response) is not bytes:
+			raise TypeError
+
+		try:
+			# Decode the message
+			decoded = self.bytes_to_dict(response)
+
+			# Look for the message type
+			if 'type' not in decoded.keys():
+				raise ValueError("The received message is invalid")
+			
+			if decoded['type'] == "client_ready":
+				pass
+			elif decoded['type'] == 'client_ready_ack':
+				return CommProt.CLIENT_READY_ACK, self.__process_client_ready_ack(decoded)
+			elif decoded['type'] == 'client_error':
+				pass
+			elif decoded['type'] == 'server_error':
+				pass
+			elif decoded['type'] == 'ingame':
+				pass
+			elif decoded['type'] == 'countdown':
+				pass
+			elif decoded['type'] == 'revenge':
+				# Only call event and no return
+				pass
+			elif decoded['type'] == 'revenge_ack':
+				# Only call event and no return
+				pass
+			elif decoded['type'] == 'exit_game':
+				# Only call event and no return
+				pass
+			else:
+				# Invalid message type: Type not exists
+				raise ValueError("The message type is invalid!")
+		
+		except Exception as e:
+			# Pass exception along
+			raise e
+		
+	def __process_client_ready(self, msgdict: dict) -> Player:
+		"""
+		Converts a dictonary to a new Player object using the Factory
+		Args:
+			msgdict (dict): Message dictionary
+		Raises:
+			TypeError: Invalid argument types
+			KeyError: Missing dictionary keys
+		NOTE
+			The type errors should be checked in the calling function.
+		"""
+		if 'playername' not in msgdict.keys():
+			raise KeyError
+		if 'color' not in msgdict.keys():
+			raise KeyError
+		
+		# Factor the player by name and color
+		newplayer: Player = Factory.Player(msgdict['playername'], msgdict['color'])
+		return newplayer
+	
+	def __process_client_ready_ack(self, msgdict: dict) -> int:
+		"""
+		Get the index of the current player based on a client ready_ack request
+		Args:
+			msgdict (dict): Message dictionary
+		Raises:
+			KeyError: Missing key / Wrong format
+			TypeError: Invalid player_id type
+		Return:	
+			int: Index of the current player on the server
+		"""
+		# Check for id key
+		if 'player_id' not in msgdict.keys():
+			raise KeyError
+		
+		# Check item type
+		if type(msgdict['player_id']) is not int:
+			raise TypeError
+		
+		return msgdict['player_id']
+	
+	def __process_countdown(self, msgdict: dict) -> int:
+		"""
+		Get the countdown time for starting a countdown.
+		Args:
+			msgdict (dict): Message dictionary
+		Raises:
+			KeyError: Invalid message structure
+			TypeError: Invalid message types
+			ValueError: Invalid message value
+		Return:
+			int: seconds to countdown
+		"""
+		# Check for seconds
+		if 'seconds' not in msgdict.keys():
+			raise KeyError()
+		
+		if type(msgdict['seconds']) is not int:
+			raise TypeError()
+
+		seconds = msgdict['seconds']
+		# Check if the countdown is positive
+		if seconds < 0:
+			raise ValueError("Negative countdown")
+		
+		return seconds
+	
+	def __process_error(self, msgdict: dict) -> str:
+		"""
+		Get the error message of a client error or server error
+		NOTE
+			Client and server error messages only differ in message type
+			but not in structure
+		Args:
+			msgdict (dict): Message dictionary
+		Raises:
+			KeyError: Message key is not found
+			TypeError: Message is not a string
+		Returns:	
+			str: Sent error message
+		"""
+		# Check for message key
+		if 'message' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['message']) is not str:
+			raise TypeError
+		
+		return msgdict['message']
+	
+	def __process_ingame(self, msgdict: dict):
+		"""
+		"""
+		# TODO: Impelment ingame processor
 		pass
+	
+
+				

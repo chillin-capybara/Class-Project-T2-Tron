@@ -1,18 +1,17 @@
-CLIENT_READY     = 0
-CLIENT_READY_ACK = 1
-CLIENT_ERROR     = 2
-SERVER_ERROR     = 3
-COUNTDOWN        = 4
-IN_GAME          = 5
-PAUSE_REQUEST    = 6
-CONTINUE_GAME    = 7
-EXIT_GAME        = 8
-
-
 class CommProt:
 	"""
 	Client-Server communikation protocol interface
 	"""
+	CLIENT_READY     = 0
+	CLIENT_READY_ACK = 1
+	CLIENT_ERROR     = 2
+	SERVER_ERROR     = 3
+	COUNTDOWN        = 4
+	IN_GAME          = 5
+	PAUSE_REQUEST    = 6
+	CONTINUE_GAME    = 7
+	EXIT_GAME        = 8
+
 
 	def client_ready(self, player):
 		"""
