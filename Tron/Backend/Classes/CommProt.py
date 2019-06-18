@@ -1,8 +1,17 @@
-
 class CommProt:
 	"""
 	Client-Server communikation protocol interface
 	"""
+	CLIENT_READY     = 0
+	CLIENT_READY_ACK = 1
+	CLIENT_ERROR     = 2
+	SERVER_ERROR     = 3
+	COUNTDOWN        = 4
+	IN_GAME          = 5
+	PAUSE_REQUEST    = 6
+	CONTINUE_GAME    = 7
+	EXIT_GAME        = 8
+
 
 	def client_ready(self, player):
 		"""
@@ -16,6 +25,17 @@ class CommProt:
 		"""
 		raise NotImplementedError
 	
+	def client_ready_ack(self, player_id: int) -> bytes:
+		"""
+		Get a byte coded ack message for a client ready request
+
+		Args:
+			player_id (int): Index of the player on the server
+		Return:
+			bytes
+		"""
+		raise NotImplementedError
+
 	def server_ready(self, game):
 		"""
 		Get a byte coded server ready message
@@ -27,6 +47,7 @@ class CommProt:
 			bytes
 		"""
 		raise NotImplementedError
+	
 	
 	def server_error(self, msg):
 		"""
@@ -66,6 +87,9 @@ class CommProt:
 
 		Returns:
 			bytes
+		Raises:
+			TypeError: seconds is not an integer
+			ValueError: seconds is smaller than 1
 		"""
 		raise NotImplementedError
 	
@@ -144,7 +168,7 @@ class CommProt:
 		"""
 		raise NotImplementedError
 	
-	def ack_revenge(self):
+	def revenge_ack(self):
 		"""
 		Get a byte response for accepting a revenge
 
@@ -152,6 +176,25 @@ class CommProt:
 			bytes
 		"""
 		raise NotImplementedError
-
 	
+	def string_to_bytes(self, string):
+		"""
+		Convert a string to bytes considering the choosen encoding
+
+		Args:
+			string (str): String to convert
+		
+		Retruns:
+			bytes: Converted string
+		
+		Raises:
+			TypeError: string is not a str
+		"""
+		raise NotImplementedError
+
+	def dict_to_jsonbytes(self, dict):
+		"""
+		TODO: DOCSTIRNG
+		"""
+		raise NotImplementedError
 

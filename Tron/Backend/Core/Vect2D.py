@@ -49,6 +49,33 @@ class Vect2D(object):
 	
 	def angle(self):
 		"""
-		Get the angle of the vector
+		Get the angle of the vector.
+		TODO: TEST IT
 		"""
-		raise NotImplementedError
+		return math.atan(self.y / self.x)
+	
+	def __add__(self, other):
+		if type(other) == Vect2D:
+			self.x += other.x
+			self.y += other.y
+			return self
+		else:
+			raise TypeError
+	
+	def __str__(self):
+		return "Vector: ({},{})".format(self.x, self.y)
+#abc
+# OPERATOR OVERLOADING:
+# v, u Vect2D
+# w = v + u
+# w = v * c
+# w = Vect2D(2,2) - 2 * v
+# v.add(u)
+# v = v + u
+# v += u
+# v -= u 
+
+v = Vect2D(1,2)
+u = Vect2D(2,3)
+w = v + u
+print(w)
