@@ -169,7 +169,7 @@ class CommProt:
 		"""
 		raise NotImplementedError
 	
-	def ack_revenge(self):
+	def revenge_ack(self):
 		"""
 		Get a byte response for accepting a revenge
 

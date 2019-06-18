@@ -208,3 +208,36 @@ class TestJSONComm(unittest.TestCase):
 
 		with self.assertRaises(TypeError):
 			comm.client_ready(None)
+		
+	def test_exit_game(self):
+		"""
+		Test the exit game message
+		"""
+		comm: CommProt = JSONComm()
+
+		self.assertEqual(
+			comm.exit_game(),
+			bytec('{"type": "exit_game", "timestamp": %d}' % get_timestamp())
+		)
+	
+	def test_revenge(self):
+		"""
+		Test revenge request message
+		"""
+		comm: CommProt = JSONComm()
+
+		self.assertEqual(
+			comm.revenge(),
+			bytec('{"type": "revenge", "timestamp": %d}' % get_timestamp())
+		)
+	
+	def test_revenge_ack(self):
+		"""
+		Test revenge acknowledgement
+		"""
+		comm: CommProt = JSONComm()
+
+		self.assertEqual(
+			comm.revenge_ack(),
+			bytec('{"type": "revenge_ack", "timestamp": %d}' % get_timestamp())
+		)

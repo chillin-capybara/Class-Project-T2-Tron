@@ -23,6 +23,22 @@ class JSONComm(CommProt):
 			return bytes(string, "UTF-8")
 		else:
 			raise TypeError
+		
+	def bytes_to_string(self, input: bytes) -> str:
+		"""
+		Converts the input bytes array into a decoded string
+
+		Args:
+			input (bytes): Bytes input
+		Returns:
+			str: decoded string
+		Raises:
+			TypeError: input is not bytes
+		"""
+		if type(input) is not bytes:
+			raise TypeError
+		
+		return input.decode("UTF-8")
 	
 	def dict_to_jsonbytes(self, dict):
 		"""
@@ -34,6 +50,25 @@ class JSONComm(CommProt):
 			bytes: Encoded dictionary
 		"""
 		return self.string_to_bytes(json.dumps(dict))
+	
+	def bytes_to_dict(self, input: bytes) -> dict:
+		"""
+		Converts the input bytes array into a dictionary
+		Args:
+			input (bytes): Input bytes
+		Returns:
+			dict: Converted dictionary
+		Raises:
+			TypeError
+			ValueError
+		"""
+		if type(input) is not bytes:
+			raise TypeError
+
+		try:
+			return json.loads(input, encoding="UTF-8")
+		except Exception as e:
+			raise ValueError(str(e))
 
 
 	def server_error(self, msg):
@@ -188,3 +223,48 @@ class JSONComm(CommProt):
 		}
 
 		return self.dict_to_jsonbytes(msgdict)
+	
+	def exit_game(self) -> bytes:
+		"""
+		Get a byte request for exiting a running game
+		
+		Returns:
+			bytes
+		"""
+		msgdict = {
+			'type': 'exit_game',
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
+	
+	def revenge(self) -> bytes:
+		"""
+		Get a byte request for requesting a revenge
+
+		Returns:
+			bytes
+		"""
+		msgdict = {
+			'type': 'revenge',
+			'timestamp': get_timestamp()
+			}
+		
+		return self.dict_to_jsonbytes(msgdict)
+	
+	def revenge_ack(self) -> bytes:
+		"""
+		Get a byte message for a revenge ack
+
+		Returns:
+			bytes
+		"""
+		msgdict = {
+			'type': 'revenge_ack',
+			'timestamp': get_timestamp()
+			}
+		
+		return self.dict_to_jsonbytes(msgdict)
+	
+	def process_response(self):
+		pass
