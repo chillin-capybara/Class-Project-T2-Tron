@@ -2,13 +2,21 @@ from kivy.app import App
 from kivy.uix.label import Label
 from kivy.animation import Animation
 from kivy.properties import StringProperty, NumericProperty
-# from Tron.Backend.Classes.Player import Player
-# from Tron.Backend.Classes.Factory import Factory
+from Tron.Backend.Classes.Player import Player
+from Tron.Backend.Classes.Factory import Factory
 
 
 # player1 = Factory.Player("Marcell", 2)
 # startPoint = player1.getPosition()
 # print(startPoint)
+class ShowStartPoints(self): 
+    player1 = Factory.Player("Marcell", 2)
+    StartPoint = player1.getPosition()
+    
+    def drawStartPoint(Widget):
+        return Label        
+
+
 
 class IncrediblyCrudeClock(Label):
     a = NumericProperty(5)  # seconds
