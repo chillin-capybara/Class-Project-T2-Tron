@@ -1,12 +1,15 @@
+import sys
+
+
 from kivy.app import App
 from kivy.graphics import *
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
-from Player import Player
-from Track import Track
+from Tron.Backend.Classes.Player import Player
+from Tron.Backend.Classes.Track import Track
 from ..Core.Vect2D import Vect2D
-from Factory import Factory
+from Tron.Backend.Classes.Factory import Factory
 
 player1 = Factory.Player("Marcell", 2)
 player1.getTrack().addElement(Vect2D(0,0), Vect2D(100,100))
@@ -28,4 +31,5 @@ class TrackApp(App):
         game = MyWidget()
         return game
 
-TrackApp().run()
+if __name__ == "__main__":
+    TrackApp().run()
