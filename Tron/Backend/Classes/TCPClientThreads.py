@@ -44,6 +44,7 @@ class SenderClientThread(threading.Thread):
 			whenewer it is needed
 		"""    
 		while True:
+			print("Sending..", flush=True)
 			self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
 			time.sleep(1)
 		pass

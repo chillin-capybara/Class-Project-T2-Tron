@@ -3,6 +3,7 @@ from .TCPClientThreads import SenderClientThread, ReceiverClientThread
 from .JSONComm import JSONComm
 from .CommProt import CommProt
 from ..Core.Exceptions import ClientError
+import socket
 
 
 """
@@ -76,7 +77,7 @@ class TCPCLient(Client):
 
 		try:
 			# Create IPv4 TCP socket:
-			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROT_TCP)
+			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.connect ((server, port))
 		except Exception as e:
 			# raise ClientError
@@ -113,7 +114,7 @@ class TCPCLient(Client):
 		"""
 		raise NotImplementedError
 
-	def __create_threads(self, sock: socket.socket, player_id: int):
+	def __create_threads(self, sock: socket.socket):
 		"""
 		Create send and receive threads for connection to the server
 
@@ -124,23 +125,20 @@ class TCPCLient(Client):
 			TypeError: sock is not a socket
 			ServerError: ???
 		"""
-		senderThread = SenderClientThread(sock, player_id, self.__Comm)
-		receiverThread = ReceiverClientThread(sock, player_id, self.__Comm)
+		senderThread = SenderClientThread(sock, 0, self.__Comm)
+		receiverThread = ReceiverClientThread(sock, 0, self.__Comm)
 
 		# Start the Threads
 		senderThread.start()
 		receiverThread.start()
-
-		# Append the threads for the players
-		#self.__playerThreads.append((senderThread, receiverThread))
 	
 	def Start(self):
 		
 		try:
 			# Start recieving on socket
-			while(True):
-				# TODO: Start new thread for client_socket
-				self.__create_threads(self.__sock)
+			# TODO: Start new thread for client_socket
+			self.__create_threads(self.__sock)
+			input("Waiting...")
 
 		except:
 			pass
