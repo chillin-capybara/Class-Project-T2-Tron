@@ -1,4 +1,9 @@
-from Client import Client
+from .Client import Client
+from .TCPClientThreads import SenderClientThread, ReceiverClientThread
+from .JSONComm import JSONComm
+from .CommProt import CommProt
+from ..Core.Exceptions import ClientError
+
 
 """
 Realisation of TCP Client Interface for TCP Client
@@ -8,6 +13,8 @@ class TCPCLient(Client):
 	__host = ""                 # Server Host IP
 	__port = 0                  # Server Port
 	__sock = None 				# Cleintsocket
+	__bufferSize = 4096
+	__Comm = JSONComm()
 
 	def __int__(self, host = "", port=23456):
 		"""
@@ -20,22 +27,22 @@ class TCPCLient(Client):
 			ValueError: Port Number is invalid
 		"""
         
-		if not type(host) == str:
-			raise TypeError 
+		# if not type(host) == str:
+		# 	raise TypeError 
 
-		if not type(port) == int:
-			raise TypeError
+		# if not type(port) == int:
+		# 	raise TypeError
 
-		if not type(port) == int:
-			raise TypeError
+		# if not type(port) == int:
+		# 	raise TypeError
 
-		try:
-			# Create IPv4 TCP socket:
-			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROT_TCP)
-			self.__sock.connect ((host.port))
-		except Exception as e:
-			# raise ClientError
-			raise ClientError(str(e))
+		# try:
+		# 	# Create IPv4 TCP socket:
+		# 	self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROT_TCP)
+		# 	self.__sock.connect ((host.port))
+		# except Exception as e:
+		# 	# raise ClientError
+		# 	raise ClientError(str(e))
 
 
 	def attachPlayersUpdated(self, callback):
@@ -58,20 +65,38 @@ class TCPCLient(Client):
 				(negative port, etc..)
 		"""
 
-		try:
-			
+		if not type(server) == str:
+			raise TypeError 
 
-		raise NotImplementedError
-	
+		if not type(port) == int:
+			raise TypeError
+
+		if port not in range(0,2**16-1):
+			raise ValueError
+
+		try:
+			# Create IPv4 TCP socket:
+			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROT_TCP)
+			self.__sock.connect ((server, port))
+		except Exception as e:
+			# raise ClientError
+			raise ClientError(str(e))
+		# communicate ACK
+		# communicate 
+
+  
 	def Disconnect(self):
 		"""
 		Disconnect from a connected game server.
 
 		Raises:
-			ServerError: Not connected to any server
+			ClientError: Not connected to any server
 		"""
-		raise NotImplementedError
-	
+		try:
+			self.__sock.close()
+		except self.__sock.timeout:
+			raise ClientError()
+			
 	def Scan(self, port):
 		"""
 		Scan for available servers on the given port number.
@@ -88,6 +113,35 @@ class TCPCLient(Client):
 		"""
 		raise NotImplementedError
 
+	def __create_threads(self, sock: socket.socket, player_id: int):
+		"""
+		Create send and receive threads for connection to the server
 
-			
+		Args:
+			sock (socket): Accepted connection socket
+			player_id (int): Index of the player on the client
+		Raises:
+			TypeError: sock is not a socket
+			ServerError: ???
+		"""
+		senderThread = SenderClientThread(sock, player_id, self.__Comm)
+		receiverThread = ReceiverClientThread(sock, player_id, self.__Comm)
+
+		# Start the Threads
+		senderThread.start()
+		receiverThread.start()
+
+		# Append the threads for the players
+		#self.__playerThreads.append((senderThread, receiverThread))
+	
+	def Start(self):
+		
+		try:
+			# Start recieving on socket
+			while(True):
+				# TODO: Start new thread for client_socket
+				self.__create_threads(self.__sock)
+
+		except:
+			pass
 			

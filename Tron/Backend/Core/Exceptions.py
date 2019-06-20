@@ -16,3 +16,6 @@ class ServerError(Exception):
 	Signals an error in the Game server mode
 	"""
 	pass
+
+class ClientError(Exception):
+    pass
