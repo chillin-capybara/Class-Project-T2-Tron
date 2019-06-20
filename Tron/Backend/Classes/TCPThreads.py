@@ -1,16 +1,17 @@
 import threading
 import socket
+import logging
 from Backend.Core.Exceptions import ServerError
 class SenderThread(threading.Thread):
 	"""
 	Thread for implementing send functionality for TCP Clients
 	Only responsible for Sending in-game data
 	"""
-
+	__hook = None
 	__sockfd = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 
-	def __init__(self, sockfd, comm_proto, player_id):
+	def __init__(self, hook, sockfd, comm_proto, player_id):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -22,6 +23,8 @@ class SenderThread(threading.Thread):
 			TypeError: Invalid Argument types
 		TODO: Type checking with Comm Protocoll
 		"""
+
+		self.__hook = hook
 		
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
@@ -52,12 +55,12 @@ class ReceiverThread(threading.Thread):
 
 	Responsible for handling request - response communication and receiving new player data 
 	"""
-
+	__hook = None
 	__sockfd = None # Socket for client communication
 	__comm_proto = None
 	__player_id = None # Player index of the player on the server
 
-	def __init__(self, sockfd, comm_proto, player_id):
+	def __init__(self, hook, sockfd, comm_proto, player_id):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -69,7 +72,8 @@ class ReceiverThread(threading.Thread):
 			TypeError: sockfd is not a socket
 		TODO: CHECK COmm PROTO
 		"""
-		
+		self.__hook = hook
+
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
 		else:
@@ -77,6 +81,8 @@ class ReceiverThread(threading.Thread):
 		
 		# Set the communication protocoll
 		self.__comm_proto = comm_proto
+		self.__comm_proto.EClientError += self.handle_client_error
+		self.__comm_proto.EClientReady += self.handle_client_ready
 
 		if type(player_id) == int:
 			self.__player_id = player_id
@@ -93,12 +99,21 @@ class ReceiverThread(threading.Thread):
 		Description:
 			Receives update packets from the server whenever needed
 		"""
-		
-		try:
-			while True:
-				data = self.__sockfd.recv(1500)
-				self.__comm_proto.process_response(data)
-		except Exception as e:
-			raise ServerError(e)
+		while True:
+			data = self.__sockfd.recv(1500)
+			self.__comm_proto.process_response(data)
+	
+	def handle_client_error(self, sender, msg):
+		"""
+		Handler client error coming from a specific client
+		"""
+		logging.warning(msg)
+	
+	def handle_client_ready(self, sender, player):
+		"""
+		Handle client ready message
+		"""
 
+		# Send the reeived data back to update the server
+		self.__hook.hook_player_ready(self.__player_id, player)
 			

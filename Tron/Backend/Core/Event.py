@@ -3,7 +3,10 @@ class Event(object):
 	Event definitions for event based programming in Python
 	"""
 
-	__callables = []
+	__callables = None
+
+	def __init__(self):
+		self.__callables = []
 
 	def attach(self, callback):
 		"""

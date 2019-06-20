@@ -4,7 +4,9 @@ from .CommProt import CommProt
 from ..Core.Exceptions import ServerError  #ServerError Exception
 from ..Core.core_functions import get_timestamp
 from .JSONComm import JSONComm
+from .Player import Player
 from .Arena import Arena
+from .Factory import Factory
 import logging
 import socket
 
@@ -49,7 +51,6 @@ class TCPServer(Server):
 		try:
 			# Setup the communication protocoll
 			self.__comm_proto = JSONComm()
-			self.__comm_proto.EClientError += print_error # Print out the client errors
 
 			# Create IPv4 TCP Socket
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
@@ -152,8 +153,10 @@ class TCPServer(Server):
 			TypeError: sock is not a socket
 			ServerError: ???
 		"""
-		senderThread = SenderThread(sock, self.__comm_proto, player_id)
-		receiverThread = ReceiverThread(sock, self.__comm_proto, player_id)
+		# Create a protocoll instance for every thread pair!
+		thr_proto = JSONComm()
+		senderThread = SenderThread(self, sock, thr_proto, player_id)
+		receiverThread = ReceiverThread(self, sock, thr_proto, player_id)
 
 		# Start the Threads
 		senderThread.start()
@@ -180,9 +183,19 @@ class TCPServer(Server):
 
 				# TODO: Start new thread for client_socket
 				self.__create_threads(conn, self.__player_index)
+				
+				# Create a new empty player into the array
+				self.__players.append(Factory.Player("",0))
+
 				self.__player_index += 1
 
 		except:
 			pass
 
-
+	def hook_player_ready(self, player_id: int, player: Player):
+		"""
+		Uptade the player object, which belongs to the thread
+		"""
+		self.__players[player_id] = player
+		logging.info(player.getName())
+		logging.info(player.getColor())

@@ -318,9 +318,13 @@ class JSONComm(CommProt):
 				raise ValueError("The received message is invalid")
 			
 			if decoded['type'] == "client_ready":
-				return CommProt.CLIENT_READY, self.__process_client_ready(decoded)
+				obj = self.__process_client_ready(decoded)
+				self.EClientReady(self, player=obj)
+				return CommProt.CLIENT_READY, obj
 			elif decoded['type'] == 'client_ready_ack':
-				return CommProt.CLIENT_READY_ACK, self.__process_client_ready_ack(decoded)
+				obj = self.__process_client_ready_ack(decoded)
+				self.EClientReadyAck(self, player_id=obj) # Call the event with the player_id
+				return CommProt.CLIENT_READY_ACK, obj
 			elif decoded['type'] == 'client_error':
 				obj = self.__process_error(decoded) # OBJECT STORE
 				self.EClientError(self, msg=obj)    # CALL EVENT

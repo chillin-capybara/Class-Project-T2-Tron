@@ -22,7 +22,7 @@ class CommProt:
 	EClientError       = Event() # (sender=, msg=)
 	EServerError       = Event() # (sender=, msg=)
 	EClientReady       = Event() # (sender=, player=)
-	EClientReadyAck    = Event()
+	EClientReadyAck    = Event() # (sender=, player_id=)
 	EServerReady       = Event()
 	ECountdown         = Event()
 	EIngame            = Event()
@@ -30,7 +30,6 @@ class CommProt:
 	EPause             = Event()
 	ERevenge           = Event()
 	ERevengeAck        = Event()
-
 
 	def client_ready(self, player):
 		"""
