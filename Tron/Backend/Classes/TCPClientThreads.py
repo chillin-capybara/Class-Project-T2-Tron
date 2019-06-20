@@ -1,6 +1,7 @@
 import threading
 import time
 import socket
+from .Factory import Factory
 
 class SenderClientThread(threading.Thread):
 	"""
@@ -43,6 +44,7 @@ class SenderClientThread(threading.Thread):
 			sends updates of the in-game state to the server
 			whenewer it is needed
 		"""    
+		self.__sockfd.send(self.__Comm.client_ready(Factory.Player("Max Mustermann", 1)))
 		while True:
 			print("Sending..", flush=True)
 			self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
@@ -93,4 +95,10 @@ class ReceiverClientThread(threading.Thread):
 		Description:
 			Receives update packets from the server all the time
 		"""
+		try:
+			while True:
+				data = self.__sockfd.recv(1500)
+				self.__comm_proto.process_response(data)
+		except Exception as e:
+			raise ServerError(e)
 		pass

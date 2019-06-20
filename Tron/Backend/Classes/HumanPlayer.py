@@ -240,3 +240,9 @@ class HumanPlayer(Player):
 			self.__Position = self.__Position + time*self.__Velocity
 		else:
 			raise TypeError
+
+
+# test Player implementation
+testPlayer = HumanPlayer()
+testPlayer.__Name = "Max Mustermann"
+testPlayer.__Color = 2

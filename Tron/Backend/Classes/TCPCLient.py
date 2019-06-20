@@ -16,6 +16,7 @@ class TCPCLient(Client):
 	__sock = None 				# Cleintsocket
 	__bufferSize = 4096
 	__Comm = JSONComm()
+	__Player = None
 
 	def __int__(self, host = "", port=23456):
 		"""
@@ -27,23 +28,8 @@ class TCPCLient(Client):
 			TypeError: Not valid types
 			ValueError: Port Number is invalid
 		"""
-        
-		# if not type(host) == str:
-		# 	raise TypeError 
-
-		# if not type(port) == int:
-		# 	raise TypeError
-
-		# if not type(port) == int:
-		# 	raise TypeError
-
-		# try:
-		# 	# Create IPv4 TCP socket:
-		# 	self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROT_TCP)
-		# 	self.__sock.connect ((host.port))
-		# except Exception as e:
-		# 	# raise ClientError
-		# 	raise ClientError(str(e))
+		# Attach client_ready ack handler to event
+		self.__Comm.EClientReadyAck += self.handle_ready_ack
 
 
 	def attachPlayersUpdated(self, callback):
@@ -142,4 +128,12 @@ class TCPCLient(Client):
 
 		except:
 			pass
-			
+
+	def handle_ready_ack(self, sender, player_id):
+		"""
+		TODO: DOCKSTRING
+		"""
+		print("Player accepted with ID: %d" % player_id, flush = True)
+    
+  
+		
