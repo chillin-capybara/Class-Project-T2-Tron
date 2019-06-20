@@ -4,6 +4,7 @@ from .JSONComm import JSONComm
 from .CommProt import CommProt
 from ..Core.Exceptions import ClientError
 import socket
+import names
 
 
 """

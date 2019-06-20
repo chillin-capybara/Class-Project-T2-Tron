@@ -24,8 +24,8 @@ class TCPServer(Server):
 	__Arena = None              # Hosted Arena
 	__playernumber = 0          # Number of players
 	__comm_proto = None         # Communication protocol
-	__players = []              # Array of players
-	__playerThreads = []        # Array of TCP Threads for the players in async communication
+	__players = None              # Array of players
+	__playerThreads = None        # Array of TCP Threads for the players in async communication
 	__player_index = 0          # Player index currently to be added
 	__sock = None # Serversocket
 	__settings_locked = False   # Check if server settings are locked
@@ -55,6 +55,9 @@ class TCPServer(Server):
 			# Create IPv4 TCP Socket
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.bind((host, port))
+
+			self.__players = []
+			self.__playerThreads = []
 		except Exception as e:
 			# Raise a ServerError
 			raise ServerError(str(e))
@@ -117,6 +120,10 @@ class TCPServer(Server):
 		self.__playernumber = players
 
 		logging.debug("Number of players set to %d" % players)
+
+		# Reserve the objects for the players
+		for i in range(0, players):
+			self.__players.append(Factory.Player("", 0))
 
 	
 	def getPlayerNumber(self):
@@ -185,17 +192,32 @@ class TCPServer(Server):
 				self.__create_threads(conn, self.__player_index)
 				
 				# Create a new empty player into the array
-				self.__players.append(Factory.Player("",0))
+				#self.__players.append(Factory.Player("",0))
 
 				self.__player_index += 1
 
-		except:
-			pass
+		except Exception as e:
+			raise e
 
 	def hook_player_ready(self, player_id: int, player: Player):
 		"""
 		Uptade the player object, which belongs to the thread
 		"""
+		# PRINT ALL THE PLAYER IN THE LIST
 		self.__players[player_id] = player
-		logging.info(player.getName())
-		logging.info(player.getColor())
+		logging.info("%s joined with ID=%d" % (player.getName(), player_id))
+		
+	
+	def hook_client_ingame(self, player_id, player: Player):
+		"""
+		Update a specific player object ingame
+		"""
+		self.__players[player_id] = player
+		logging.debug("Client updated with name=%s ID=%d" % (player.getName(), player_id))
+		logging.debug("New position: " + str(player.getPosition()))
+	
+	def hook_player_leave(self, player_id: int):
+		"""
+		Log and communicates with the clients if somebody leaves
+		"""
+		logging.info("%s has left the match!", (self.__players[player_id].getName()))

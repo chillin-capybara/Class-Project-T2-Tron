@@ -1,7 +1,10 @@
 import threading
 import time
 import socket
+import math
 from .Factory import Factory
+from random import randint
+import names
 
 class SenderClientThread(threading.Thread):
 	"""
@@ -43,12 +46,16 @@ class SenderClientThread(threading.Thread):
 		Description:
 			sends updates of the in-game state to the server
 			whenewer it is needed
-		"""    
-		self.__sockfd.send(self.__Comm.client_ready(Factory.Player("Max Mustermann", 1)))
+		"""
+		myplayer = Factory.Player(names.get_first_name(), 1)
+		self.__sockfd.send(self.__Comm.client_ready(myplayer))
+		time.sleep(1)
 		while True:
 			print("Sending..", flush=True)
-			self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
-			time.sleep(1)
+			myplayer.setPosition(randint(0,200), randint(0,200))
+			self.__sockfd.send(self.__Comm.client_ingame(myplayer))
+			#self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
+			time.sleep(0.01)
 		pass
 
 class ReceiverClientThread(threading.Thread):

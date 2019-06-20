@@ -19,17 +19,35 @@ class CommProt:
 	REVENGE_ACK      = 11
 
 	# Create events for processing responsees
-	EClientError       = Event() # (sender=, msg=)
-	EServerError       = Event() # (sender=, msg=)
-	EClientReady       = Event() # (sender=, player=)
-	EClientReadyAck    = Event() # (sender=, player_id=)
-	EServerReady       = Event()
-	ECountdown         = Event()
-	EIngame            = Event()
-	EClientIngame      = Event()
-	EPause             = Event()
-	ERevenge           = Event()
-	ERevengeAck        = Event()
+	EClientError       = None # (sender=, msg=)
+	EServerError       = None # (sender=, msg=)
+	EClientReady       = None # (sender=, player=)
+	EClientReadyAck    = None # (sender=, player_id=)
+	EServerReady       = None # (sender=)
+	ECountdown         = None
+	EIngame            = None
+	EClientIngame      = None # (sender=, player=)
+	EPause             = None # (sender=)
+	ERevenge           = None # (sender=)
+	ERevengeAck        = None # (sender=)
+
+	def __init__(self):
+		"""
+		Initialize the Events for the Communication Protocol Interface
+		NOTE
+			Calls Event Creators and lets event handlers subscribe to the specific events
+		"""
+		self.EClientError       = Event() # (sender=, msg=)
+		self.EServerError       = Event() # (sender=, msg=)
+		self.EClientReady       = Event() # (sender=, player=)
+		self.EClientReadyAck    = Event() # (sender=, player_id=)
+		self.EServerReady       = Event() # (sender=)
+		self.ECountdown         = Event()
+		self.EIngame            = Event()
+		self.EClientIngame      = Event() # (sender=, player=)
+		self.EPause             = Event() # (sender=)
+		self.ERevenge           = Event() # (sender=)
+		self.ERevengeAck        = Event() # (sender=)
 
 	def client_ready(self, player):
 		"""

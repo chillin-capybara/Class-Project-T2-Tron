@@ -1,7 +1,7 @@
 import threading
 import socket
 import logging
-from Backend.Core.Exceptions import ServerError
+from ..Core.Exceptions import ServerError
 class SenderThread(threading.Thread):
 	"""
 	Thread for implementing send functionality for TCP Clients
@@ -83,6 +83,7 @@ class ReceiverThread(threading.Thread):
 		self.__comm_proto = comm_proto
 		self.__comm_proto.EClientError += self.handle_client_error
 		self.__comm_proto.EClientReady += self.handle_client_ready
+		self.__comm_proto.EClientIngame += self.handle_client_ingame
 
 		if type(player_id) == int:
 			self.__player_id = player_id
@@ -99,9 +100,24 @@ class ReceiverThread(threading.Thread):
 		Description:
 			Receives update packets from the server whenever needed
 		"""
+		logging.debug("Starting receiver thread %d..." % self.__player_id)
 		while True:
-			data = self.__sockfd.recv(1500)
-			self.__comm_proto.process_response(data)
+			try:
+				data = self.__sockfd.recv(1500)
+				if data == b'':
+					# Disconnect
+					self.__sockfd.close()
+				else:
+					self.__comm_proto.process_response(data)
+			except ValueError as v:
+				# Invalid message was sent
+				logging.warning("Invalid data received." + str(v))
+				logging.debug(data)
+			except Exception:
+				# Connection is broken: Hook that player is leaving
+				self.__hook.hook_player_leave(self.__player_id)
+				break
+		logging.debug("Closing receiver thread %d..." % self.__player_id)
 	
 	def handle_client_error(self, sender, msg):
 		"""
@@ -116,4 +132,11 @@ class ReceiverThread(threading.Thread):
 
 		# Send the reeived data back to update the server
 		self.__hook.hook_player_ready(self.__player_id, player)
+	
+	def handle_client_ingame(self, sender, player):
+		"""
+		Handle client ingame refresh
+		"""
+		#Send the updated data with the player index to the main thread
+		self.__hook.hook_client_ingame(self.__player_id, player)
 			

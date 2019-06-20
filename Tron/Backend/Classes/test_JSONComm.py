@@ -549,6 +549,3 @@ class TestJSONComm(unittest.TestCase):
 		self.assertFalse(
 			pla == comm.process_response(msg)[1]
 		)
-
-if __name__ == '__main__':
-    unittest.main()

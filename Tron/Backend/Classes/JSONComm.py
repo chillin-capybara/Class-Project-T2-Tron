@@ -336,7 +336,9 @@ class JSONComm(CommProt):
 			elif decoded['type'] == 'ingame':
 				pass
 			elif decoded['type'] == 'client_ingame':
-				return CommProt.CLIENT_INGAME, self.__process_client_ingame(decoded)
+				obj = self.__process_client_ingame(decoded)
+				self.EClientIngame(self, player=obj) # EVENT CALL
+				return CommProt.CLIENT_INGAME, obj
 			elif decoded['type'] == 'countdown':
 				return CommProt.COUNTDOWN, self.__process_countdown(decoded)
 			elif decoded['type'] == 'revenge':
