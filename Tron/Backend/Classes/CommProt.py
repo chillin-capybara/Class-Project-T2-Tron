@@ -19,9 +19,9 @@ class CommProt:
 	REVENGE_ACK      = 11
 
 	# Create events for processing responsees
-	EClientError       = Event()
-	EServerError       = Event()
-	EClientReady       = Event()
+	EClientError       = Event() # (sender=, msg=)
+	EServerError       = Event() # (sender=, msg=)
+	EClientReady       = Event() # (sender=, player=)
 	EClientReadyAck    = Event()
 	EServerReady       = Event()
 	ECountdown         = Event()

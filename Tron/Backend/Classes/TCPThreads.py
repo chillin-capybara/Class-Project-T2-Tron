@@ -97,6 +97,7 @@ class ReceiverThread(threading.Thread):
 		try:
 			while True:
 				data = self.__sockfd.recv(1500)
+				self.__comm_proto.process_response(data)
 		except Exception as e:
 			raise ServerError(e)
 
