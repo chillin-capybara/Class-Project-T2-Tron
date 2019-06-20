@@ -152,8 +152,8 @@ class TCPServer(Server):
 			TypeError: sock is not a socket
 			ServerError: ???
 		"""
-		senderThread = SenderThread(sock, player_id)
-		receiverThread = ReceiverThread(sock, player_id)
+		senderThread = SenderThread(sock, self.__comm_proto, player_id)
+		receiverThread = ReceiverThread(sock, self.__comm_proto, player_id)
 
 		# Start the Threads
 		senderThread.start()
