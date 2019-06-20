@@ -64,6 +64,11 @@ class HumanPlayer(Player):
 		Player coordinates as Vect2D
 		"""
 		return self.__Position
+	def getVelocity(self) -> Vect2D:
+		"""
+		TODO: Artem -> DOKU
+		"""
+		return self.__Velocity
 
 
 	def getTrack(self):
@@ -183,21 +188,16 @@ class HumanPlayer(Player):
 			raise TypeError
 
 
-	def setVelocity(self, velocity: Vect2D):
+	def setVelocity(self, x, y):
 		"""
 		set the player's velocity
 
 		Args: 
 		velocity: velocity as Vect2D
 		"""
-
-		if type(velocity) == Vect2D:
-			if (velocity.x <= MAX_X_VELOCITY) & (velocity.y <= MAX_Y_VELOCITY):
-				self.__Velocity = velocity
-			else:
-				raise ValueError
-		else:
-			raise TypeError
+		# TODO TYPE CHECKING
+		self.__Velocity.x = x
+		self.__Velocity.y = y
 
 
 	def addTrack(self, track_segment):
@@ -240,3 +240,20 @@ class HumanPlayer(Player):
 			self.__Position = self.__Position + time*self.__Velocity
 		else:
 			raise TypeError
+	
+	def __eq__(self, other):
+		"""
+		Veryfies if 2 player object data are equal
+		Args:
+			other (HumanPlay): HumanPlayer Object
+		Return:
+			bool
+		"""
+		if type(other) is HumanPlayer:
+			eq = self.getName() == other.getName()
+			eq &= self.getColor() == other.getColor()
+			eq &= self.getVelocity() == other.getVelocity()
+			eq &= self.getPosition() == other.getPosition()
+			return eq
+		else:
+			return False

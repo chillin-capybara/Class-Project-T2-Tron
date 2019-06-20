@@ -157,6 +157,34 @@ class JSONComm(CommProt):
 		# TODO: (Marcell) Add arena stuff
 		return self.dict_to_jsonbytes(mydict)
 	
+	def client_ingame(self, player: Player) -> bytes:
+		"""
+		Get a byte coded in-game message from a single client
+		It shall only contain the client player's data
+		Args:
+			player (Player): Current player [ME]
+		Return:
+			bytes: message
+		Raises:
+			TypeError: Argument types ar not valid
+		"""
+		
+		if not Factory.isPlayer(player):
+			raise TypeError
+		
+		msgdict = {
+			'type': 'client_ingame',
+			'playername': player.getName(),
+			'color': player.getColor(),
+			'x': player.getPosition().x,
+			'y': player.getPosition().y,
+			'vx': player.getVelocity().x,
+			'vy': player.getVelocity().y,
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
+	
 	def client_ready(self, player: Player) -> bytes:
 		"""
 		Get a byte coded client ready message
@@ -290,23 +318,24 @@ class JSONComm(CommProt):
 				raise ValueError("The received message is invalid")
 			
 			if decoded['type'] == "client_ready":
-				pass
+				return CommProt.CLIENT_READY, self.__process_client_ready(decoded)
 			elif decoded['type'] == 'client_ready_ack':
 				return CommProt.CLIENT_READY_ACK, self.__process_client_ready_ack(decoded)
 			elif decoded['type'] == 'client_error':
-				pass
+				return CommProt.CLIENT_ERROR, self.__process_error(decoded)
 			elif decoded['type'] == 'server_error':
-				pass
+				return CommProt.SERVER_ERROR, self.__process_error(decoded)
 			elif decoded['type'] == 'ingame':
 				pass
-			elif decoded['type'] == 'countdown':
+			elif decoded['type'] == 'client_ingame':
 				pass
+			elif decoded['type'] == 'countdown':
+				return CommProt.COUNTDOWN, self.__process_countdown(decoded)
 			elif decoded['type'] == 'revenge':
-				# Only call event and no return
+				return CommProt.REVENGE, True
 				pass
 			elif decoded['type'] == 'revenge_ack':
-				# Only call event and no return
-				pass
+				return CommProt.REVENGE, True
 			elif decoded['type'] == 'exit_game':
 				# Only call event and no return
 				pass
@@ -380,7 +409,7 @@ class JSONComm(CommProt):
 
 		seconds = msgdict['seconds']
 		# Check if the countdown is positive
-		if seconds < 0:
+		if seconds < 1:
 			raise ValueError("Negative countdown")
 		
 		return seconds

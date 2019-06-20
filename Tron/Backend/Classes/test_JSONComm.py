@@ -168,7 +168,7 @@ class TestJSONComm(unittest.TestCase):
 		player = Factory.Player("", 0)
 		player.setName("This is my playername")
 		player.setColor(2)
-		
+
 		# Normal data test
 		self.assertEqual(
 			comm.client_ready(player),
@@ -243,7 +243,96 @@ class TestJSONComm(unittest.TestCase):
 			bytec('{"type": "revenge_ack", "timestamp": %d}' % get_timestamp())
 		)
 	
-	# TODO: Write tests for the processor functions
+	def test_client_ingame(self):
+		"""
+		Test the client_ingame messages
+		"""
+		comm: CommProt = JSONComm()
+		player = Factory.Player("Test", 1)
+		
+		# Test for random datasets
+		self.assertEqual(
+			comm.client_ingame(player),
+			bytec('{"type": "client_ingame", "playername": "Test", "color": 1, "x": 0, "y": 0, "vx": 0, "vy": 0, "timestamp": %d}' % get_timestamp())
+		)
+
+		# Test for changed position
+		player.setPosition(1,2)
+
+		# Test for random datasets
+		self.assertEqual(
+			comm.client_ingame(player),
+			bytec('{"type": "client_ingame", "playername": "Test", "color": 1, "x": 1, "y": 2, "vx": 0, "vy": 0, "timestamp": %d}' % get_timestamp())
+		)
+
+		# Test changed velocity
+		player.setVelocity(8,9)
+		self.assertEqual(
+			comm.client_ingame(player),
+			bytec('{"type": "client_ingame", "playername": "Test", "color": 1, "x": 1, "y": 2, "vx": 8, "vy": 9, "timestamp": %d}' % get_timestamp())
+		)
+
+		# Check for exceptions
+		with self.assertRaises(TypeError):
+			comm.client_ingame(1)
+
+		# Check for exceptions
+		with self.assertRaises(TypeError):
+			comm.client_ingame("Stringy")
+		
+		# Check for exceptions
+		with self.assertRaises(TypeError):
+			comm.client_ingame(None)
+
+	
+	def test_process_client_ready(self):
+		"""
+		Test the client ready message processor
+		"""
+		comm = JSONComm()
+		player = Factory.Player("Test", 1)
+
+		# Test for a request for SAMPLE DATA
+		testmsg = comm.client_ready(player)
+		self.assertEqual(
+			comm.process_response(testmsg),
+			(comm.CLIENT_READY, player)
+		)
+
+		# Test for a request for Sample DATA
+		player.setName("Artem")
+		player.setColor(2)
+		testmsg = comm.client_ready(player)
+		self.assertEqual(
+			comm.process_response(testmsg),
+			(comm.CLIENT_READY, player)
+		)
+
+
+		# Test for a Changed Player
+		testmsg = comm.client_ready(player)
+		player.setName("Marcell")
+		player.setColor(1)
+		self.assertEqual(
+			comm.process_response(testmsg)[0],
+			CommProt.CLIENT_READY # CHECK IF THE TYPE IS CORRECT
+		)
+		self.assertNotEqual(
+			comm.process_response(testmsg)[1], # CHECK IF PLAYER IS CHANGED
+			player
+		)
+
+		# Check for other types
+		self.assertNotEqual(
+			comm.process_response(testmsg)[1], # CHECK IF PLAYER IS CHANGED
+			"Hello"
+		)
+
+		self.assertNotEqual(
+			comm.process_response(testmsg)[1], # CHECK IF PLAYER IS CHANGED
+			0
+		)
+
 	def test_process_client_ready_ack(self):
 		"""
 		Test the client ready ack message processor.
@@ -275,14 +364,124 @@ class TestJSONComm(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			comm.process_response(testmsg)
 	
-	def test_process_client_ready(self):
+	def test_process_client_error(self):
 		"""
-		Test clietn ready messaage processor
+		Test the client error message processor
 		"""
 		comm = JSONComm()
-		pl: Player = Factory.Player("Testname", 2)
 
-		# Test for a request with 0
-		testmsg = comm.client_ready(pl)
+		# Empty string
+		msg = comm.client_error("")
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.CLIENT_ERROR, "")
+		)
 
-		# TODO: Write testing with Player object
+		# Empty string
+		msg = comm.client_error("Test Error Message")
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.CLIENT_ERROR, "Test Error Message")
+		)
+
+		# Test inequality
+		msg = comm.client_error("Test Error Message")
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.CLIENT_ERROR, "")
+		)
+
+		msg = comm.client_error("")
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.CLIENT_ERROR, "X")
+		)
+	
+	def test_process_server_error(self):
+		"""
+		Test the server error message processor
+		"""
+		comm = JSONComm()
+
+		# Empty string
+		msg = comm.server_error("")
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.SERVER_ERROR, "")
+		)
+
+		# Empty string
+		msg = comm.server_error("Test Error Message")
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.SERVER_ERROR, "Test Error Message")
+		)
+
+		# Test inequality
+		msg = comm.server_error("Test Error Message")
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.SERVER_ERROR, "")
+		)
+
+		msg = comm.server_error("")
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.SERVER_ERROR, "X")
+		)
+
+	def test_process_countdown(self):
+		"""
+		Test the countdown message processor
+		"""
+		comm = JSONComm()
+
+		msg = comm.countdown(1)
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.COUNTDOWN, 1)
+		)
+
+		msg = comm.countdown(100)
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.COUNTDOWN, 100)
+		)
+
+		# Test for invalid value
+		with self.assertRaises(ValueError):
+			comm.process_response(bytec('{"type": "countdown", "seconds": 0, "timestamp": %d}' % get_timestamp()))
+
+		# Test for invalid Type
+		with self.assertRaises(TypeError):
+			comm.process_response(bytec('{"type": "countdown", "seconds": "Hello", "timestamp": %d}' % get_timestamp()))
+		
+		# Test for invalid value
+		with self.assertRaises(ValueError):
+			comm.process_response(bytec('{"type": "countdown", "seconds": -1, "timestamp": %d}' % get_timestamp()))
+
+	def test_process_revenge(self):
+		"""
+		Test the processing of a revenge request
+		"""
+		comm = JSONComm()
+
+		msg = comm.revenge()
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.REVENGE, True)
+		)
+
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.REVENGE, False)
+		)
+	
+	def test_process_revenge_ack(self):
+		"""
+		Test the processing of the revenge request 
+		"""
+
+
+if __name__ == '__main__':
+    unittest.main()

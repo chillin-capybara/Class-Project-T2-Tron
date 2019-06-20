@@ -45,6 +45,8 @@ class TestVect2D(unittest.TestCase):
 		check the result after vector addition
 		test is done with integer values
   		"""
+		# TODO: Test mit (0,0)
+		# TODO: Test mit negative value
 		t = Vect2D(3,2)
 		tCopied = Vect2D(3,2)
 		v = Vect2D(6,11)
@@ -61,6 +63,33 @@ class TestVect2D(unittest.TestCase):
 		v = Vect2D(1,2)
 		result = t.__mul__(v)
 		self.assertEqual(t.x * v.x + t.y * v.y, result)
+	
+	def test_equality(self):
+		"""
+		Test the equality checking of 2 Vectors
+		"""
+
+		# Test 0,0
+		self.assertTrue(Vect2D(0,0) == Vect2D(0,0))
+
+		# Test 1,1
+		self.assertTrue(Vect2D(1,1) == Vect2D(1,1))
+
+		# Test -1 -1
+		self.assertTrue(Vect2D(-1, -1) == Vect2D(-1, -1))
+
+		# Test ineqality
+		self.assertFalse(Vect2D(1,1) == Vect2D(0,0))
+		self.assertFalse(Vect2D(-1,1) == Vect2D(-1,0))
+		self.assertFalse(Vect2D(0,0) == Vect2D(-1,0))
+
+		# Test with other type
+		self.assertFalse(Vect2D(1,1) == (1,1))
+		self.assertFalse(Vect2D(1,1) == "Hello")
+
+		# Test for reverse order
+		self.assertFalse("Hello" == Vect2D(1,1))
+
 		
 
   

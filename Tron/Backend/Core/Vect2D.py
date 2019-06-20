@@ -97,6 +97,19 @@ class Vect2D(object):
 		else:
 			raise TypeError
 	
+	def __eq__(self, other):
+		"""
+		Check if 2 Vect2D objects are identical
+		"""
+		if type(other) is not Vect2D:
+			return False
+		
+		# Check the equality
+		if self.x == other.x and self.y == other.y:
+			return True
+		else:
+			return False
+	
 
 
 

@@ -124,6 +124,13 @@ class Player(object):
 		"""
 		raise NotImplementedError
 	
+	def setVelocity(self, x, y):
+		"""
+		Set the velocity of the player to the given x, y directions
+		TODO: DOKU
+		"""
+		raise NotImplementedError
+	
 	def addTrack(self, track):
 		"""
 		Add a new track element to the pulled "light-track" of the player

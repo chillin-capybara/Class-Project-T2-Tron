@@ -2,15 +2,18 @@ class CommProt:
 	"""
 	Client-Server communikation protocol interface
 	"""
+	# Message types
 	CLIENT_READY     = 0
 	CLIENT_READY_ACK = 1
 	CLIENT_ERROR     = 2
 	SERVER_ERROR     = 3
 	COUNTDOWN        = 4
-	IN_GAME          = 5
-	PAUSE_REQUEST    = 6
-	CONTINUE_GAME    = 7
-	EXIT_GAME        = 8
+	CLIENT_INGAME    = 5
+	INGAME           = 6
+	PAUSE_REQUEST    = 7
+	CONTINUE_GAME    = 8
+	EXIT_GAME        = 9
+	REVENGE          = 10
 
 
 	def client_ready(self, player):
@@ -102,6 +105,12 @@ class CommProt:
 							server
 		Return:
 			bytes
+		"""
+		raise NotImplementedError
+	
+	def client_ingame(self, player):
+		"""
+		TODO
 		"""
 		raise NotImplementedError
 
