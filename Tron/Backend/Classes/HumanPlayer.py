@@ -240,20 +240,3 @@ class HumanPlayer(Player):
 			self.__Position = self.__Position + time*self.__Velocity
 		else:
 			raise TypeError
-	
-	def __eq__(self, other):
-		"""
-		Veryfies if 2 player object data are equal
-		Args:
-			other (HumanPlay): HumanPlayer Object
-		Return:
-			bool
-		"""
-		if type(other) is HumanPlayer:
-			eq = self.getName() == other.getName()
-			eq &= self.getColor() == other.getColor()
-			eq &= self.getVelocity() == other.getVelocity()
-			eq &= self.getPosition() == other.getPosition()
-			return eq
-		else:
-			return False

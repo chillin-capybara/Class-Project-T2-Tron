@@ -481,7 +481,74 @@ class TestJSONComm(unittest.TestCase):
 		"""
 		Test the processing of the revenge request 
 		"""
+		comm = JSONComm()
 
+		msg = comm.revenge_ack()
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.REVENGE_ACK, True)
+		)
+
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.REVENGE_ACK, False)
+		)
+	
+	def test_process_exit_game(self):
+		"""
+		Test the processing of exit game request
+		"""
+		comm = JSONComm()
+
+		msg = comm.exit_game()
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.EXIT_GAME, True)
+		)
+		self.assertNotEqual(
+			comm.process_response(msg),
+			(CommProt.REVENGE_ACK, False)
+		)
+	
+	def test_process_client_ingame(self):
+		"""
+		Test the processing of a client ingame message
+		"""
+		comm = JSONComm()
+		pla : HumanPlayer = Factory.Player("Test", 1)
+		pla.setPosition(1,1)
+		pla.setVelocity(2,2)
+
+		# RANDOM DATA
+		msg = comm.client_ingame(pla)
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.CLIENT_INGAME, pla)
+		)
+		
+
+		pla = Factory.Player("Test", 1)
+		pla.setPosition(-1,-20)
+		pla.setVelocity(10,-3)
+
+		# RANDOM DATA
+		msg = comm.client_ingame(pla)
+		self.assertEqual(
+			comm.process_response(msg),
+			(CommProt.CLIENT_INGAME, pla)
+		)
+
+		pla = Factory.Player("Test", 1)
+		pla.setPosition(-1,-20)
+		msg = comm.client_ingame(pla)
+
+		pla.setPosition(10,-3)
+
+
+		# RANDOM DATA NOT EQUAL
+		self.assertFalse(
+			pla == comm.process_response(msg)[1]
+		)
 
 if __name__ == '__main__':
     unittest.main()

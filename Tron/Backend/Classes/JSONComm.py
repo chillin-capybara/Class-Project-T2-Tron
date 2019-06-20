@@ -328,17 +328,15 @@ class JSONComm(CommProt):
 			elif decoded['type'] == 'ingame':
 				pass
 			elif decoded['type'] == 'client_ingame':
-				pass
+				return CommProt.CLIENT_INGAME, self.__process_client_ingame(decoded)
 			elif decoded['type'] == 'countdown':
 				return CommProt.COUNTDOWN, self.__process_countdown(decoded)
 			elif decoded['type'] == 'revenge':
 				return CommProt.REVENGE, True
-				pass
 			elif decoded['type'] == 'revenge_ack':
-				return CommProt.REVENGE, True
+				return CommProt.REVENGE_ACK, True
 			elif decoded['type'] == 'exit_game':
-				# Only call event and no return
-				pass
+				return CommProt.EXIT_GAME, True
 			else:
 				# Invalid message type: Type not exists
 				raise ValueError("The message type is invalid!")
@@ -444,5 +442,41 @@ class JSONComm(CommProt):
 		# TODO: Impelment ingame processor
 		pass
 	
+	def __process_client_ingame(self, msgdict: dict) -> Player:
+		"""
+		Process a client in-game request.
+		Args:
+			msgdict (dict): Encoded messaage dictionary
+		Returns:
+			Player: Current player object
+		"""
+		# Check for message key
+		if 'playername' not in msgdict.keys():
+			raise KeyError
 
-				
+		# Check for message key
+		if 'color' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'x' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'y' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'vx' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'vy' not in msgdict.keys():
+			raise KeyError
+		
+		pl = Factory.Player(msgdict['playername'], msgdict['color'])
+		pl: Player()
+		pl.setPosition(msgdict['x'], msgdict['y'])
+		pl.setVelocity(msgdict['vx'], msgdict['vy'])
+
+		return pl

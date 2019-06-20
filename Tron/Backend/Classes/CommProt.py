@@ -14,6 +14,7 @@ class CommProt:
 	CONTINUE_GAME    = 8
 	EXIT_GAME        = 9
 	REVENGE          = 10
+	REVENGE_ACK      = 11
 
 
 	def client_ready(self, player):

@@ -165,3 +165,18 @@ class Player(object):
 			TypeError: time is not an integer
 		"""
 		raise NotImplementedError
+
+	def __eq__(self, other):
+		"""
+		Veryfies if 2 player object data are equal
+		Args:
+			other (HumanPlay): HumanPlayer Object
+		Return:
+			bool
+		"""
+		eq = self.getName() == other.getName() and \
+		self.getColor() == other.getColor() and \
+		self.getVelocity() == other.getVelocity() and \
+		self.getPosition() == other.getPosition()
+		
+		return eq
