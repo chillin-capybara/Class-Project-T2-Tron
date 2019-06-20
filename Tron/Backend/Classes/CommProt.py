@@ -1,3 +1,5 @@
+from ..Core.Event import Event
+
 class CommProt:
 	"""
 	Client-Server communikation protocol interface
@@ -15,6 +17,19 @@ class CommProt:
 	EXIT_GAME        = 9
 	REVENGE          = 10
 	REVENGE_ACK      = 11
+
+	# Create events for processing responsees
+	EClientError       = Event()
+	EServerError       = Event()
+	EClientReady       = Event()
+	EClientReadyAck    = Event()
+	EServerReady       = Event()
+	ECountdown         = Event()
+	EIngame            = Event()
+	EClientIngame      = Event()
+	EPause             = Event()
+	ERevenge           = Event()
+	ERevengeAck        = Event()
 
 
 	def client_ready(self, player):

@@ -1,10 +1,15 @@
 from .Server import Server                # Server interface
 from .TCPThreads import SenderThread, ReceiverThread
+from .CommProt import CommProt
 from ..Core.Exceptions import ServerError  #ServerError Exception
 from ..Core.core_functions import get_timestamp
+from .JSONComm import JSONComm
 from .Arena import Arena
 import logging
 import socket
+
+def print_error(sender: CommProt, msg: str):
+	logging.warning(msg)
 
 class TCPServer(Server):
 	"""
@@ -42,6 +47,10 @@ class TCPServer(Server):
 		if port not in range(0,2**16-1):
 			raise ValueError
 		try:
+			# Setup the communication protocoll
+			self.__comm_proto = JSONComm()
+			self.__comm_proto.EClientError += print_error # Print out the client errors
+
 			# Create IPv4 TCP Socket
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.bind((host, port))
@@ -160,8 +169,11 @@ class TCPServer(Server):
 		
 		try:
 			# Start listening on socket
+			self.__sock.listen()
+			logging.info("Server started on port %d, maximal %d players" % (self.__port, self.__playernumber))
+			
 			while(True):
-				self.__sock.listen()
+
 				conn, address = self.__sock.accept()
 
 				logging.info("New TCP Connection accepted: " + str(address))

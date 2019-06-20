@@ -1,7 +1,7 @@
-from CommProt import CommProt
-from Game import Game
-from Player import Player
-from Tron.Backend.Classes.Factory import Factory
+from .CommProt import CommProt
+from .Game import Game
+from .Player import Player
+from .Factory import Factory
 from Tron.Backend.Core.Vect2D import Vect2D
 from Tron.Backend.Core.core_functions import get_timestamp
 import json
@@ -322,9 +322,13 @@ class JSONComm(CommProt):
 			elif decoded['type'] == 'client_ready_ack':
 				return CommProt.CLIENT_READY_ACK, self.__process_client_ready_ack(decoded)
 			elif decoded['type'] == 'client_error':
-				return CommProt.CLIENT_ERROR, self.__process_error(decoded)
+				obj = self.__process_error(decoded) # OBJECT STORE
+				self.EClientError(self, obj)        # CALL EVENT
+				return CommProt.CLIENT_ERROR, obj   # RETURN VALUE
 			elif decoded['type'] == 'server_error':
-				return CommProt.SERVER_ERROR, self.__process_error(decoded)
+				obj = self.__process_error(decoded) # OBJECT STORE
+				self.EServerError(self, obj)        # CALL EVENT
+				return CommProt.SERVER_ERROR, obj   # RETURN VALUE
 			elif decoded['type'] == 'ingame':
 				pass
 			elif decoded['type'] == 'client_ingame':

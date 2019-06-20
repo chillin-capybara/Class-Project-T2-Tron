@@ -1,5 +1,5 @@
-from Player import Player
-from Tron.Backend.Classes.Track import Track, LightTrack
+from .Player import Player
+from .Track import Track, LightTrack
 from Tron.Backend.Core.Vect2D import Vect2D
 
 # todo: Implement the Human player according to the UML

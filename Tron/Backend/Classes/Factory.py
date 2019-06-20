@@ -1,4 +1,4 @@
-from Tron.Backend.Classes.HumanPlayer import HumanPlayer
+from .HumanPlayer import HumanPlayer
 from Tron.Backend.Classes.Player import Player
 
 class Factory:

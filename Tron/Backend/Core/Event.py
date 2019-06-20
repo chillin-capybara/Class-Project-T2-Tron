@@ -103,12 +103,3 @@ class Event(object):
 		"""
 
 		self.call(sender, *args, **kwargs)
-
-def ev_handler(sender, msg):
-	print("SENDER: " + sender)
-	print(msg)
-
-
-myevent = Event()
-myevent.attach(ev_handler)
-myevent.call("MYSQL", msg="MyMePRINTPIRPIASPDIASPDIssage")
