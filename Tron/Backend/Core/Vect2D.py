@@ -74,7 +74,7 @@ class Vect2D(object):
 	def __str__(self):
 		return "Vector: ({},{})".format(self.x, self.y)
 	
-	def __mul__(self, other: Vect2D) -> Vect2D:
+	def __mul__(self, other):
 		"""
 		Multiply a Vect2D by yourself
 

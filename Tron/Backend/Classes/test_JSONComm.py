@@ -165,10 +165,10 @@ class TestJSONComm(unittest.TestCase):
 		comm = JSONComm()
 
 		# Setup a player object
-		player = HumanPlayer()
+		player = Factory.Player("", 0)
 		player.setName("This is my playername")
 		player.setColor(2)
-
+		
 		# Normal data test
 		self.assertEqual(
 			comm.client_ready(player),
@@ -280,7 +280,7 @@ class TestJSONComm(unittest.TestCase):
 		Test clietn ready messaage processor
 		"""
 		comm = JSONComm()
-		pl = Factory.Player("Testname", 2)
+		pl: Player = Factory.Player("Testname", 2)
 
 		# Test for a request with 0
 		testmsg = comm.client_ready(pl)

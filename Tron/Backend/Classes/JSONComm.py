@@ -167,7 +167,7 @@ class JSONComm(CommProt):
 			bytes
 		"""
 
-		if type(player) is not Player:
+		if not Factory.isPlayer(player):
 			raise TypeError
 		
 		msgdict = {
@@ -278,8 +278,8 @@ class JSONComm(CommProt):
 			TypeError: Response is not bytes
 		"""
 
-		if type(response) is not bytes:
-			raise TypeError
+		#if type(response) is not bytes:
+		#	raise TypeError
 
 		try:
 			# Decode the message

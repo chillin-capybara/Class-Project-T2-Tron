@@ -21,3 +21,17 @@ class Factory:
 		new.setColor(color)
 
 		return new
+
+	@staticmethod
+	def isPlayer(obj) -> bool:
+		"""
+		Returns whether an object is any of player type
+		"""
+		if type(obj) == Player:
+			return True
+		if type(obj) == HumanPlayer:
+			return True
+		
+		if isinstance(obj, (Player, HumanPlayer)):
+			return True
+		return False
