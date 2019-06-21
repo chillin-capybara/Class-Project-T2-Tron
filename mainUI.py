@@ -1,7 +1,10 @@
 from kivy.app import App
 from kivy.graphics import *
 from kivy.config import Config
-
+from kivy.app import App
+from kivy.uix.label import Label
+from kivy.animation import Animation
+from kivy.properties import StringProperty, NumericProperty
 from Tron.UI.Classes.GameUI import MyWidget, IncrediblyCrudeClock, AnzeigespielerKivy, ShowStartPoints
 
 
@@ -11,20 +14,20 @@ Config.set('graphics', 'width', '500')
 Config.set('graphics', 'height', '500')
 
 
-class TrackApp(App):
-    def build(self):
-        ObenRechts = AnzeigespielerKivy()
-        return ObenRechts
+class GameApp(App):
+    # def build(self):
+    #     ObenRechts = AnzeigespielerKivy()
+    #     return ObenRechts
     def build(self):
         crudeclock = IncrediblyCrudeClock()
         crudeclock.start()
         return crudeclock
-    def build(self):
-        game = MyWidget()
-        return game
+    # def build(self):
+    #     game = MyWidget()
+    #     return game
 
 if __name__ == "__main__":
-    TrackApp().run()
+    GameApp().run()
     
 
     
