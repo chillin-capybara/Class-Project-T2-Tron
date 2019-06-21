@@ -1,8 +1,10 @@
-<IncrediblyCrudeClock>
+#:kivy 1.0.9
+<IncrediblyCrudeClock>:
     text: str(round(self.a, 1))
 
-<drawStartPoint>
+<drawStartPoint>:
     size: 20, 20 
+    pos: 100, 100
     canvas:
         Ellipse:
             pos: self.pos

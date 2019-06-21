@@ -6,15 +6,11 @@ from kivy.uix.button import Button
  
 # player1 = Player.getName()
 class AnzeigespielerKivy(Label):
+    """
+    class for displaying all active players at the upper right corner
+    """
     def start(self):
-        return Label(text="Welcome to LikeGeeks!", background_color=(155,0,51,53))
+        return Label()
 
     
-class OrApp(App):
-    def build(self):
-        ObenRechts = AnzeigespielerKivy()
-        ObenRechts.start()
-        return ObenRechts
 
-if __name__ == "__main__":
-    OrApp().run()

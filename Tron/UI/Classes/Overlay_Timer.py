@@ -9,9 +9,12 @@ from Tron.Backend.Classes.Factory import Factory
 # player1 = Factory.Player("Marcell", 2)
 # startPoint = player1.getPosition()
 # print(startPoint)
-class ShowStartPoints(self): 
-    player1 = Factory.Player("Marcell", 2)
-    StartPoint = player1.getPosition()
+class ShowStartPoints(): 
+    """
+    if the game starts the countdown starts, but the players should see their starting positions
+    """
+    # player1 = Factory.Player("Marcell", 2)
+    # StartPoint = player1.getPosition()
     
     def drawStartPoint(Widget):
         return Label        
@@ -19,6 +22,9 @@ class ShowStartPoints(self):
 
 
 class IncrediblyCrudeClock(Label):
+    """
+    a class for a countdown starting at 5, this is used for the reason that all players can start to look at the game
+    """
     a = NumericProperty(5)  # seconds
 
     def start(self):
@@ -29,11 +35,3 @@ class IncrediblyCrudeClock(Label):
         self.anim.bind(on_complete=finish_callback)
         self.anim.start(self)
 
-class TimeApp(App):
-    def build(self):
-        crudeclock = IncrediblyCrudeClock()
-        crudeclock.start()
-        return crudeclock
-
-if __name__ == "__main__":
-    TimeApp().run()
