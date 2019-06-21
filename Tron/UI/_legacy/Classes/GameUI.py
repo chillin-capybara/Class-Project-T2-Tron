@@ -7,16 +7,13 @@ from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.animation import Animation
 from kivy.lang import Builder
-from kivy.uix.label import Label
-from kivy.animation import Animation
 from kivy.properties import StringProperty, NumericProperty
 
-from Tron.Backend.Classes.Player import Player
-from Tron.Backend.Classes.Factory import Factory
-# from ...Backend.Core.Vect2D import Vect2D
-# from ...Backend.Classes.Track import Track
-# from ...Backend.Classes.Player import Player
-# from ...Backend.Classes.Factory import Factory
+
+from ...Backend.Core.Vect2D import Vect2D
+from ...Backend.Classes.Track import Track
+from ...Backend.Classes.Player import Player
+from ...Backend.Classes.Factory import Factory
 
 
 
@@ -61,17 +58,6 @@ class ShowStartPoints():
 
 
 
-class IncrediblyCrudeClock(Label):
-    """
-    a class for a countdown starting at 5, this is used for the reason that all players can start to look at the game
-    """
-    a = NumericProperty(5)  # seconds
-    def start(self):
-        Animation.cancel_all(self)  # stop any current animations
-        self.anim = Animation(a=0, duration=self.a)
-        def finish_callback(animation, incr_crude_clock):
-            incr_crude_clock.text = "FINISHED"
-        self.anim.bind(on_complete=finish_callback)
-        self.anim.start(self)
+
 
 
