@@ -11,8 +11,8 @@ from kivy.uix.label import Label
 from kivy.animation import Animation
 from kivy.properties import StringProperty, NumericProperty
 
-# from Tron.Backend.Classes.Player import Player
-# from Tron.Backend.Classes.Factory import Factory
+from Tron.Backend.Classes.Player import Player
+from Tron.Backend.Classes.Factory import Factory
 # from ...Backend.Core.Vect2D import Vect2D
 # from ...Backend.Classes.Track import Track
 # from ...Backend.Classes.Player import Player
@@ -20,11 +20,11 @@ from kivy.properties import StringProperty, NumericProperty
 
 
 
-# player1 = Factory.Player("Marcell", 2)
-# player1.getTrack().addElement(Vect2D(0,0), Vect2D(100,100))
-# player1.getTrack().addElement(Vect2D(100,100), Vect2D(250,140))
-# player1.getTrack().addElement(Vect2D(250,140), Vect2D(0,0))
-# linepoints = player1.getTrack().getLine()
+player1 = Factory.Player('Player1', 2)
+player1.getTrack().addElement(Vect2D(0,0), Vect2D(100,100))
+player1.getTrack().addElement(Vect2D(100,100), Vect2D(250,140))
+player1.getTrack().addElement(Vect2D(250,140), Vect2D(0,0))
+linepoints = player1.getTrack().getLine()
 
 linepoints = [0, 0, 500, 500, 0,100]
 class MyWidget(Widget):
