@@ -11,6 +11,12 @@ class CommError(Exception):
 	"""
 	pass
 
+class MessageError(Exception):
+	"""
+	Invalid message sent/received during communication
+	"""
+	pass
+
 class ServerError(Exception):
 	"""
 	Signals an error in the Game server mode

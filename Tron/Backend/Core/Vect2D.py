@@ -101,8 +101,6 @@ class Vect2D(object):
 		"""
 		Check if 2 Vect2D objects are identical
 		"""
-		if type(other) is not Vect2D:
-			return False
 		
 		# Check the equality
 		if self.x == other.x and self.y == other.y:

@@ -17,11 +17,11 @@ class HumanPlayer(Player):
 
 	__Name = ""  # Name of the player
 	__Color = 0  # Color of the player
-	__Position = Vect2D(0, 0)
-	__Velocity = Vect2D(0, 0)
+	__Position = None
+	__Velocity = None
 	# __Track = #TODO
 	__IsAlive = False
-	__IpAdress = "0.0.0.0"
+	__IpAdress = None
 	__IsConnected = False
 	__IsInPause = False
 
@@ -30,6 +30,9 @@ class HumanPlayer(Player):
 
 	def __init__(self):
 		self.__track = LightTrack()
+		self.__Position = Vect2D(0,0)
+		self.__Velocity = Vect2D(0,0)
+		self.__IpAdress = "0.0.0.0"
 
 	def getTrack(self):
 		return self.__track
@@ -240,7 +243,6 @@ class HumanPlayer(Player):
 			self.__Position = self.__Position + time*self.__Velocity
 		else:
 			raise TypeError
-
 
 # test Player implementation
 testPlayer = HumanPlayer()

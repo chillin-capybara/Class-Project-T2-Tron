@@ -2,6 +2,7 @@ import threading
 import socket
 import logging
 from ..Core.Exceptions import ServerError
+from ..Core.Exceptions import MessageError
 class SenderThread(threading.Thread):
 	"""
 	Thread for implementing send functionality for TCP Clients
@@ -109,6 +110,8 @@ class ReceiverThread(threading.Thread):
 					self.__sockfd.close()
 				else:
 					self.__comm_proto.process_response(data)
+			except MessageError:
+				logging.warning("Invalid message received from player ID=%d" % self.__player_id)
 			except ValueError as v:
 				# Invalid message was sent
 				logging.warning("Invalid data received." + str(v))

@@ -2,8 +2,10 @@ from .CommProt import CommProt
 from .Game import Game
 from .Player import Player
 from .Factory import Factory
+from .Arena import Arena
 from ..Core.Vect2D import Vect2D
 from ..Core.core_functions import get_timestamp
+from ..Core.Exceptions import MessageError
 import json
 
 class JSONComm(CommProt):
@@ -52,7 +54,7 @@ class JSONComm(CommProt):
 		"""
 		return self.string_to_bytes(json.dumps(dict))
 	
-	def bytes_to_dict(self, input: bytes) -> dict:
+	def bytes_to_dict(self, data: bytes) -> dict:
 		"""
 		Converts the input bytes array into a dictionary
 		Args:
@@ -63,11 +65,14 @@ class JSONComm(CommProt):
 			TypeError
 			ValueError
 		"""
-		if type(input) is not bytes:
+		if type(data) is not bytes:
 			raise TypeError
 
 		try:
-			return json.loads(input, encoding="UTF-8")
+			decoded = data.decode("UTF-8")
+			return json.loads(decoded)
+		except json.JSONDecodeError: # Invalid JSON String
+			raise MessageError()
 		except Exception as e:
 			raise ValueError(str(e))
 
@@ -138,7 +143,7 @@ class JSONComm(CommProt):
 		return array
 
 	
-	def ingame(self, game: Game) -> bytes:
+	def ingame(self, players: list, arena: Arena) -> bytes:
 		"""
 		Get a byte coded in-game packet from the server
 
@@ -146,8 +151,10 @@ class JSONComm(CommProt):
 			game (Game): Current running game in the server
 		Returns:
 			bytes
+		TODO
+			Add Arena object too
 		"""
-		players_dict = self.__players_dict(game.getPlayers())
+		players_dict = self.__players_dict(players)
 
 		mydict = {
 			'type': 'ingame',
@@ -334,7 +341,9 @@ class JSONComm(CommProt):
 				self.EServerError(self, msg=obj)    # CALL EVENT
 				return CommProt.SERVER_ERROR, obj   # RETURN VALUE
 			elif decoded['type'] == 'ingame':
-				pass
+				obj = self.__process_ingame(decoded)
+				self.EIngame(self, players=obj)    # EVENT CALL
+				return CommProt.INGAME, obj
 			elif decoded['type'] == 'client_ingame':
 				obj = self.__process_client_ingame(decoded)
 				self.EClientIngame(self, player=obj) # EVENT CALL
@@ -350,7 +359,6 @@ class JSONComm(CommProt):
 			else:
 				# Invalid message type: Type not exists
 				raise ValueError("The message type is invalid!")
-		
 		except Exception as e:
 			# Pass exception along
 			raise e
@@ -448,9 +456,29 @@ class JSONComm(CommProt):
 	
 	def __process_ingame(self, msgdict: dict):
 		"""
+		TODO
+		DOCUMENT THIS FUNCTIOn
 		"""
-		# TODO: Impelment ingame processor
-		pass
+		# Check for the players instance
+		if 'players' not in msgdict.keys():
+			raise KeyError
+		
+		if type(msgdict['players']) is not list:
+			raise TypeError
+		
+		# List all players and fetch them to an array
+		plarray = []
+
+		for pldata in msgdict['players']:
+			# Fetch data from the dict
+			player = Factory.Player(pldata['playername'], pldata['color'])
+			player.setVelocity(pldata['vx'], pldata['vy'])
+			player.setPosition(pldata['x'], pldata['y'])
+
+			# Add player to the results
+			plarray.append(player)
+		return plarray
+
 	
 	def __process_client_ingame(self, msgdict: dict) -> Player:
 		"""

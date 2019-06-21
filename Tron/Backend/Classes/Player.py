@@ -174,9 +174,18 @@ class Player(object):
 		Return:
 			bool
 		"""
-		eq = self.getName() == other.getName() and \
-		self.getColor() == other.getColor() and \
-		self.getVelocity() == other.getVelocity() and \
-		self.getPosition() == other.getPosition()
-		
-		return eq
+		try:
+			if (other.isPlayer()):
+				eq = self.getName() == other.getName() and \
+				self.getColor() == other.getColor() and \
+				self.getVelocity() == other.getVelocity() and \
+				self.getPosition() == other.getPosition()
+
+				return eq
+		except:
+			return False
+	
+	def isPlayer(self):
+		"""
+		"""
+		return True

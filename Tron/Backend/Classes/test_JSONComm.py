@@ -2,8 +2,8 @@ import sys
 sys.path.append("/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron")
 
 import unittest
-from JSONComm import JSONComm
-from CommProt import CommProt
+from .JSONComm import JSONComm
+from .CommProt import CommProt
 from Tron.Backend.Classes.Factory import Factory
 from Tron.Backend.Core.core_functions import get_timestamp
 from Tron.Backend.Classes.Player import Player
@@ -294,19 +294,22 @@ class TestJSONComm(unittest.TestCase):
 
 		# Test for a request for SAMPLE DATA
 		testmsg = comm.client_ready(player)
+		backp = comm.process_response(testmsg)
 		self.assertEqual(
-			comm.process_response(testmsg),
-			(comm.CLIENT_READY, player)
+			backp[0],
+			comm.CLIENT_READY
 		)
+		self.assertTrue(backp[1] == player)
 
 		# Test for a request for Sample DATA
 		player.setName("Artem")
 		player.setColor(2)
 		testmsg = comm.client_ready(player)
 		self.assertEqual(
-			comm.process_response(testmsg),
-			(comm.CLIENT_READY, player)
+			comm.process_response(testmsg)[0],
+			comm.CLIENT_READY
 		)
+		self.assertTrue(comm.process_response(testmsg)[1] == player)
 
 
 		# Test for a Changed Player
@@ -522,9 +525,10 @@ class TestJSONComm(unittest.TestCase):
 		# RANDOM DATA
 		msg = comm.client_ingame(pla)
 		self.assertEqual(
-			comm.process_response(msg),
-			(CommProt.CLIENT_INGAME, pla)
+			comm.process_response(msg)[0],
+			comm.CLIENT_INGAME
 		)
+		self.assertTrue(comm.process_response(msg)[1] == pla)
 		
 
 		pla = Factory.Player("Test", 1)
@@ -549,3 +553,8 @@ class TestJSONComm(unittest.TestCase):
 		self.assertFalse(
 			pla == comm.process_response(msg)[1]
 		)
+	
+	def test_ingame(self):
+		"""
+		Test ingame messages
+		"""

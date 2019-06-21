@@ -24,8 +24,8 @@ class TCPServer(Server):
 	__Arena = None              # Hosted Arena
 	__playernumber = 0          # Number of players
 	__comm_proto = None         # Communication protocol
-	__players = None              # Array of players
-	__playerThreads = None        # Array of TCP Threads for the players in async communication
+	__players = None            # Array of players
+	__playerThreads = None      # Array of TCP Threads for the players in async communication
 	__player_index = 0          # Player index currently to be added
 	__sock = None # Serversocket
 	__settings_locked = False   # Check if server settings are locked
@@ -124,6 +124,7 @@ class TCPServer(Server):
 		# Reserve the objects for the players
 		for i in range(0, players):
 			self.__players.append(Factory.Player("", 0))
+			print(isinstance(Factory.Player("", 0), Player))
 
 	
 	def getPlayerNumber(self):
@@ -213,8 +214,6 @@ class TCPServer(Server):
 		Update a specific player object ingame
 		"""
 		self.__players[player_id] = player
-		logging.debug("Client updated with name=%s ID=%d" % (player.getName(), player_id))
-		logging.debug("New position: " + str(player.getPosition()))
 	
 	def hook_player_leave(self, player_id: int):
 		"""

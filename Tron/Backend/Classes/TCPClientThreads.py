@@ -51,9 +51,10 @@ class SenderClientThread(threading.Thread):
 		self.__sockfd.send(self.__Comm.client_ready(myplayer))
 		time.sleep(1)
 		while True:
-			print("Sending..", flush=True)
 			myplayer.setPosition(randint(0,200), randint(0,200))
-			self.__sockfd.send(self.__Comm.client_ingame(myplayer))
+			sent_bytes = self.__sockfd.send(self.__Comm.client_ingame(myplayer))
+			print("Sending %d bytes" % sent_bytes, flush=True)
+
 			#self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
 			time.sleep(0.01)
 		pass
