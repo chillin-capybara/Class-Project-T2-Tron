@@ -137,7 +137,7 @@ class JSONComm(CommProt):
 			vel: Vect2D = player.getVelocity()
 
 			# Create a dict
-			player_dict = {'x':pos.x, 'y':pos.y, 'vx': vel.x, 'vy':vel.y}
+			player_dict = {'playername': player.getName(), 'color': player.getColor(), 'x':pos.x, 'y':pos.y, 'vx': vel.x, 'vy':vel.y}
 			array.append(player_dict)
 		
 		return array
@@ -343,7 +343,7 @@ class JSONComm(CommProt):
 			elif decoded['type'] == 'ingame':
 				obj = self.__process_ingame(decoded)
 				self.EIngame(self, players=obj)    # EVENT CALL
-				return CommProt.INGAME, obj
+				return CommProt.INGAME, obj        # TODO: EXtend with returning the Arena, too
 			elif decoded['type'] == 'client_ingame':
 				obj = self.__process_client_ingame(decoded)
 				self.EClientIngame(self, player=obj) # EVENT CALL

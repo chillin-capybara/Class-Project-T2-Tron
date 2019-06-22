@@ -5,6 +5,7 @@ import math
 from .Factory import Factory
 from random import randint
 import names
+import logging
 
 class SenderClientThread(threading.Thread):
 	"""
@@ -15,7 +16,7 @@ class SenderClientThread(threading.Thread):
 	__player_id = None # Player index of the player on the server
 	__Comm = None
 
-	def __init__(self, sockfd, player_id, comm):
+	def __init__(self, sockfd, comm):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 
@@ -31,11 +32,6 @@ class SenderClientThread(threading.Thread):
 			raise TypeError
 
 		self.__Comm = comm
-		
-		if type(player_id) == int:
-			self.__player_id = player_id
-		else:
-			raise TypeError
 		
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
@@ -53,7 +49,6 @@ class SenderClientThread(threading.Thread):
 		while True:
 			myplayer.setPosition(randint(0,200), randint(0,200))
 			sent_bytes = self.__sockfd.send(self.__Comm.client_ingame(myplayer))
-			print("Sending %d bytes" % sent_bytes, flush=True)
 
 			#self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
 			time.sleep(0.01)
@@ -70,7 +65,7 @@ class ReceiverClientThread(threading.Thread):
 	__player_id = None # Player index of the player on the server
 	__Comm = None
 
-	def __init__(self, sockfd, player_id, comm):
+	def __init__(self, sockfd, comm):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -83,11 +78,6 @@ class ReceiverClientThread(threading.Thread):
 		
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
-		else:
-			raise TypeError
-		
-		if type(player_id) == int:
-			self.__player_id = player_id
 		else:
 			raise TypeError
 
@@ -103,10 +93,13 @@ class ReceiverClientThread(threading.Thread):
 		Description:
 			Receives update packets from the server all the time
 		"""
+		logging.debug("Receiver thread started...")
 		try:
 			while True:
 				data = self.__sockfd.recv(1500)
-				self.__comm_proto.process_response(data)
+				self.__Comm.process_response(data)
 		except Exception as e:
-			raise ServerError(e)
+			logging.error(str(e))
 		pass
+
+		logging.debug("Receiver stopped")

@@ -5,6 +5,7 @@ from .CommProt import CommProt
 from ..Core.Exceptions import ClientError
 import socket
 import names
+import logging
 
 
 """
@@ -16,10 +17,11 @@ class TCPCLient(Client):
 	__port = 0                  # Server Port
 	__sock = None 				# Cleintsocket
 	__bufferSize = 4096
-	__Comm = JSONComm()
+	__Comm = None
 	__Player = None
+	__players = None
 
-	def __int__(self, host = "", port=23456):
+	def __init__(self, host = "", port=23456):
 		"""
 		Initialize TCP Client on the given host IP and port
 		Args: 
@@ -29,8 +31,13 @@ class TCPCLient(Client):
 			TypeError: Not valid types
 			ValueError: Port Number is invalid
 		"""
+		self.__Player = []
+
+		self.__Comm = JSONComm()
+
 		# Attach client_ready ack handler to event
 		self.__Comm.EClientReadyAck += self.handle_ready_ack
+		self.__Comm.EIngame += self.handle_ingame
 
 
 	def attachPlayersUpdated(self, callback):
@@ -112,8 +119,8 @@ class TCPCLient(Client):
 			TypeError: sock is not a socket
 			ServerError: ???
 		"""
-		senderThread = SenderClientThread(sock, 0, self.__Comm)
-		receiverThread = ReceiverClientThread(sock, 0, self.__Comm)
+		senderThread = SenderClientThread(sock, self.__Comm)
+		receiverThread = ReceiverClientThread(sock, self.__Comm)
 
 		# Start the Threads
 		senderThread.start()
@@ -135,6 +142,16 @@ class TCPCLient(Client):
 		TODO: DOCKSTRING
 		"""
 		print("Player accepted with ID: %d" % player_id, flush = True)
-    
+	
+	def handle_ingame(self, sender, players):
+		"""
+		Handle in-game player updates
+		Args:
+			sender (CommProt): Caller of the event
+			players (list): List of player object with current position.
+		"""
+		self.__players = players
+		logging.debug("Player data refreshed")
+
   
 		

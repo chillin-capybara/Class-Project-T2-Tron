@@ -1,3 +1,8 @@
+import logging, coloredlogs
+
+logger = logging.getLogger()
+coloredlogs.install(level='DEBUG')
+
 from Backend.Classes.TCPCLient import TCPCLient
 
 client = TCPCLient()

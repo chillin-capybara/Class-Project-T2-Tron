@@ -1,6 +1,3 @@
-import sys
-sys.path.append("/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron")
-
 import unittest
 from .JSONComm import JSONComm
 from .CommProt import CommProt
@@ -558,3 +555,48 @@ class TestJSONComm(unittest.TestCase):
 		"""
 		Test ingame messages
 		"""
+		comm = JSONComm()
+
+		# Test with positions (0,0)
+		plist = []
+		plist.clear()
+		plist.append(Factory.Player("Test1", 1)) 
+		plist.append(Factory.Player("Test2", 2))
+
+		msg = comm.ingame(plist, None)
+		res_type, res_obj = comm.process_response(msg)
+		self.assertEqual(res_type, comm.INGAME)
+		self.assertEqual(res_obj, plist)
+
+		# Test with sample position
+		plist = []
+		plist.clear()
+		p1 = Factory.Player("Test1", 1)
+		p1.setPosition(-1,-2)
+		p2 = Factory.Player("Test2", 2)
+		p2.setPosition(-3,-4)
+		plist.append(p1) 
+		plist.append(p2)
+		
+		msg = comm.ingame(plist, None)
+		res_type, res_obj = comm.process_response(msg)
+		self.assertEqual(res_type, comm.INGAME)
+		self.assertEqual(res_obj, plist)
+
+		# Test with sample velocity
+		plist = []
+		plist.clear()
+		p1 = Factory.Player("Test1", 1)
+		p1.setVelocity(1,2)
+		p2 = Factory.Player("Test2", 2)
+		p2.setVelocity(3,4)
+		plist.append(p1) 
+		plist.append(p2)
+
+		msg = comm.ingame(plist, None)
+		res_type, res_obj = comm.process_response(msg)
+		self.assertEqual(res_type, comm.INGAME)
+		self.assertEqual(res_obj, plist)
+
+		# TODO: Create negative tests
+

@@ -1,8 +1,10 @@
 import threading
 import socket
 import logging
+import time
 from ..Core.Exceptions import ServerError
 from ..Core.Exceptions import MessageError
+from .CommProt import CommProt
 class SenderThread(threading.Thread):
 	"""
 	Thread for implementing send functionality for TCP Clients
@@ -11,6 +13,7 @@ class SenderThread(threading.Thread):
 	__hook = None
 	__sockfd = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
+	__comm_proto = None
 
 	def __init__(self, hook, sockfd, comm_proto, player_id):
 		"""
@@ -36,6 +39,8 @@ class SenderThread(threading.Thread):
 			self.__player_id = player_id
 		else:
 			raise TypeError
+
+		self.__comm_proto: CommProt = comm_proto
 		
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
@@ -47,7 +52,19 @@ class SenderThread(threading.Thread):
 		Description:
 			Sends update packets from the server whenever needed
 		"""
-		pass
+		logging.debug("Starting sender thread %d..." % self.__player_id)
+		try:
+			while True:
+				# Get the list of the players using the back hook to the server
+				msg = self.__comm_proto.ingame(self.__hook.getPlayers(), None)
+				self.__sockfd.send(msg)
+				logging.debug("New Update sent!")
+				time.sleep(0.01)
+		except:
+			pass
+		finally:
+			logging.debug("Stopping sender thread %d..." % self.__player_id)
+
 
 
 class ReceiverThread(threading.Thread):
