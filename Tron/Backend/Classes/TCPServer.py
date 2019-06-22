@@ -220,3 +220,4 @@ class TCPServer(Server):
 		Log and communicates with the clients if somebody leaves
 		"""
 		logging.info("%s has left the match!", (self.__players[player_id].getName()))
+

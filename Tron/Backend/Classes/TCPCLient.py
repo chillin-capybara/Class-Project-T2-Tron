@@ -12,7 +12,7 @@ import logging
 Realisation of TCP Client Interface for TCP Client
 """
 class TCPCLient(Client):
-    
+
 	__host = ""                 # Server Host IP
 	__port = 0                  # Server Port
 	__sock = None 				# Cleintsocket
@@ -24,20 +24,21 @@ class TCPCLient(Client):
 	def __init__(self, host = "", port=23456):
 		"""
 		Initialize TCP Client on the given host IP and port
-		Args: 
+		Args:
 			host (str): IPv4 adress of host (any = "")
 			port (int): Port number of the Server
-		Raises: 
+		Raises:
 			TypeError: Not valid types
 			ValueError: Port Number is invalid
 		"""
 		self.__Player = []
 
-		self.__Comm = JSONComm()
+		self.__Comm: CommProt = JSONComm()
 
 		# Attach client_ready ack handler to event
 		self.__Comm.EClientReadyAck += self.handle_ready_ack
 		self.__Comm.EIngame += self.handle_ingame
+		self.__Comm.EServerError += self.handle_server_error
 
 
 	def attachPlayersUpdated(self, callback):
@@ -53,15 +54,15 @@ class TCPCLient(Client):
 		Args:
 			server (str): IP address of the server
 			port (int):   Port of the server
-		
+
 		Raises:
 			TypeError: The type of the input parameters is not valid
-			ValueError: The value of the input parameters is invalid, 
+			ValueError: The value of the input parameters is invalid,
 				(negative port, etc..)
 		"""
 
 		if not type(server) == str:
-			raise TypeError 
+			raise TypeError
 
 		if not type(port) == int:
 			raise TypeError
@@ -77,9 +78,9 @@ class TCPCLient(Client):
 			# raise ClientError
 			raise ClientError(str(e))
 		# communicate ACK
-		# communicate 
+		# communicate
 
-  
+
 	def Disconnect(self):
 		"""
 		Disconnect from a connected game server.
@@ -91,7 +92,7 @@ class TCPCLient(Client):
 			self.__sock.close()
 		except self.__sock.timeout:
 			raise ClientError()
-			
+
 	def Scan(self, port):
 		"""
 		Scan for available servers on the given port number.
@@ -102,7 +103,7 @@ class TCPCLient(Client):
 		Raises:
 			TypeError: The port is not an int
 			ValueError: The port number is invalid
-		
+
 		Returns:
 			iter: Iterable collection of the available servers
 		"""
@@ -125,9 +126,9 @@ class TCPCLient(Client):
 		# Start the Threads
 		senderThread.start()
 		receiverThread.start()
-	
+
 	def Start(self):
-		
+
 		try:
 			# Start recieving on socket
 			# TODO: Start new thread for client_socket
@@ -142,7 +143,7 @@ class TCPCLient(Client):
 		TODO: DOCKSTRING
 		"""
 		print("Player accepted with ID: %d" % player_id, flush = True)
-	
+
 	def handle_ingame(self, sender, players):
 		"""
 		Handle in-game player updates
@@ -151,7 +152,14 @@ class TCPCLient(Client):
 			players (list): List of player object with current position.
 		"""
 		self.__players = players
-		logging.debug("Player data refreshed")
+		#logging.debug("Player data refreshed")
 
-  
-		
+	def handle_server_error(self, sender, msg):
+		"""
+		Handle error messages from the server
+		Args:
+			sender (CommProt): Caller of the event
+			msg (str): Error message sent by the server
+		"""
+		# TODO: Artem -> behandlung von error messages
+		logging.error("Error Message form server: %s" % msg)

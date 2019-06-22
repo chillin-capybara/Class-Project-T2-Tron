@@ -3,6 +3,7 @@ import time
 import socket
 import math
 from .Factory import Factory
+from ..Core.Exceptions import MessageError
 from random import randint
 import names
 import logging
@@ -94,12 +95,12 @@ class ReceiverClientThread(threading.Thread):
 			Receives update packets from the server all the time
 		"""
 		logging.debug("Receiver thread started...")
-		try:
-			while True:
+		while True:
+			try:
 				data = self.__sockfd.recv(1500)
 				self.__Comm.process_response(data)
-		except Exception as e:
-			logging.error(str(e))
-		pass
+			except MessageError:
+				# Invalid message was received / Processed
+				logging.warning("Invalid message received from server")
 
-		logging.debug("Receiver stopped")
+		logging.debug("Receiver thread stopped stopped")

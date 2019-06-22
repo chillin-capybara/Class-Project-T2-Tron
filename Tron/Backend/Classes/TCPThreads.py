@@ -58,7 +58,9 @@ class SenderThread(threading.Thread):
 				# Get the list of the players using the back hook to the server
 				msg = self.__comm_proto.ingame(self.__hook.getPlayers(), None)
 				self.__sockfd.send(msg)
-				logging.debug("New Update sent!")
+
+				msg = self.__comm_proto.server_error("Playername already exists")
+				self.__sockfd.send(msg)
 				time.sleep(0.01)
 		except:
 			pass
@@ -98,10 +100,11 @@ class ReceiverThread(threading.Thread):
 			raise TypeError
 		
 		# Set the communication protocoll
-		self.__comm_proto = comm_proto
+		self.__comm_proto: CommProt = comm_proto
 		self.__comm_proto.EClientError += self.handle_client_error
 		self.__comm_proto.EClientReady += self.handle_client_ready
 		self.__comm_proto.EClientIngame += self.handle_client_ingame
+		self.__comm_proto.EExitGame += self.handle_exit_game
 
 		if type(player_id) == int:
 			self.__player_id = player_id
@@ -142,12 +145,18 @@ class ReceiverThread(threading.Thread):
 	def handle_client_error(self, sender, msg):
 		"""
 		Handler client error coming from a specific client
+		Args:
+			sender (CommProt): Caller of the event
+			msg (str): Error message from client
 		"""
 		logging.warning(msg)
 	
 	def handle_client_ready(self, sender, player):
 		"""
 		Handle client ready message
+		Args:
+			sender (CommProt): Caller of the event
+			player (Player): Player data of the client for innitialization
 		"""
 
 		# Send the reeived data back to update the server
@@ -155,8 +164,26 @@ class ReceiverThread(threading.Thread):
 	
 	def handle_client_ingame(self, sender, player):
 		"""
-		Handle client ingame refresh
+		Handle client ingame refresh messages
+		Description:
+			This function calls a hook on the local game server and updates the data of the
+			current player
+		Args:
+			sender (CommProt): Caller of the event
+			player (Player): Data of the current player send
 		"""
 		#Send the updated data with the player index to the main thread
 		self.__hook.hook_client_ingame(self.__player_id, player)
+	
+	def handle_exit_game(self, sender):
+		"""
+		Handle an exit game request from the client
+		Args:
+			sender (CommProt): Caller of the event
+		"""
+		# Close the connectivity socket
+		self.__sockfd.close()
+
+		# Hook the event back to the server
+		self.__hook.hook_player_leave(self.__player_id)
 			

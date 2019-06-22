@@ -303,6 +303,40 @@ class JSONComm(CommProt):
 		
 		return self.dict_to_jsonbytes(msgdict)
 	
+	def server_notification(self, msg):
+		"""
+		Get a byte coded message for sending notifications from the server
+		Args:
+			msg (str): Message to send
+		Returns:
+			byte
+		"""
+		msgdict = {
+			'type': 'server_notification',
+			'message': msg,
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
+	
+	def client_chat(self, player_id: int, msg: str) -> bytes:
+		"""
+		Get a byte coded message for sending chat messages between clients
+		Args:
+			player_id (int): Identifier of the player on the server
+			msg (str): Chat message
+		Returns:
+			byte
+		"""
+		msgdict = {
+			'type': 'client_chat',
+			'player_id': player_id,
+			'message': msg,
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
+	
 	def process_response(self, response: bytes):
 		"""
 		Process incoming requests in JSONComm format, return type and result
@@ -340,6 +374,14 @@ class JSONComm(CommProt):
 				obj = self.__process_error(decoded) # OBJECT STORE
 				self.EServerError(self, msg=obj)    # CALL EVENT
 				return CommProt.SERVER_ERROR, obj   # RETURN VALUE
+			elif decoded['type'] == 'server_notification':
+				obj = self.__process_server_notification(decoded)
+				self.EServerNotification(obj)
+				return CommProt.SERVER_NOTIFICAITON, obj
+			elif decoded['type'] == 'client_chat':
+				pid, msg = self.__process_client_chat(decoded)
+				self.EClientChat(self, player_id=pid, msg=msg)
+				return CommProt.CLIENT_CHAT, pid, msg
 			elif decoded['type'] == 'ingame':
 				obj = self.__process_ingame(decoded)
 				self.EIngame(self, players=obj)    # EVENT CALL
@@ -454,6 +496,46 @@ class JSONComm(CommProt):
 		
 		return msgdict['message']
 	
+	def __process_server_notification(self, msgdict: dict) -> str:
+		"""
+		Get the notification message from the server
+		Args:
+			msgdict (dict): Dict of the sent messages
+		Returns:
+			str: Received messsage
+		"""
+		# Check for message key
+		if 'message' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['message']) is not str:
+			raise TypeError
+		
+		return msgdict['message']
+	
+	def __process_client_chat(self, msgdict: dict) -> tuple:
+		"""
+		Process the client chat messages
+		"""
+		# Check for message key
+		if 'message' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['message']) is not str:
+			raise TypeError
+
+		# Check for message key
+		if 'player_id' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['player_id']) is not int:
+			raise TypeError
+		
+		return msgdict['player_id'], msgdict['message']
+
 	def __process_ingame(self, msgdict: dict):
 		"""
 		TODO

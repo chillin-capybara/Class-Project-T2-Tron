@@ -1,10 +1,10 @@
 import unittest
 from .JSONComm import JSONComm
 from .CommProt import CommProt
-from Tron.Backend.Classes.Factory import Factory
-from Tron.Backend.Core.core_functions import get_timestamp
-from Tron.Backend.Classes.Player import Player
-from Tron.Backend.Classes.HumanPlayer import HumanPlayer
+from .Factory import Factory
+from .Player import Player
+from .HumanPlayer import HumanPlayer
+from ..Core.core_functions import get_timestamp
 
 def bytec(string):
 	return bytes(string, "UTF-8")
@@ -599,4 +599,75 @@ class TestJSONComm(unittest.TestCase):
 		self.assertEqual(res_obj, plist)
 
 		# TODO: Create negative tests
+	
+	def test_server_notification(self):
+		"""
+		Test the notificaion message from the server
+		TODO
+			Test message generation correctness
+		"""
 
+		comm = JSONComm()
+
+		# Test with empty message
+		msg = ""
+		packet = comm.server_notification(msg)
+		res = comm.process_response(packet)
+
+		self.assertEqual(
+			res,
+			(comm.SERVER_NOTIFICAITON, msg)
+		)
+
+		# Test with random message
+		msg = "You have been notified"
+		packet = comm.server_notification(msg)
+		res = comm.process_response(packet)
+
+		self.assertEqual(
+			res,
+			(comm.SERVER_NOTIFICAITON, msg)
+		)
+
+		# TODO: Create negative tests
+	
+	def test_client_chat(self):
+		"""
+		Test chat functionality from the client
+		"""
+		comm = JSONComm()
+
+		# Test with empty message
+		pid = 1
+		msg = ""
+		packet = comm.client_chat(pid, msg)
+		res = comm.process_response(packet)
+
+		self.assertEqual(
+			res,
+			(comm.CLIENT_CHAT,pid, msg)
+		)
+
+		# Test with  message
+		pid = 1
+		msg = "This is what player wrote"
+		packet = comm.client_chat(pid, msg)
+		res = comm.process_response(packet)
+
+		self.assertEqual(
+			res,
+			(comm.CLIENT_CHAT,pid, msg)
+		)
+
+		# Test with changed pid
+		pid = 10
+		msg = "This is what player wrote2"
+		packet = comm.client_chat(pid, msg)
+		res = comm.process_response(packet)
+
+		self.assertEqual(
+			res,
+			(comm.CLIENT_CHAT,pid, msg)
+		)
+
+		# TODO: Add negative tests
