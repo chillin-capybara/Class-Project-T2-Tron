@@ -1,0 +1,55 @@
+<SearchForServerMenu>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+        
+        Label:
+            id: displaymenunameLabel
+            text: 'Search For Server Menu'
+            size_hint: 1, .3
+            color: 0, 0, 0, 1
+
+        Label:
+            id: statusenemiesLabel
+            text: 'Other players will grab a coffee. Wanna join?'
+            color: 0, 0, 0, 1
+
+        Label:
+            id: displayplayersonlineLabel
+            text: 'Noone wants to play with you. Even computer says NO'
+            color: 0, 0, 0, 1
+        
+        
+
+        #Here should be displayed all Serverips with a Checkbox. One Ip can be choosen.
+
+        Button:
+            id: connectiontoserverButton
+            text: 'Connect to the choosen Server (Not implemented yet)'
+            #on_release:
+            #    root.manager.current = 'gamestartmenu'
+            #    root.startGame()
+            #    root.connecttoServer()
+
+        Button:
+            id: backtomenuButton
+            text: 'Return to the Main Menu (Not implemented yet)'
+            #on_release: root.manage.current = 'mainmenu'
+
+        BoxLayout:
+            Button:
+                text: 'Game Over Menu'
+                on_release: root.manager.current = 'gameovermenu'
+            Button:
+                text: 'Connection Lost Menu'
+                on_release: root.manager.current = 'connectionlostmenu'
+            Button:
+                text: 'Search For Server Menu'
+                on_release: root.manager.current = 'searchforservermenu'
+            Button:
+                text: 'Create Server Menu'
+                on_release: root.manager.current = 'createservermenu'
+            Button:
+                text: 'Pause Menu'
+                on_release: root.manager.current = 'pausemenu'

@@ -1,0 +1,42 @@
+<PauseMenu>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+
+        Label:
+            id: displaymenuameLabel
+            text: 'Pause Menu'
+            size_hint: 1, .3
+            color: 1, 0, 1, 1
+        
+        Button:
+            id: gamestartButton
+            text: 'Start the game again (Not implemented yet)'
+            #on_release:
+            #    root.manager.current = 'gamestartmenu'
+            #    root.startGame()
+
+        Button:
+            id: backtomenuButton
+            text: 'Return to the Main Menu (Not implemented yet)'
+            #on_release:
+            #    root.manage.current = 'mainmenu'
+            #    root.exitGame()
+
+        BoxLayout:
+            Button:
+                text: 'Game Over Menu'
+                on_release: root.manager.current = 'gameovermenu'
+            Button:
+                text: 'Connection Lost Menu'
+                on_release: root.manager.current = 'connectionlostmenu'
+            Button:
+                text: 'Search For Server Menu'
+                on_release: root.manager.current = 'searchforservermenu'
+            Button:
+                text: 'Create Server Menu'
+                on_release: root.manager.current = 'createservermenu'
+            Button:
+                text: 'Pause Menu'
+                on_release: root.manager.current = 'pausemenu'
