@@ -1,29 +1,47 @@
-from Tron.Backend.Classes.Arena import Arena
+from Arena import Arena
 
 
 class RectangleArena(Arena):
 	"""
 	Realisation of Arena Interface for Arena
 	"""
-	def __init__(self, name, size, skin, mode):
-	"""
-	Initialize Object from Arena Class
-	"""
-		self.name = name
-		self.size = size
-		self.skin = skin
-		self.mode = mode
 
+	def __init__(self, name: str, size, skin: int, mode: int):
+		"""
+		Initialize Object from Arena Class
+			Args: 
+				name(str): Name of the Arena
+				size((x,y) Tuple): Size of the Arena
+				skin(int): Skin of the Arena 
+				mode(int): Mode of the Arena
+		"""
+		if type (name) != str:
+			raise TypeError
+		else:
+			self.name = name
 
-	def getName(self):
+		if (type (size[0]) != int) | ((type (size[1]) != int) ):
+			raise TypeError
+		else:
+			self.size = size
+
+		if type (skin) != int:
+			raise TypeError
+		else:
+			self.skin = skin
+
+		if type (mode) != int:
+			raise TypeError
+		else:
+			self.mode = mode
+
+	def getName(self) -> str:
 		"""
 		Get the name of the arena object
 		Returns:
 			str: Arena name
 		"""
-		return 
-
-		raise NotImplementedError
+		return self.name #TODO: were is the difference between __str__?
 	
 	def __str__(self):
 		"""
@@ -31,7 +49,7 @@ class RectangleArena(Arena):
 		Returns:
 			str: Arena name
 		"""
-		raise NotImplementedError
+		return self.name
 
 	def getSize(self):
 		"""
