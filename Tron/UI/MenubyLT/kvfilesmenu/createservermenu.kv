@@ -14,21 +14,21 @@
         padding: 10
 
         Label:
-            id: displaymenunameLabel
+            id: menunameLabel
             text: 'Create Server Menu'
             size_hint: 1, .3
             color: 0, 1, 0, 1
 
         Label:
-            id: displayconnectedplayersLabel
+            id: connectedplayersLabel
             text: 'Noone wants to play with you. Even computer says NO'
             color: 0, 0, 0, 1
 
         Button:
             id: gamestartButton
             text: 'Start the game(Not implemented yet)'
-            #on_release:
-            #    root.manager.current = 'gamestartmenu'
+            on_release:
+                root.manager.current = 'gamestartmenu'
             #    root.startGame()
 
         Button:
@@ -36,20 +36,3 @@
             text: 'Return to the Main Menu (Not implemented yet)'
             on_release: root.manager.current = 'mainmenu'
 
-
-        BoxLayout:
-            Button:
-                text: 'Game Over Menu'
-                on_release: root.manager.current = 'gameovermenu'
-            Button:
-                text: 'Connection Lost Menu'
-                on_release: root.manager.current = 'connectionlostmenu'
-            Button:
-                text: 'Search For Server Menu'
-                on_release: root.manager.current = 'searchforservermenu'
-            Button:
-                text: 'Create Server Menu'
-                on_release: root.manager.current = 'createservermenu'
-            Button:
-                text: 'Pause Menu'
-                on_release: root.manager.current = 'pausemenu'

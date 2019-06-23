@@ -4,23 +4,27 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+#from ..mainUI import GameApp
 
 
-Builder.load_file('kvfilesmenu/gameovermenu.kv')
-Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
+import sys
+print(sys.path)
+
+#Builder.load_file('UI/MenusbyLT/kvfilesmenu/gameovermenu.kv')
+#Builder.load_file('../kvfilesmenu/connectionlostmenu.kv')
 Builder.load_file('kvfilesmenu/searchforservermenu.kv')
-Builder.load_file('kvfilesmenu/createservermenu.kv')
-Builder.load_file('kvfilesmenu/pausemenu.kv')
-Builder.load_file('kvfilesmenu/mainmenu.kv')
-Builder.load_file('kvfilesmenu/statisticsmenu.kv')
-Builder.load_file('kvfilesmenu/settingsmenu.kv')
-Builder.load_file('kvfilesmenu/aboutmenu.kv')
-Builder.load_file('kvfilesmenu/gamestartmenu.kv')
+Builder.load_file('./kvfilesmenu/createservermenu.kv')
+Builder.load_file('../../kvfilesmenu/pausemenu.kv')
+Builder.load_file('../../kvfilesmenu/mainmenu.kv')
+Builder.load_file('../../kvfilesmenu/statisticsmenu.kv')
+Builder.load_file('../../kvfilesmenu/settingsmenu.kv')
+Builder.load_file('../../kvfilesmenu/aboutmenu.kv')
+Builder.load_file('../../kvfilesmenu/gamestartmenu.kv')
 
 class GameOverMenu(Screen):
 
-    def getplayedTime(self):
-        """
+	def getplayedTime(self):
+		"""
 		Get the played time from the server
 
 		Args:
@@ -29,11 +33,11 @@ class GameOverMenu(Screen):
 			String
 		"""
 
-        #self.ids.displayplayedtimeLabel.text = time + 'maybe seconds'
-        #raise NotImplementedError
-    
-    def getwinnerName(self):
-        """
+		#self.ids.displayplayedtimeLabel.text = time + 'maybe seconds'
+		#raise NotImplementedError
+
+	def getwinnerName(self):
+		"""
 		Get the winner name from the server
 
 		Args:
@@ -41,32 +45,32 @@ class GameOverMenu(Screen):
 		Return:
 			String
 		"""
-        
-        #self.ids.displaywinnernameLabel.text = self.winner_name
-        raise NotImplementedError
-    
-    def getenemiesStatus(self, waiting_for_enemies: bool, enemies_left: bool):
-        """
+
+		#self.ids.displaywinnernameLabel.text = self.winner_name
+		raise NotImplementedError
+
+	def getenemiesStatus(self, waiting_for_enemies: bool, enemies_left: bool):
+		"""
 		Get the status of enemies from the server
 
 		Args:
 			waiting_for_enemies (bool): Status other players
-            players_enemies (bool): Status other players
+			players_enemies (bool): Status other players
 		Return:
 			String
 		"""
-        #if waiting_for_enemies == True:
-        #    displaytext = 'Please wait for other Players'
-        #elif enemies_left == True:
-        #    displaytext = 'I am sorry. The other Players left'
-        #else:
-        #    displatext = 'Server askes you to grab a coffee and wait...'
-            
-        #self.ids.statusotherplayersLabel.text = winner_name
-        raise NotImplementedError
+		#if waiting_for_enemies == True:
+		#	displaytext = 'Please wait for other Players'
+		#elif enemies_left == True:
+		#	displaytext = 'I am sorry. The other Players left'
+		#else:
+		#	displatext = 'Server askes you to grab a coffee and wait...'
 
-    def startGame(self):
-        """
+		#self.ids.statusotherplayersLabel.text = winner_name
+		raise NotImplementedError
+
+	def startGame(self):
+		"""
 		Send Startsignal to server and begin countdown
 
 		Args:
@@ -74,9 +78,10 @@ class GameOverMenu(Screen):
 		Return:
 			-
 		"""
-    
-    def exitGame(self):
-        """
+		raise NotImplementedError
+
+	def exitGame(self):
+		"""
 		Closes the client and server
 
 		Args:
@@ -84,8 +89,8 @@ class GameOverMenu(Screen):
 		Return:
 			-
 		"""
-        #call functions to close the applicationS
-        raise NotImplementedError
+		#call functions to close the applicationS
+		raise NotImplementedError
 
 class ConnectionLostMenu(Screen):
 
@@ -134,6 +139,8 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
+		#start_game = GameApp()
+		#start_game.run()
 		return self.inputIp, self.inputPort
 
 
@@ -176,8 +183,20 @@ class CreateServerMenu(Screen):
 
 class PauseMenu(Screen):
 
-    def startGame(self):
-        """
+	def resumeGame(self):
+		"""
+		Send Resumesignal to server
+
+		Args:
+			-
+		Return:
+			-
+		"""
+		#call resume game function
+		raise NotImplementedError
+
+	def startGame(self):
+		"""
 		Send Startsignal to server and begin countdown
 
 		Args:
@@ -185,11 +204,11 @@ class PauseMenu(Screen):
 		Return:
 			-
 		"""
-        #call starting game function
-        raise NotImplementedError
-    
-    def exitGame(self):
-        """
+		#call starting game function
+		raise NotImplementedError
+
+	def exitGame(self):
+		"""
 		Send exitgame signal to server
 
 		Args:
@@ -197,8 +216,8 @@ class PauseMenu(Screen):
 		Return:
 			-
 		"""
-        #call exit game function
-        raise NotImplementedError
+		#call exit game function
+		raise NotImplementedError
 
 class MainMenu(Screen):
     pass
@@ -230,9 +249,9 @@ screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 
 class MenusbyLT(App):
 
-    def build(self):
-        Window.clearcolor = (0.5, 0.5, 1 , 1)
-        return screen_manager
+	def build(self):
+		Window.clearcolor = (0.5, 0.5, 1 , 1)
+		return screen_manager
 
 if __name__ == '__main__':
-    MenusbyLT().run()
+	MenusbyLT().run()
