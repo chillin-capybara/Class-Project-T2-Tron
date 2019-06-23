@@ -13,13 +13,15 @@ Realisation of TCP Client Interface for TCP Client
 """
 class TCPCLient(Client):
 
-	__host = ""                 # Server Host IP
-	__port = 0                  # Server Port
-	__sock = None 				# Cleintsocket
-	__bufferSize = 4096
-	__Comm = None
-	__Player = None
-	__players = None
+	__host         = ""                 # Server Host IP
+	__port         = 0                  # Server Port
+	__sock         = None 				# Cleintsocket
+	__bufferSize   = 4096
+	__Comm         = None
+	__Player       = None
+	__players      = None 
+
+	__RecieverThread = None
 
 	def __init__(self, host = "", port=23456):
 		"""
@@ -34,11 +36,16 @@ class TCPCLient(Client):
 		self.__Player = []
 
 		self.__Comm: CommProt = JSONComm()
+		#self.__RecieverThread = ReceiverClientThread()
 
 		# Attach client_ready ack handler to event
 		self.__Comm.EClientReadyAck += self.handle_ready_ack
-		self.__Comm.EIngame += self.handle_ingame
+		self.__Comm.EIngame += self.handle_ingame #+ self.handle_ingame_update
 		self.__Comm.EServerError += self.handle_server_error
+
+		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
+		# self.__RecieverThread.EServerNotification += handle_serever_notification
+		self.__Comm.EServerNotification += self.handle_serever_notification
 
 
 	def attachPlayersUpdated(self, callback):
@@ -163,3 +170,21 @@ class TCPCLient(Client):
 		"""
 		# TODO: Artem -> behandlung von error messages
 		logging.error("Error Message form server: %s" % msg)
+
+	def handle_ingame_update(self, sender, players):
+		"""
+		Handle in-game player updates
+		Args:
+			sender (CommProt): Caller of the event
+			players (list): List of player object with current position.
+		"""
+		pass
+
+	def handle_serever_notification (self, sender, msg):
+		"""
+		Handle server notification
+		Args:
+			sender
+
+		"""
+		logging.info(msg)

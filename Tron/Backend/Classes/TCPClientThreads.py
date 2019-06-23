@@ -7,6 +7,7 @@ from ..Core.Exceptions import MessageError
 from random import randint
 import names
 import logging
+from ..Core.Event import Event
 
 class SenderClientThread(threading.Thread):
 	"""
@@ -66,6 +67,9 @@ class ReceiverClientThread(threading.Thread):
 	__player_id = None # Player index of the player on the server
 	__Comm = None
 
+	EIngameUpdate = None
+	EServerNotification = None
+
 	def __init__(self, sockfd, comm):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
@@ -76,6 +80,9 @@ class ReceiverClientThread(threading.Thread):
 		Raises:
 			TypeError: sockfd is not a socket
 		"""
+		
+		self.EIngameUpdate = Event()
+		self.EServerNotification = Event()
 		
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
