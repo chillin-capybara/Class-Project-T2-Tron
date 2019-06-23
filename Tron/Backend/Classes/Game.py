@@ -1,19 +1,45 @@
 from .Client import Client
+from .Player import Player
+from .Factory import Factory
+from .Arena import Arena
 
 class Game(object):
 	"""
 	Main class of the GAME backend part, handling all events and players
 	"""
 
-	me = None    # Current player from the gamer's perspective
-
 	Players = [] # List of players participating in the game
 
-	Arena = None # Arena object of the current game
+	__Arena = None # Arena object of the current game
 
 	__client = None
 
+	__me: Player = None
+
+	__me_id = 0 # Player ID of the current player 
+
+	@property
+	def me(self) -> Player:
+		"""
+		Object of the current player on the computer.
+		Returns:
+			Player: object of the current player
+		"""
+		return self.__me
+	
+	@property
+	def Arena(self) -> Arena:
+		"""
+		Return the current arena of the game
+		Returns:
+			Arena: object of the current arena
+		"""
+		return self.__Arena
+
 	def __init__(self):
+		# Create a local player for the current game
+		self.__me = Factory.Player("", 0)
+
 		# Attach the Player update event to the tcp receive event
 		self.__client.attachPlayersUpdated(self.UpdatePlayers)
 

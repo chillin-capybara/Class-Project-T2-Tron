@@ -296,6 +296,14 @@ class TCPServer(Server):
 		"""
 		Event handler for player ready event
 		"""
+		if self.__player_index >= self.__playernumber:
+			# Server is already full
+			msg = "Cannot join the game, the server is already full."
+			packet = self.__comm_proto.server_error(msg)
+			self.enqueue_for_player(packet, sender.player_id)
+			return # Exit the handler
+
+
 		# PRINT ALL THE PLAYER IN THE LIST
 		self.__players[sender.player_id] = player
 		logging.info("%s entered the game with ID=%d" % (player.getName(), sender.player_id))
@@ -320,10 +328,14 @@ class TCPServer(Server):
 			msg = "Players ready: %d of %d" %(self.__players_ready, self.__playernumber)
 			packet = self.__comm_proto.server_notification(msg)
 			self.enqueue_for_all(packet)
-		
+
+		# Acknowledge client
+		packet = self.__comm_proto.client_ready_ack(sender.player_id)
+		self.enqueue_for_player(packet, sender.player_id)
+
 		# TODO REMOVE THIS
-		packet = self.__comm_proto.server_error("Test server error")
-		self.enqueue_for_all(packet)
+		#packet = self.__comm_proto.server_error("Test server error")
+		#self.enqueue_for_all(packet)
 
 	def start_countdown(self):
 		"""

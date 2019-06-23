@@ -42,20 +42,20 @@ class CommProt:
 		NOTE
 			Calls Event Creators and lets event handlers subscribe to the specific events
 		"""
-		self.EClientError           = Event() # (sender=, msg=)
-		self.EServerError           = Event() # (sender=, msg=)
-		self.EClientReady           = Event() # (sender=, player=)
-		self.EClientReadyAck        = Event() # (sender=, player_id=)
+		self.EClientError           = Event('msg') # (sender=, msg=)
+		self.EServerError           = Event('msg') # (sender=, msg=)
+		self.EClientReady           = Event('player') # (sender=, player=)
+		self.EClientReadyAck        = Event('player_id') # (sender=, player_id=)
 		self.EServerReady           = Event() # (sender=)
 		self.ECountdown             = Event()
 		self.EIngame                = Event()
-		self.EClientIngame          = Event() # (sender=, player=)
+		self.EClientIngame          = Event('player') # (sender=, player=)
 		self.EPause                 = Event() # (sender=)
 		self.ERevenge               = Event() # (sender=)
 		self.ERevengeAck            = Event() # (sender=)
 		self.EExitGame              = Event() # (sender=)
-		self.EServerNotification    = Event() # (sender=, msg=
-		self.EClientChat            = Event() # (sender=, player_id=, msg=)
+		self.EServerNotification    = Event('msg') # (sender=, msg=
+		self.EClientChat            = Event('player_id', 'msg') # (sender=, player_id=, msg=)
 
 	def client_ready(self, player):
 		"""
