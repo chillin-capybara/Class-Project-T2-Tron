@@ -2,6 +2,8 @@ from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
 from ..Core.Exceptions import ClientError
 from .Factory import Factory
 from .Client import Client
+from .JSONComm import JSONComm
+from .CommProt import CommProt
 import socket
 import logging
 
@@ -29,7 +31,7 @@ class TCPCLient(Client):
 		"""
 		self.__Player = []
 
-		self.__Comm: CommProt = Factory.CommProt()
+		self.__Comm: CommProt = JSONComm()
 		#self.__RecieverThread = ReceiverClientThread()
 
 		# Attach client_ready ack handler to event
@@ -41,6 +43,8 @@ class TCPCLient(Client):
 		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
 		# self.__RecieverThread.EServerNotification += handle_serever_notification
 		self.__Comm.EServerNotification += self.handle_serever_notification
+
+		super().__init__()
 
 
 

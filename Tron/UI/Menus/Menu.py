@@ -5,10 +5,9 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from ..mainUI import GameApp
+from Backend.Classes.Game import Game
 
-
-import sys
-print(sys.path)
+GAME = Game()
 
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
@@ -143,7 +142,7 @@ class SearchForServerMenu(Screen):
 
 		start_game = GameApp()
 		start_game.run()
-		return self.inputIp, self.inputPort
+		GAME.ConnectToServer(self.inputIp, self.inputPort)
 
 
 	def updateconnecttoserverButton(self, inputIp, inputPort):

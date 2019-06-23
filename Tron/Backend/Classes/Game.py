@@ -117,12 +117,13 @@ class Game(object):
 		"""
 		return self.Players
 
-	def UpdatePlayers(self, players):
+	def UpdatePlayers(self,sender, players):
 		"""
 		Update the players of the current game, based on the receved data from Client
 		Interface
 
 		Args:
+			sender : Caller of the event
 			players (iter): Objects of players
 		
 		Raises:
