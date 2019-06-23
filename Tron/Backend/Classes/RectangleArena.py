@@ -1,10 +1,49 @@
 from Arena import Arena
+import logging
+#from dill.source import getname
+
+MAX_ARENA_SIZE = 1000
+MIN_ARENA_SIZE = 4
 
 
 class RectangleArena(Arena):
 	"""
 	Realisation of Arena Interface for Arena
 	"""
+	__sizeX = MIN_ARENA_SIZE
+	__sizeY = MAX_ARENA_SIZE
+	
+	
+	@property
+	def sizeX(self):
+		"""TODO: DOCSTRING"""
+		return self.__sizeX
+
+	@sizeX.setter
+	def sizeX(self, new_value):
+		if type(new_value) == int:
+			if (new_value < MIN_ARENA_SIZE) | (new_value > MAX_ARENA_SIZE) : # check, if the value is ok
+				raise ValueError	
+			else:
+				self.__sizeX = new_value
+		else:
+			raise TypeError
+	
+	@property
+	def sizeY(self):
+		"""TODO: DOCSTRING"""
+		return self.__sizeY
+
+	@sizeY.setter
+	def sizeY(self, new_value):
+		if type(new_value) == int:
+			if (new_value < MIN_ARENA_SIZE) | (new_value > MAX_ARENA_SIZE) : # check, if the value is ok
+				raise ValueError	
+			else:
+				self.__sizeY = new_value
+		else:
+			raise TypeError
+
 
 	def __init__(self, name: str, size, skin: int, mode: int):
 		"""
@@ -15,15 +54,27 @@ class RectangleArena(Arena):
 				skin(int): Skin of the Arena 
 				mode(int): Mode of the Arena
 		"""
+		#name 
 		if type (name) != str:
 			raise TypeError
 		else:
-			self.name = name
+			if len (name) > 20:	
+				raise ValueError
+			else:	
+				self.name = name
 
-		if (type (size[0]) != int) | ((type (size[1]) != int) ):
-			raise TypeError
-		else:
-			self.size = size
+		# size
+		self.sizeX = size[0]
+		self.sizeY = size[1]
+		# if (type (size[0]) != int) | ((type (size[1]) != int) ): # check if the each of tuple is an integer
+		# 	raise TypeError
+		# else:
+		# 	if (min(size) < MIN_ARENA_SIZE) | (max(size) > MAX_ARENA_SIZE) : # check, if the value is ok
+		# 		raise ValueError	
+		# 	else:
+		# 		self.size = size
+
+		
 
 		if type (skin) != int:
 			raise TypeError
@@ -41,9 +92,10 @@ class RectangleArena(Arena):
 		Returns:
 			str: Arena name
 		"""
+		
 		return self.name #TODO: were is the difference between __str__?
 	
-	def __str__(self):
+	def __str__(self) -> str:
 		"""
 		Convert arena to string = Get the name of the arena
 		Returns:
@@ -58,7 +110,8 @@ class RectangleArena(Arena):
 		Returns
 			Size as (x,y) Tuple
 		"""
-		raise NotImplementedError
+		return self.size
+
 	
 	def getSkin(self):
 		"""
@@ -67,7 +120,7 @@ class RectangleArena(Arena):
 		Returns:
 			Skin number as int
 		"""
-		raise NotImplementedError
+		return self.skin
 	
 	def getMode(self):
 		"""
@@ -76,7 +129,7 @@ class RectangleArena(Arena):
 		Returns:
 			Mode as int
 		"""
-		raise NotImplementedError
+		return self.mode
 	
 	def getObjects(self):
 		"""
