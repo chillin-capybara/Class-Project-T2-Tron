@@ -10,4 +10,4 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
-        },
+        }
