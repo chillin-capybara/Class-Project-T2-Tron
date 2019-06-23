@@ -1,0 +1,25 @@
+#:kivy 1.0.9
+
+<Track>:
+    points: [100, 100, 200, 100, 100, 200]
+    width: 10
+    canvas:
+        Ellipse:
+            pos: self.pos
+            size: self.size          
+
+<AnzeigespielerKivy>:
+    id: label_widget
+    text: 'Welcome to LikeGeeks!'
+    pos: 100, 100
+    
+
+
+<drawStartPoint>:
+    size: 20, 20 
+    pos: 100, 100
+    canvas:
+        Ellipse:
+            pos: self.pos
+            size: self.size          
+        

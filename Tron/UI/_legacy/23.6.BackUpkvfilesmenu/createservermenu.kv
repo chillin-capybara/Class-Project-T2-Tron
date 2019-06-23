@@ -1,0 +1,38 @@
+#
+#attributs:
+#Game_start_Button
+#Back_to_menu_Button
+#players_connected_Anzeige
+
+#operations:
+#    -
+
+<CreateServerMenu>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+
+        Label:
+            id: menunameLabel
+            text: 'Create Server Menu'
+            size_hint: 1, .3
+            color: 0, 1, 0, 1
+
+        Label:
+            id: connectedplayersLabel
+            text: 'Noone wants to play with you. Even computer says NO'
+            color: 0, 0, 0, 1
+
+        Button:
+            id: gamestartButton
+            text: 'Start the game(Not implemented yet)'
+            on_release:
+                root.manager.current = 'gamestartmenu'
+            #    root.startGame()
+
+        Button:
+            id: backtomenuButton
+            text: 'Return to the Main Menu (Not implemented yet)'
+            on_release: root.manager.current = 'mainmenu'
+

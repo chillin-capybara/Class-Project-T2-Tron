@@ -1,0 +1,41 @@
+#
+#attributs:
+#Game_start_Button
+#Back_to_menu_Button
+
+#operations:
+#    exitgame()
+
+<PauseMenu>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+
+        Label:
+            id: menuameLabel
+            text: 'Pause Menu'
+            size_hint: 1, .3
+            color: 1, 0, 1, 1
+
+        Button:
+            id: gamestartButton
+            text: 'Resume the Game (Not implemented yet)'
+            on_release:
+            #    root.resumeGame()
+
+
+        Button:
+            id: gamestartButton
+            text: 'Start the game again (Not implemented yet)'
+            on_release:
+                root.manager.current = 'gamestartmenu'
+            #    root.startGame()
+
+        Button:
+            id: backtomenuButton
+            text: 'Return to the Main Menu (Not implemented yet)'
+            #on_release:
+            #    root.manage.current = 'mainmenu'
+            #    root.exitGame()
+
