@@ -24,13 +24,16 @@ class TCPServer(Server):
 	__status = 0                # Server status
 	__Arena = None              # Hosted Arena
 	__playernumber = 0          # Number of players
-	__comm_proto = None         # Communication protocol
+	__comm_proto: CommProt = None         # Communication protocol
 	__players = None            # Array of players
 	__playerThreads = None      # Array of TCP Threads for the players in async communication
 	__player_index = 0          # Player index currently to be added
 	__sock = None               # Serversocket
 	__settings_locked = False   # Check if server settings are locked
 	__queues = None # Message queues for sender thread
+	__players_ready = 0
+
+	COUNTDOWN_TIME = 5
 
 	def __init__(self, host="", port=23456):
 		"""
@@ -185,7 +188,7 @@ class TCPServer(Server):
 		"""
 		for i in range(0, self.__playernumber):
 			if i is not player_id:
-				self.enqueue_for_player(packet, player_id)
+				self.enqueue_for_player(packet, i)
 	
 	def enqueue_for_all(self, packet: bytes):
 		"""
@@ -295,15 +298,42 @@ class TCPServer(Server):
 		"""
 		# PRINT ALL THE PLAYER IN THE LIST
 		self.__players[sender.player_id] = player
-		logging.info("%s joined with ID=%d" % (player.getName(), sender.player_id))
+		logging.info("%s entered the game with ID=%d" % (player.getName(), sender.player_id))
 
 		self.__comm_proto: CommProt
 		notification_msg = "%s entered the game." % player.getName()
 		ready_msg = self.__comm_proto.server_notification(notification_msg)
 		self.enqueue_except_player(ready_msg, sender.player_id)
 
+		self.__players_ready += 1
+
+		# Check if all clients are ready?
+		if self.__players_ready == self.__playernumber:
+			# Let's go start the game
+			msg = "All players (%d of %d) ready, starting game..." % (self.__players_ready, self.__playernumber)
+			packet = self.__comm_proto.server_notification(msg)
+			self.enqueue_for_all(packet)
+
+			self.start_countdown()
+		else:
+			# Send player ready status report
+			msg = "Players ready: %d of %d" %(self.__players_ready, self.__playernumber)
+			packet = self.__comm_proto.server_notification(msg)
+			self.enqueue_for_all(packet)
 		
-	
+		# TODO REMOVE THIS
+		packet = self.__comm_proto.server_error("Test server error")
+		self.enqueue_for_all(packet)
+
+	def start_countdown(self):
+		"""
+		Send start countdown message to all connected players
+		"""
+		logging.info("Starting game with countdown...")
+		packet = self.__comm_proto.countdown(self.COUNTDOWN_TIME)
+		self.enqueue_for_all(packet)
+
+
 	def handler_client_ingame(self, sender: ReceiverThread, player: Player):
 		"""
 		Event handler for updating play objects
@@ -316,3 +346,6 @@ class TCPServer(Server):
 		"""
 		logging.info("%s has left the match!", (self.__players[sender.player_id].getName()))
 
+		notification_msg = "%s has left the game." % self.__players[sender.player_id].getName()
+		ready_msg = self.__comm_proto.server_notification(notification_msg)
+		self.enqueue_except_player(ready_msg, sender.player_id)

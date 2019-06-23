@@ -84,6 +84,8 @@ class SenderThread(threading.Thread):
 
 				# Wait a bit 
 				time.sleep(0.01)
+		except OSError as e:
+			logging.error("Socket close in SENDER thread. Reason: %s" % str(e))
 		except Exception as e:
 			logging.critical(str(e))
 			#raise e
@@ -179,9 +181,14 @@ class ReceiverThread(threading.Thread):
 				# Invalid message was sent
 				logging.warning("Invalid data received." + str(v))
 				logging.debug(data)
-			except Exception:
+			except OSError as e:
+				logging.error("Socket close in SENDER thread. Reason: %s" % str(e))
+				break
+			except Exception as e:
 				# Connection is broken: Hook that player is leaving
 				self.EExitGame(self)
+				logging.error(str(e))
+				raise e
 				break
 		logging.debug("Closing receiver thread %d..." % self.__player_id)
 	
