@@ -59,9 +59,9 @@ class Event(object):
 				return False
 		
 		# Check arguments in prototype
-		for arg in callable_args:
-			if arg not in self.__args:
-				return False
+		#for arg in callable_args:
+		#	if arg not in self.__args:
+		#		return False
 
 		return True
 	
