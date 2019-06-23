@@ -1,8 +1,8 @@
 from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
 from ..Core.Exceptions import ClientError
 from .Factory import Factory
+from .Client import Client
 import socket
-import names
 import logging
 
 """

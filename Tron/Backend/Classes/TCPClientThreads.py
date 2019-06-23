@@ -5,7 +5,6 @@ import math
 from .Factory import Factory
 from ..Core.Exceptions import MessageError
 from random import randint
-import names
 import logging
 from ..Core.Event import Event
 
@@ -56,7 +55,7 @@ class SenderClientThread(threading.Thread):
 			sends updates of the in-game state to the server
 			whenewer it is needed
 		"""
-		myplayer = Factory.Player(names.get_first_name(), 1)
+		myplayer = Factory.Player("", 1)
 		self.__sockfd.send(self.__Comm.client_ready(myplayer))
 		time.sleep(1)
 		while True:
