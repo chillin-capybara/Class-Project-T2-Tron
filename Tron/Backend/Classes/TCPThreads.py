@@ -11,6 +11,21 @@ class SenderThread(threading.Thread):
 	Thread for implementing send functionality for TCP Clients
 	Only responsible for Sending in-game data
 	"""
+	@property
+	def player_id(self):
+		return self.__player_id
+	
+	@player_id.setter
+	def player_id(self, new_value):
+		"""
+		TODO: DOCS
+		"""
+		if type(new_value) == int:
+			self.__player_id = new_value
+		else:
+			raise TypeError
+
+	__hook = None # Hook for communicationg with the server class
 	__sockfd = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__comm_proto = None
@@ -55,15 +70,23 @@ class SenderThread(threading.Thread):
 		logging.debug("Starting sender thread %d..." % self.__player_id)
 		try:
 			while True:
-				# Get the list of the players using the back hook to the server
-				msg = self.__comm_proto.ingame(self.__hook.getPlayers(), None)
+				# 1. Check if there is something in the queue
+				if(self.__hook.hook_is_enqueued(self)):
+					# If enqueued, send the content of the queue
+					msg = self.__hook.hook_dequeue(self)
+				else:
+					# If NOT enqueue, send the player updates
+					# Get the list of the players using the back hook to the server
+					msg = self.__comm_proto.ingame(self.__hook.getPlayers(), None)
+
+				# Send the selected message	
 				self.__sockfd.send(msg)
 
-				msg = self.__comm_proto.server_error("Playername already exists")
-				self.__sockfd.send(msg)
+				# Wait a bit 
 				time.sleep(0.01)
-		except:
-			pass
+		except Exception as e:
+			##logging.critical(str(e))
+			raise e
 		finally:
 			logging.debug("Stopping sender thread %d..." % self.__player_id)
 

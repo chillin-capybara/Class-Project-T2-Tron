@@ -7,6 +7,7 @@ from .JSONComm import JSONComm
 from .Player import Player
 from .Arena import Arena
 from .Factory import Factory
+from collections import deque
 import logging
 import socket
 
@@ -27,8 +28,9 @@ class TCPServer(Server):
 	__players = None            # Array of players
 	__playerThreads = None      # Array of TCP Threads for the players in async communication
 	__player_index = 0          # Player index currently to be added
-	__sock = None # Serversocket
+	__sock = None               # Serversocket
 	__settings_locked = False   # Check if server settings are locked
+	__queues = None # Message queues for sender thread
 
 	def __init__(self, host="", port=23456):
 		"""
@@ -40,6 +42,7 @@ class TCPServer(Server):
 			TypeError: Not valid types
 			ValueError: Port Number is invalid
 		"""
+
 		if not type(host) == str:
 			raise TypeError
 		
@@ -124,6 +127,11 @@ class TCPServer(Server):
 		# Reserve the objects for the players
 		for i in range(0, players):
 			self.__players.append(Factory.Player("", 0))
+		
+		# Initialize the message queues for the sender thread
+		self.__queues = []
+		for i in range(0, players):
+			self.__queues.append(deque())
 	
 	def getPlayerNumber(self):
 		"""
@@ -147,6 +155,80 @@ class TCPServer(Server):
 		"""
 		# TODO: Add ServerError when the server is not running
 		return self.__players
+	
+	def enqueue_for_player(self, packet: bytes, player_id: int):
+		"""
+		Enqueue a communication packet for one player
+		Args:
+			packet (bytes): Packet to enqueue
+			player_id (int): ID of the player to enqueu the packet for
+		Raises:
+			TypeError: Invalid argument types
+		"""
+
+		if(type(packet) is not bytes):
+			raise TypeError
+		
+		if type(player_id) is not int:
+			raise TypeError
+
+		self.__queues[player_id].append(packet)
+
+	def enqueue_except_player(self, packet: bytes, player_id: int):
+		"""
+		Enqueu a communication packet for all players except the given player
+		Args:
+			packet (bytes): Packet to enque
+			player_id (int): ID of the player to exclude
+		Raises:
+			TypeError: Invalid argument types
+		"""
+		for i in range(0, self.__playernumber):
+			if i is not player_id:
+				self.enqueue_for_player(packet, player_id)
+	
+	def enqueue_for_all(self, packet: bytes):
+		"""
+		Enqueue a communication packet for all players
+		Args:
+			packet (bytes): Packet to enqueue
+		Raises:
+			TypeError: Packet is not byte coded
+		"""
+
+		for i in range(0, self.__playernumber):
+			self.enqueue_for_player(packet, i)
+	
+	def hook_is_enqueued(self, caller: SenderThread) -> bool:
+		"""
+		Get if there is a packet enqueued for the current thread
+		Args:
+			caller (SenderThread): Caller of the hook
+		Returns:
+			bool
+		"""
+		if len(self.__queues[caller.player_id]) > 0:
+			return True
+		else:
+			return False
+	
+	def hook_dequeue(self, caller: SenderThread) -> bytes:
+		"""
+		Dequeue a byte encoded message for a specific sender thread from the queue
+		Args:
+			caller (SenderThread): Caller of the hook
+		Returns:
+			bytes: Next message in the queue
+		Raises:
+			BufferError: No messages available in the queue
+		NOTE
+			If you call this function after checking the queue, then
+			there cannot be any Exceptions raised
+		"""
+		if self.hook_is_enqueued(caller):
+			return (self.__queues[caller.player_id]).popleft()
+		else:
+			raise BufferError("No messages in the queue")
 
 	def __create_threads(self, sock: socket.socket, player_id: int):
 		"""
@@ -162,7 +244,9 @@ class TCPServer(Server):
 		# Create a protocoll instance for every thread pair!
 		thr_proto = JSONComm()
 
+		# NOTE: Sender thread needs a hook
 		senderThread = SenderThread(self, sock, thr_proto, player_id)
+
 		receiverThread = ReceiverThread(sock, thr_proto, player_id)
 
 		# Add event handlers for the receiver thread
@@ -205,13 +289,19 @@ class TCPServer(Server):
 		except Exception as e:
 			raise e
 
-	def handler_client_ready(self, sender: ReceiverThread, player):
+	def handler_client_ready(self, sender: ReceiverThread, player: Player):
 		"""
 		Event handler for player ready event
 		"""
 		# PRINT ALL THE PLAYER IN THE LIST
 		self.__players[sender.player_id] = player
 		logging.info("%s joined with ID=%d" % (player.getName(), sender.player_id))
+
+		self.__comm_proto: CommProt
+		notification_msg = "%s entered the game." % player.getName()
+		ready_msg = self.__comm_proto.server_notification(notification_msg)
+		self.enqueue_except_player(ready_msg, sender.player_id)
+
 		
 	
 	def handler_client_ingame(self, sender: ReceiverThread, player: Player):
