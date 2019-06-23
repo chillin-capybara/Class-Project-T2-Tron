@@ -1,9 +1,11 @@
-from CommProt import CommProt
-from Game import Game
-from Player import Player
-from Tron.Backend.Classes.Factory import Factory
-from Tron.Backend.Core.Vect2D import Vect2D
-from Tron.Backend.Core.core_functions import get_timestamp
+from .CommProt import CommProt
+from .Game import Game
+from .Player import Player
+from .Factory import Factory
+from .Arena import Arena
+from ..Core.Vect2D import Vect2D
+from ..Core.core_functions import get_timestamp
+from ..Core.Exceptions import MessageError
 import json
 
 class JSONComm(CommProt):
@@ -52,7 +54,7 @@ class JSONComm(CommProt):
 		"""
 		return self.string_to_bytes(json.dumps(dict))
 	
-	def bytes_to_dict(self, input: bytes) -> dict:
+	def bytes_to_dict(self, data: bytes) -> dict:
 		"""
 		Converts the input bytes array into a dictionary
 		Args:
@@ -63,11 +65,14 @@ class JSONComm(CommProt):
 			TypeError
 			ValueError
 		"""
-		if type(input) is not bytes:
+		if type(data) is not bytes:
 			raise TypeError
 
 		try:
-			return json.loads(input, encoding="UTF-8")
+			decoded = data.decode("UTF-8")
+			return json.loads(decoded)
+		except json.JSONDecodeError: # Invalid JSON String
+			raise MessageError()
 		except Exception as e:
 			raise ValueError(str(e))
 
@@ -132,13 +137,13 @@ class JSONComm(CommProt):
 			vel: Vect2D = player.getVelocity()
 
 			# Create a dict
-			player_dict = {'x':pos.x, 'y':pos.y, 'vx': vel.x, 'vy':vel.y}
+			player_dict = {'playername': player.getName(), 'color': player.getColor(), 'x':pos.x, 'y':pos.y, 'vx': vel.x, 'vy':vel.y}
 			array.append(player_dict)
 		
 		return array
 
 	
-	def ingame(self, game: Game) -> bytes:
+	def ingame(self, players: list, arena: Arena) -> bytes:
 		"""
 		Get a byte coded in-game packet from the server
 
@@ -146,8 +151,10 @@ class JSONComm(CommProt):
 			game (Game): Current running game in the server
 		Returns:
 			bytes
+		TODO
+			Add Arena object too
 		"""
-		players_dict = self.__players_dict(game.getPlayers())
+		players_dict = self.__players_dict(players)
 
 		mydict = {
 			'type': 'ingame',
@@ -156,6 +163,34 @@ class JSONComm(CommProt):
 			}
 		# TODO: (Marcell) Add arena stuff
 		return self.dict_to_jsonbytes(mydict)
+	
+	def client_ingame(self, player: Player) -> bytes:
+		"""
+		Get a byte coded in-game message from a single client
+		It shall only contain the client player's data
+		Args:
+			player (Player): Current player [ME]
+		Return:
+			bytes: message
+		Raises:
+			TypeError: Argument types ar not valid
+		"""
+		
+		if not Factory.isPlayer(player):
+			raise TypeError
+		
+		msgdict = {
+			'type': 'client_ingame',
+			'playername': player.getName(),
+			'color': player.getColor(),
+			'x': player.getPosition().x,
+			'y': player.getPosition().y,
+			'vx': player.getVelocity().x,
+			'vy': player.getVelocity().y,
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
 	
 	def client_ready(self, player: Player) -> bytes:
 		"""
@@ -167,7 +202,7 @@ class JSONComm(CommProt):
 			bytes
 		"""
 
-		if type(player) is not Player:
+		if not Factory.isPlayer(player):
 			raise TypeError
 		
 		msgdict = {
@@ -268,6 +303,40 @@ class JSONComm(CommProt):
 		
 		return self.dict_to_jsonbytes(msgdict)
 	
+	def server_notification(self, msg):
+		"""
+		Get a byte coded message for sending notifications from the server
+		Args:
+			msg (str): Message to send
+		Returns:
+			byte
+		"""
+		msgdict = {
+			'type': 'server_notification',
+			'message': msg,
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
+	
+	def client_chat(self, player_id: int, msg: str) -> bytes:
+		"""
+		Get a byte coded message for sending chat messages between clients
+		Args:
+			player_id (int): Identifier of the player on the server
+			msg (str): Chat message
+		Returns:
+			byte
+		"""
+		msgdict = {
+			'type': 'client_chat',
+			'player_id': player_id,
+			'message': msg,
+			'timestamp': get_timestamp()
+		}
+
+		return self.dict_to_jsonbytes(msgdict)
+	
 	def process_response(self, response: bytes):
 		"""
 		Process incoming requests in JSONComm format, return type and result
@@ -278,8 +347,8 @@ class JSONComm(CommProt):
 			TypeError: Response is not bytes
 		"""
 
-		if type(response) is not bytes:
-			raise TypeError
+		#if type(response) is not bytes:
+		#	raise TypeError
 
 		try:
 			# Decode the message
@@ -290,30 +359,48 @@ class JSONComm(CommProt):
 				raise ValueError("The received message is invalid")
 			
 			if decoded['type'] == "client_ready":
-				pass
+				obj = self.__process_client_ready(decoded)
+				self.EClientReady(self, player=obj)
+				return CommProt.CLIENT_READY, obj
 			elif decoded['type'] == 'client_ready_ack':
-				return CommProt.CLIENT_READY_ACK, self.__process_client_ready_ack(decoded)
+				obj = self.__process_client_ready_ack(decoded)
+				self.EClientReadyAck(self, player_id=obj) # Call the event with the player_id
+				return CommProt.CLIENT_READY_ACK, obj
 			elif decoded['type'] == 'client_error':
-				pass
+				obj = self.__process_error(decoded) # OBJECT STORE
+				self.EClientError(self, msg=obj)    # CALL EVENT
+				return CommProt.CLIENT_ERROR, obj   # RETURN VALUE
 			elif decoded['type'] == 'server_error':
-				pass
+				obj = self.__process_error(decoded) # OBJECT STORE
+				self.EServerError(self, msg=obj)    # CALL EVENT
+				return CommProt.SERVER_ERROR, obj   # RETURN VALUE
+			elif decoded['type'] == 'server_notification':
+				obj = self.__process_server_notification(decoded)
+				self.EServerNotification(self, msg=obj)
+				return CommProt.SERVER_NOTIFICAITON, obj
+			elif decoded['type'] == 'client_chat':
+				pid, msg = self.__process_client_chat(decoded)
+				self.EClientChat(self, player_id=pid, msg=msg)
+				return CommProt.CLIENT_CHAT, pid, msg
 			elif decoded['type'] == 'ingame':
-				pass
+				obj = self.__process_ingame(decoded)
+				self.EIngame(self, players=obj)    # EVENT CALL
+				return CommProt.INGAME, obj        # TODO: EXtend with returning the Arena, too
+			elif decoded['type'] == 'client_ingame':
+				obj = self.__process_client_ingame(decoded)
+				self.EClientIngame(self, player=obj) # EVENT CALL
+				return CommProt.CLIENT_INGAME, obj
 			elif decoded['type'] == 'countdown':
-				pass
+				return CommProt.COUNTDOWN, self.__process_countdown(decoded)
 			elif decoded['type'] == 'revenge':
-				# Only call event and no return
-				pass
+				return CommProt.REVENGE, True
 			elif decoded['type'] == 'revenge_ack':
-				# Only call event and no return
-				pass
+				return CommProt.REVENGE_ACK, True
 			elif decoded['type'] == 'exit_game':
-				# Only call event and no return
-				pass
+				return CommProt.EXIT_GAME, True
 			else:
 				# Invalid message type: Type not exists
 				raise ValueError("The message type is invalid!")
-		
 		except Exception as e:
 			# Pass exception along
 			raise e
@@ -380,7 +467,7 @@ class JSONComm(CommProt):
 
 		seconds = msgdict['seconds']
 		# Check if the countdown is positive
-		if seconds < 0:
+		if seconds < 1:
 			raise ValueError("Negative countdown")
 		
 		return seconds
@@ -409,11 +496,107 @@ class JSONComm(CommProt):
 		
 		return msgdict['message']
 	
+	def __process_server_notification(self, msgdict: dict) -> str:
+		"""
+		Get the notification message from the server
+		Args:
+			msgdict (dict): Dict of the sent messages
+		Returns:
+			str: Received messsage
+		"""
+		# Check for message key
+		if 'message' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['message']) is not str:
+			raise TypeError
+		
+		return msgdict['message']
+	
+	def __process_client_chat(self, msgdict: dict) -> tuple:
+		"""
+		Process the client chat messages
+		"""
+		# Check for message key
+		if 'message' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['message']) is not str:
+			raise TypeError
+
+		# Check for message key
+		if 'player_id' not in msgdict.keys():
+			raise KeyError
+		
+		# Check the message type
+		if type(msgdict['player_id']) is not int:
+			raise TypeError
+		
+		return msgdict['player_id'], msgdict['message']
+
 	def __process_ingame(self, msgdict: dict):
 		"""
+		TODO
+		DOCUMENT THIS FUNCTIOn
 		"""
-		# TODO: Impelment ingame processor
-		pass
-	
+		# Check for the players instance
+		if 'players' not in msgdict.keys():
+			raise KeyError
+		
+		if type(msgdict['players']) is not list:
+			raise TypeError
+		
+		# List all players and fetch them to an array
+		plarray = []
 
-				
+		for pldata in msgdict['players']:
+			# Fetch data from the dict
+			player = Factory.Player(pldata['playername'], pldata['color'])
+			player.setVelocity(pldata['vx'], pldata['vy'])
+			player.setPosition(pldata['x'], pldata['y'])
+
+			# Add player to the results
+			plarray.append(player)
+		return plarray
+
+	
+	def __process_client_ingame(self, msgdict: dict) -> Player:
+		"""
+		Process a client in-game request.
+		Args:
+			msgdict (dict): Encoded messaage dictionary
+		Returns:
+			Player: Current player object
+		"""
+		# Check for message key
+		if 'playername' not in msgdict.keys():
+			raise KeyError
+
+		# Check for message key
+		if 'color' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'x' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'y' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'vx' not in msgdict.keys():
+			raise KeyError
+		
+		# Check for message key
+		if 'vy' not in msgdict.keys():
+			raise KeyError
+		
+		pl = Factory.Player(msgdict['playername'], msgdict['color'])
+		pl: Player()
+		pl.setPosition(msgdict['x'], msgdict['y'])
+		pl.setVelocity(msgdict['vx'], msgdict['vy'])
+
+		return pl
