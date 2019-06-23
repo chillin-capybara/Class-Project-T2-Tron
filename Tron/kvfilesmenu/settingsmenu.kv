@@ -23,17 +23,7 @@
             TextInput:
                 id: nameTextInput
                 hint_text: 'Player 1'
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint: (1,1)
-            Label:
-                id: changecolorLabel
-                text: 'Change Player Color:'
-                size_hint: (0.5, 1)
-                color: 1, 0, 0, 1
-            TextInput:
-                id: colorTextInput
-                hint_text: 'Color in Int'
+                #on_text: root.updatenameinput(nameTextInput.text)
         Button:
             id: arenatypeButton
             text: 'Change Arena Type'
@@ -73,5 +63,5 @@
             text: 'Back to Main Menu (Save)'
             background_color: (1,0,0,1)
             size_hint: (1, 0.5)
-            on_press: root.savechanges(nameTextInput.text, colorTextInput.text)
+            #on_press: root.savechanges(nameTextInput.text, difficultyendlabel.text)
             on_release: root.manager.current = 'mainmenu'
