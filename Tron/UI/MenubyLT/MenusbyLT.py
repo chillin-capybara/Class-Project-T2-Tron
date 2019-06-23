@@ -15,7 +15,7 @@ Builder.load_file('kvfilesmenu/mainmenu.kv')
 Builder.load_file('kvfilesmenu/statisticsmenu.kv')
 Builder.load_file('kvfilesmenu/settingsmenu.kv')
 Builder.load_file('kvfilesmenu/aboutmenu.kv')
-#Builder.load_file('kvfilesmenu/gamestartmenu')
+Builder.load_file('kvfilesmenu/gamestartmenu.kv')
 
 class GameOverMenu(Screen):
 
@@ -86,7 +86,7 @@ class GameOverMenu(Screen):
 		"""
         #call functions to close the applicationS
         raise NotImplementedError
-    
+
 class ConnectionLostMenu(Screen):
 
 	#Fehlt: Game Start Button
@@ -105,8 +105,11 @@ class ConnectionLostMenu(Screen):
 
 class SearchForServerMenu(Screen):
 
-    def getserverOnline(self):
-        """
+	ip = '-'
+	port = 0
+
+	def getserverOnline(self):
+		"""
 		Get the server which are online
 
 		Args:
@@ -114,25 +117,53 @@ class SearchForServerMenu(Screen):
 		Return:
 			String
 		"""
-        #if...
-        raise NotImplementedError
-    
-    def connecttoServer(self, ticketBox):
-        """
-		Connects to Server
+		
+		raise NotImplementedError
+
+	def connecttoServer(self, inputIp, inputPort):
+		"""
+		Sends IP and Port to Server
 
 		Args:
-			-
+			inputIp (str):
+			inputPort (str):
 		Return:
-			-
+			inputIp (str):
+			inputPort (int):
 		"""
-        #connect to choosen server
-        raise NotImplementedError
+		self.inputIp = inputIp
+		self.inputPort = int(inputPort)
+
+		return self.inputIp, self.inputPort
+
+
+	def updateconnecttoserverButton(self, inputIp, inputPort):
+		"""
+		Takes IP from Input at Search for Server Menu
+
+		Args:
+			inputIp (str):
+			inputPort (str):
+		Return:
+			change String in connectinotoserverButton
+		"""
+		self.inputIp = inputIp
+		self.inputPort = inputPort
+		if inputIp:
+			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
+			self.ids.connectiontoserverButton.text = output
+		
+		elif inputPort:
+			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
+			self.ids.connectiontoserverButton.text = output
+
+		else:
+			pass
 
 class CreateServerMenu(Screen):
 
-    def startGame(self):
-        """
+	def startGame(self):
+		"""
 		Send Startsignal to server and begin countdown
 
 		Args:
@@ -140,8 +171,8 @@ class CreateServerMenu(Screen):
 		Return:
 			-
 		"""
-        #call starting game function
-        raise NotImplementedError
+		#call starting game function
+		raise NotImplementedError
 
 class PauseMenu(Screen):
 
@@ -172,10 +203,11 @@ class PauseMenu(Screen):
 class MainMenu(Screen):
     pass
 
-class StatisticsMenu(Screen):
-    pass
-
 class SettingsMenu(Screen):
+	def changedifficulty(self,choice):
+		self.ids.difficultyendLabel.text=choice
+
+class StatisticsMenu(Screen):
     pass
 
 class AboutMenu(Screen):
