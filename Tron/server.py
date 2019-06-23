@@ -5,21 +5,24 @@ import click # Click for command framework
 import logging, coloredlogs
 
 logger = logging.getLogger()
-coloredlogs.install(level='DEBUG')
+coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s', level='DEBUG', hostname=False)
 
 # IMPORT GAME
 from Backend.Classes.TCPServer import TCPServer
 
-@click.command()
-@click.option('--ip', help="IP address to listen on", default="")
-@click.option('--port', help="Port to listen on", default=23)
-def main(ip, port):
+
+def main(ip, port, player_nr):
 	"""
 	Start a Tron Game Server on this local machine by defining
 	the server properties via command line
 	"""
-	logging.error("This is a debug message")
-	click.pause()
+	logging.info("Intializing server...")
+
+	# Configure TCP Server
+	server = TCPServer(host=ip, port=port)
+	server.setPlayerNumber(player_nr)
+
+	server.Start()
 
 if __name__ == '__main__':
-	main()
+	main("", 9877, 2)

@@ -124,6 +124,13 @@ class Player(object):
 		"""
 		raise NotImplementedError
 	
+	def setVelocity(self, x, y):
+		"""
+		Set the velocity of the player to the given x, y directions
+		TODO: DOKU
+		"""
+		raise NotImplementedError
+	
 	def addTrack(self, track):
 		"""
 		Add a new track element to the pulled "light-track" of the player
@@ -158,3 +165,27 @@ class Player(object):
 			TypeError: time is not an integer
 		"""
 		raise NotImplementedError
+
+	def __eq__(self, other):
+		"""
+		Veryfies if 2 player object data are equal
+		Args:
+			other (HumanPlay): HumanPlayer Object
+		Return:
+			bool
+		"""
+		try:
+			if (other.isPlayer()):
+				eq = self.getName() == other.getName() and \
+				self.getColor() == other.getColor() and \
+				self.getVelocity() == other.getVelocity() and \
+				self.getPosition() == other.getPosition()
+
+				return eq
+		except:
+			return False
+	
+	def isPlayer(self):
+		"""
+		"""
+		return True

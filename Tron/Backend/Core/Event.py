@@ -1,9 +1,25 @@
+import logging
+
 class Event(object):
 	"""
 	Event definitions for event based programming in Python
 	"""
 
-	__callables = []
+	__callables = None
+	__args:list = None
+
+	def __init__(self, *args):
+		self.__args = []
+		self.__callables = []
+
+		# Append the required argument
+		self.__args.append('sender')
+
+		# Check if a pattern is given
+		if len(args) > 0:
+			# Add the prototype arguments to the arg list
+			for carg in args:
+				self.__args.append(carg)
 
 	def attach(self, callback):
 		"""
@@ -15,11 +31,58 @@ class Event(object):
 		Raises:
 			TypeError: The passed argument is not a callable
 		"""
-		if callable(callback):
-			self.__callables.append(callback)
-		else:
+		if not callable(callback):
 			raise TypeError
+		
+		# If the Event handler prototype is invalid
+		if not self.matches_prototype(callback):
+			raise SyntaxError("Invalid Event Handler. Correct prototype: %s" % self.get_prototype_string())
+		
+		logging.debug("%s attached to Event" % (callback.__name__))
+
+		self.__callables.append(callback)
 	
+	def matches_prototype(self, callback):
+		"""
+		Check if the callble has all the arguments, the event requires
+		Args:
+			callback (callable): Event handler to check
+		Returns:
+			bool
+		"""
+		# Get the variable names of the callback
+		callable_args: list = callback.__code__.co_varnames
+
+		# Check prototype arguments in function
+		for arg in self.__args:
+			if arg not in callable_args:
+				return False
+		
+		# Check arguments in prototype
+		#for arg in callable_args:
+		#	if arg not in self.__args:
+		#		return False
+
+		return True
+	
+	def get_prototype_string(self):
+		"""
+		Gets the Event handler prototype as a string
+		Returns:
+			str
+		"""
+		output = "("
+		i = 0
+		for arg in self.__args:
+			if i == 0:
+				output += "%s=" % arg
+			else:
+				output += ",%s=" % arg
+			i += 1
+		
+		output += ")"
+		return output
+
 	def detach(self, callback):
 		"""
 		Detach a callback from an event
@@ -103,12 +166,3 @@ class Event(object):
 		"""
 
 		self.call(sender, *args, **kwargs)
-
-def ev_handler(sender, msg):
-	print("SENDER: " + sender)
-	print(msg)
-
-
-myevent = Event()
-myevent.attach(ev_handler)
-myevent.call("MYSQL", msg="MyMePRINTPIRPIASPDIASPDIssage")
