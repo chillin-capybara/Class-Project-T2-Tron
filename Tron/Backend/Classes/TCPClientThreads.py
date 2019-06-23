@@ -9,12 +9,23 @@ import names
 import logging
 from ..Core.Event import Event
 
+class makros (object):
+	"""
+	makro 
+	"""
+	#TODO: REMOVE THIS
+	#MAKRO for FSM
+	INIT_STATE          = 0
+	CLIENT_READY        = 1
+	CLEINT_READY_ACK    = 2
+	CLIENT_ERROR        = 3
+
 class SenderClientThread(threading.Thread):
 	"""
 	Thread for implementing send functionality fot TCP Server
 	Responsible for sending just the in-game data
 	"""
-	__sockfd = None # Socket for client communication
+	__sockfd: socket.socket = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__Comm = None
 
@@ -63,9 +74,10 @@ class ReceiverClientThread(threading.Thread):
 	Responsible for handling request - response communication and receiving new player data 
 	"""
 
-	__sockfd = None # Socket for client communication
+	__sockfd: socket.socket = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__Comm = None
+	__stateFSM = None
 
 	EIngameUpdate = None
 	EServerNotification = None
@@ -90,6 +102,7 @@ class ReceiverClientThread(threading.Thread):
 			raise TypeError
 
 		self.__Comm = comm
+		self.__stateFSM = makros.INIT_STATE
 
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
@@ -103,11 +116,31 @@ class ReceiverClientThread(threading.Thread):
 		"""
 		logging.debug("Receiver thread started...")
 		while True:
+			
+			
+			
 			try:
 				data = self.__sockfd.recv(1500)
 				self.__Comm.process_response(data)
 			except MessageError:
 				# Invalid message was received / Processed
 				logging.warning("Invalid message received from server")
+
+		# # FSM
+		# 	if self.__stateFSM == makros.INIT_STATE:
+		# 		pass
+
+		# 	elif self.__stateFSM == makros.CLIENT_READY:
+				
+		# 		logging.info ("Ready, waiting for ACK")
+
+		# 	elif self.__stateFSM == makros.CLEINT_READY_ACK:
+		# 		logging.info ("Ready ACK recieved")
+
+		# 	elif self.__stateFSM == makros.CLIENT_ERROR:
+		# 		self.__sockfd.close()
+		# 		logging.info ("Client ERROR")
+
+
 
 		logging.debug("Receiver thread stopped stopped")
