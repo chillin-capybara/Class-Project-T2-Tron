@@ -1,3 +1,18 @@
+#
+#attributs:
+#Name_Winner: str
+#time: int
+#revenge_Button
+#revenge_Button
+#Back_to_menu_Button
+#Waiting_for_other_player_if_waiting_Anzeige
+#Player_left_if other player left_Anzeige
+#Game_or_Menu: boolean ??????
+
+#operations:
+#   revenge()
+#   exitgame()
+
 <GameOverMenu>:
     BoxLayout:
         orientation: 'vertical'
@@ -14,7 +29,7 @@
             id: displaywinnernameLabel
             text: 'Jack Norris f**ked you!'
             color: 0, 0, 0, 1
-       
+
         Label:
             id: displayplayedtimeLabel
             text: '42 times already...'
@@ -24,7 +39,7 @@
             id: statusenemiesLabel
             text: 'Other players will grab a coffee. Wanna join?'
             color: 0, 0, 0, 1
-            
+
         Button:
             id: revengeButton
             text: 'Press for revenge'
@@ -40,7 +55,7 @@
         Button:
             id: quitButton
             text: 'Quit the Game (Not implemented yet)'
-            #on_release: root.exitGame() 
+            #on_release: root.exitGame()
 
         BoxLayout:
             Button:

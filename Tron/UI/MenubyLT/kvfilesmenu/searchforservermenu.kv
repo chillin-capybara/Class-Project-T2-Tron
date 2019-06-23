@@ -1,4 +1,15 @@
-<ConnectionLostMenu>:
+#
+#attributs:
+#Players_online_list: str
+#input_IP
+#connect_to_server_Button
+#Back_to_menu_Button
+#waiting_for _other_player_if_waiting_Anzeige
+
+#operations:
+#    -
+
+<SearchForServerMenu>:
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
@@ -6,21 +17,30 @@
 
         Label:
             id: displaymenunameLabel
-            text: 'Connection Lost Menu'
+            text: 'Search For Server Menu'
             size_hint: 1, .3
-            color: 1, 0, 0, 1
-
-        Label:
-            id: connectionlostLabel
-            text: 'Die Oma hat den Spaten ins Glasfaserkabel gerammt. Der Server ist leider nicht mehr zu erreichen'
             color: 0, 0, 0, 1
 
+        Label:
+            id: statusenemiesLabel
+            text: 'Other players will grab a coffee. Wanna join?'
+            color: 0, 0, 0, 1
+
+        Label:
+            id: displayplayersonlineLabel
+            text: 'Noone wants to play with you. Even computer says NO'
+            color: 0, 0, 0, 1
+
+        #Here should be displayed all Serverips with a Checkbox. One Ip can be choosen.
+
         Button:
-            id: gamestartButton
-            text: 'Start the game again (Not implemented yet)'
+            id: connectiontoserverButton
+            text: 'Connect to the choosen Server (Not implemented yet)'
             #on_release:
             #    root.manager.current = 'gamestartmenu'
             #    root.startGame()
+            #    root.connecttoServer()
+
         Button:
             id: backtomenuButton
             text: 'Return to the Main Menu (Not implemented yet)'
@@ -42,5 +62,3 @@
             Button:
                 text: 'Pause Menu'
                 on_release: root.manager.current = 'pausemenu'
-                
-

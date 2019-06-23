@@ -9,11 +9,11 @@ from kivy.core.window import Window
 #you can control the ScreenManager from kv. Each screen has by default a
 # property manager that gives you the instance of the ScreenManager used.
 
-Builder.load_file('gameovermenu.kv')
-Builder.load_file('connectionlostmenu.kv')
-Builder.load_file('searchforservermenu.kv')
-Builder.load_file('createservermenu.kv')
-Builder.load_file('pausemenu.kv')
+Builder.load_file('kvfilesmenu/gameovermenu.kv')
+Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
+Builder.load_file('kvfilesmenu/searchforservermenu.kv')
+Builder.load_file('kvfilesmenu/createservermenu.kv')
+Builder.load_file('kvfilesmenu/pausemenu.kv')
 
 #following will come later in the implementation with Oliver
 #Builder.load_file('mainmenu.kv')
@@ -23,30 +23,6 @@ Builder.load_file('pausemenu.kv')
 
 #following will come later in the implementation with Ludwig
 #Builder.load_file('gamestartmenu')
-'''
-Builder.load_string("""
-<MenuScreen>:
-    BoxLayout:
-        Button:
-            text: 'Goto settings'
-            on_press:
-                root.manager.transition.direction = 'left'
-                root.manager.current = 'settings'
-        Button:
-            text: 'Quit'
-            on_press: exit() #in future close client and server
-
-<SettingsScreen>:
-    BoxLayout:
-        Button:
-            text: 'My settings button'
-        Button:
-            text: 'Back to menu'
-            on_press:
-                root.manager.transition.direction = 'right'
-                root.manager.current = 'menu'
-""")
-'''
 
 class GameOverMenu(Screen):
 

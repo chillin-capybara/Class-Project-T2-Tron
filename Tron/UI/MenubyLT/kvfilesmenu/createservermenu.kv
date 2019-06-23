@@ -1,18 +1,32 @@
-<PauseMenu>:
+#
+#attributs:
+#Game_start_Button
+#Back_to_menu_Button
+#players_connected_Anzeige
+
+#operations:
+#    -
+
+<CreateServerMenu>:
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
         padding: 10
 
         Label:
-            id: displaymenuameLabel
-            text: 'Pause Menu'
+            id: displaymenunameLabel
+            text: 'Create Server Menu'
             size_hint: 1, .3
-            color: 1, 0, 1, 1
-        
+            color: 0, 1, 0, 1
+
+        Label:
+            id: displayconnectedplayersLabel
+            text: 'Noone wants to play with you. Even computer says NO'
+            color: 0, 0, 0, 1
+
         Button:
             id: gamestartButton
-            text: 'Start the game again (Not implemented yet)'
+            text: 'Start the game(Not implemented yet)'
             #on_release:
             #    root.manager.current = 'gamestartmenu'
             #    root.startGame()
@@ -20,9 +34,8 @@
         Button:
             id: backtomenuButton
             text: 'Return to the Main Menu (Not implemented yet)'
-            #on_release:
-            #    root.manage.current = 'mainmenu'
-            #    root.exitGame()
+            #on_release: root.manage.current = 'mainmenu'
+
 
         BoxLayout:
             Button:
