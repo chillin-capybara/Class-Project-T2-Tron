@@ -4,16 +4,22 @@ import logging
 
 MAX_ARENA_SIZE = 1000
 MIN_ARENA_SIZE = 4
+MAX_ARENA_NAME_LENGTH = 20
+MIN_ARENA_NAME_LENGTH = 2
 
 
 class RectangleArena(Arena):
 	"""
 	Realisation of Arena Interface for Arena
 	"""
+	__name = ""
 	__sizeX = MIN_ARENA_SIZE
 	__sizeY = MAX_ARENA_SIZE
+	__skin = 0
+	__mode = 0 
+
 	
-	
+	#size
 	@property
 	def sizeX(self):
 		"""TODO: DOCSTRING"""
@@ -44,6 +50,21 @@ class RectangleArena(Arena):
 		else:
 			raise TypeError
 
+	@property
+	def name(self):
+		"""TODO: DOCSTRING"""
+		return self.__name 
+
+	@sizeX.setter
+	def name(self, new_value):
+		if type(new_value) == str:
+			if (len(new_value) < MIN_ARENA_NAME_LENGTH) | (len(new_value) > MAX_ARENA_NAME_LENGTH) : # check, if the word's length is ok
+				raise ValueError
+			else:
+				self.__name = new_value
+		else:
+			raise TypeError
+
 
 	def __init__(self, name: str, size, skin: int, mode: int):
 		"""
@@ -55,26 +76,18 @@ class RectangleArena(Arena):
 				mode(int): Mode of the Arena
 		"""
 		#name 
-		if type (name) != str:
-			raise TypeError
-		else:
-			if len (name) > 20:	
-				raise ValueError
-			else:	
-				self.name = name
+		# if type (name) != str:
+		# 	raise TypeError
+		# else:
+		# 	if len (name) > 20:	
+		# 		raise ValueError
+		# 	else:	
+
+		self.__name = name
 
 		# size
 		self.sizeX = size[0]
 		self.sizeY = size[1]
-		# if (type (size[0]) != int) | ((type (size[1]) != int) ): # check if the each of tuple is an integer
-		# 	raise TypeError
-		# else:
-		# 	if (min(size) < MIN_ARENA_SIZE) | (max(size) > MAX_ARENA_SIZE) : # check, if the value is ok
-		# 		raise ValueError	
-		# 	else:
-		# 		self.size = size
-
-		
 
 		if type (skin) != int:
 			raise TypeError
@@ -93,7 +106,7 @@ class RectangleArena(Arena):
 			str: Arena name
 		"""
 		
-		return self.name #TODO: were is the difference between __str__?
+		return self.__name #TODO: were is the difference between __str__?
 	
 	def __str__(self) -> str:
 		"""
@@ -101,7 +114,7 @@ class RectangleArena(Arena):
 		Returns:
 			str: Arena name
 		"""
-		return self.name
+		return self.__name
 
 	def getSize(self):
 		"""

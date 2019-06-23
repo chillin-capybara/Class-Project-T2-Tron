@@ -26,7 +26,7 @@ class TestRectangleArena(unittest.TestCase):
 		testArenaSize = (10,10)
 		testArena = RectangleArena(testArenaName, testArenaSize, 2, 2)
 		
-		print (str(testArena))
+		#print (str(testArena))
 		self.assertEqual(str(testArena), testArenaName)
 	
 	def test_getSize(self):
@@ -41,7 +41,18 @@ class TestRectangleArena(unittest.TestCase):
 			testArena = RectangleArena("testArenaName", (-1,5), 2, 2)
 		with self.assertRaises(ValueError):
 			testArena = RectangleArena("testArenaName", (6,-2), 2, 2)
-		
+		#not an integer case
+		with self.assertRaises(TypeError):
+			testArena = RectangleArena("testArenaName", (5j,6), 2, 2)
+		with self.assertRaises(TypeError):
+			testArena = RectangleArena("testArenaName", (7,3.5), 2, 2)
+
+		#not a number case
+		with self.assertRaises(TypeError):
+			testArena = RectangleArena("testArenaName", ("five",6), 2, 2)
+		with self.assertRaises(TypeError):
+			testArena = RectangleArena("testArenaName", (6,"ten"), 2, 2)
+
 		
 
 
