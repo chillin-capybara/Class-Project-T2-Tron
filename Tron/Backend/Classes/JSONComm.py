@@ -376,7 +376,7 @@ class JSONComm(CommProt):
 				return CommProt.SERVER_ERROR, obj   # RETURN VALUE
 			elif decoded['type'] == 'server_notification':
 				obj = self.__process_server_notification(decoded)
-				self.EServerNotification(msg=obj)
+				self.EServerNotification(self, msg=obj)
 				return CommProt.SERVER_NOTIFICAITON, obj
 			elif decoded['type'] == 'client_chat':
 				pid, msg = self.__process_client_chat(decoded)

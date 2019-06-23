@@ -85,8 +85,8 @@ class SenderThread(threading.Thread):
 				# Wait a bit 
 				time.sleep(0.01)
 		except Exception as e:
-			##logging.critical(str(e))
-			raise e
+			logging.critical(str(e))
+			#raise e
 		finally:
 			logging.debug("Stopping sender thread %d..." % self.__player_id)
 
