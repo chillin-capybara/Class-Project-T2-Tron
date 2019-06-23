@@ -1,11 +1,12 @@
 from .Client import Client
-from .TCPClientThreads import SenderClientThread, ReceiverClientThread
+from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
 from .JSONComm import JSONComm
 from .CommProt import CommProt
 from ..Core.Exceptions import ClientError
 import socket
 import names
 import logging
+
 
 
 """
@@ -42,6 +43,7 @@ class TCPCLient(Client):
 		self.__Comm.EClientReadyAck += self.handle_ready_ack
 		self.__Comm.EIngame += self.handle_ingame #+ self.handle_ingame_update
 		self.__Comm.EServerError += self.handle_server_error
+
 
 		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
 		# self.__RecieverThread.EServerNotification += handle_serever_notification
@@ -81,6 +83,7 @@ class TCPCLient(Client):
 			# Create IPv4 TCP socket:
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.connect ((server, port))
+
 		except Exception as e:
 			# raise ClientError
 			raise ClientError(str(e))
@@ -149,7 +152,8 @@ class TCPCLient(Client):
 		"""
 		TODO: DOCKSTRING
 		"""
-		print("Player accepted with ID: %d" % player_id, flush = True)
+		print("I am accepted with ID: %d" % player_id, flush = True)
+		#ReceiverClientThread.__stateFSM = makros.CLEINT_READY_ACK
 
 	def handle_ingame(self, sender, players):
 		"""
@@ -169,7 +173,10 @@ class TCPCLient(Client):
 			msg (str): Error message sent by the server
 		"""
 		# TODO: Artem -> behandlung von error messages
-		logging.error("Error Message form server: %s" % msg)
+		#ReceiverClientThread.__stateFSM = makros.CLIENT_ERROR
+		self.__sock.close()
+		logging.error("Server ERROR: %s" % msg)
+		logging.info("Connection closed because of Server ERROR")
 
 	def handle_ingame_update(self, sender, players):
 		"""
