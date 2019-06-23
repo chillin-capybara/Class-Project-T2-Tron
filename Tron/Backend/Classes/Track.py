@@ -1,4 +1,7 @@
-from ..Core.Vect2D import Vect2D
+import sys
+sys.path.append("/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron")
+
+from Tron.Backend.Core.Vect2D import Vect2D
 
 class Track(object):
 	def addEmelement(self, start: Vect2D, end: Vect2D):

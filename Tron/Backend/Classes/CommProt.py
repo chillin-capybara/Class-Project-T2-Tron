@@ -1,61 +1,17 @@
-from ..Core.Event import Event
-
 class CommProt:
 	"""
 	Client-Server communikation protocol interface
 	"""
-	# Message types
-	CLIENT_READY           = 0
-	CLIENT_READY_ACK       = 1
-	CLIENT_ERROR           = 2
-	SERVER_ERROR           = 3
-	COUNTDOWN              = 4
-	CLIENT_INGAME          = 5
-	INGAME                 = 6
-	PAUSE_REQUEST          = 7
-	CONTINUE_GAME          = 8
-	EXIT_GAME              = 9
-	REVENGE                = 10
-	REVENGE_ACK            = 11
-	SERVER_NOTIFICAITON    = 12
-	CLIENT_CHAT            = 13
+	CLIENT_READY     = 0
+	CLIENT_READY_ACK = 1
+	CLIENT_ERROR     = 2
+	SERVER_ERROR     = 3
+	COUNTDOWN        = 4
+	IN_GAME          = 5
+	PAUSE_REQUEST    = 6
+	CONTINUE_GAME    = 7
+	EXIT_GAME        = 8
 
-	# Create events for processing responsees
-	EClientError           = None # (sender=, msg=)
-	EServerError           = None # (sender=, msg=)
-	EClientReady           = None # (sender=, player=)
-	EClientReadyAck        = None # (sender=, player_id=)
-	EServerReady           = None # (sender=)
-	ECountdown             = None
-	EIngame                = None
-	EClientIngame          = None # (sender=, player=)
-	EPause                 = None # (sender=)
-	ERevenge               = None # (sender=)
-	ERevengeAck            = None # (sender=)
-	EExitGame              = None # (sender=)
-	EServerNotification    = None
-	EClientChat            = None
-
-	def __init__(self):
-		"""
-		Initialize the Events for the Communication Protocol Interface
-		NOTE
-			Calls Event Creators and lets event handlers subscribe to the specific events
-		"""
-		self.EClientError           = Event('msg') # (sender=, msg=)
-		self.EServerError           = Event('msg') # (sender=, msg=)
-		self.EClientReady           = Event('player') # (sender=, player=)
-		self.EClientReadyAck        = Event('player_id') # (sender=, player_id=)
-		self.EServerReady           = Event() # (sender=)
-		self.ECountdown             = Event()
-		self.EIngame                = Event()
-		self.EClientIngame          = Event('player') # (sender=, player=)
-		self.EPause                 = Event() # (sender=)
-		self.ERevenge               = Event() # (sender=)
-		self.ERevengeAck            = Event() # (sender=)
-		self.EExitGame              = Event() # (sender=)
-		self.EServerNotification    = Event('msg') # (sender=, msg=
-		self.EClientChat            = Event('player_id', 'msg') # (sender=, player_id=, msg=)
 
 	def client_ready(self, player):
 		"""
@@ -148,12 +104,6 @@ class CommProt:
 			bytes
 		"""
 		raise NotImplementedError
-	
-	def client_ingame(self, player):
-		"""
-		TODO
-		"""
-		raise NotImplementedError
 
 	def pause(self):
 		"""
@@ -224,22 +174,6 @@ class CommProt:
 
 		Returns:
 			bytes
-		"""
-		raise NotImplementedError
-	
-	def server_notification(self, msg: str):
-		"""
-		Get a byte coded message for sendin notifications from the server
-		Args:
-			msg (str): Message to send
-		Returns:
-			byte
-		"""
-		raise NotImplementedError
-	
-	def client_chat(self, player_id: int, msg: str) -> bytes:
-		"""
-		TODO: DOKU
 		"""
 		raise NotImplementedError
 	

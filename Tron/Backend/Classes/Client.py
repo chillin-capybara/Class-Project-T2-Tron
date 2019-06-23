@@ -1,26 +1,7 @@
-from ..Core.Event import Event
 class Client(object):
 	"""
 	Client Interface for the game server
 	"""
-
-	#Client Events
-	ECClientReady    = None
-	ECClientReadyAck = None
-	ECClientError    = None
-	EUpdatePlayers   = None
-	ECountDown       = None
-
-	def __init__(self):
-		"""
-		TODO: DOCSTRING
-		"""
-		#my own Client Events
-		self.ECClientError    = Event()
-		self.ECClientReady    = Event()
-		self.ECClientReadyAck = Event()
-		self.EUpdatePlayers   = Event('players')
-		self.ECountDown = Event('seconds')
 
 	def attachPlayersUpdated(self, callback):
 		"""
