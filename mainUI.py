@@ -75,7 +75,7 @@ class GameUI(Widget):
             self.game_is_running = True
 
 
-        Clock.schedule_once(callback, 2)
+        Clock.schedule_once(callback, 0.5)
 
 
 
