@@ -15,27 +15,27 @@
         Label:
             id: nameLabel
             text: 'Name:'
-            size_hint: (1, 0.1)
+            size_hint: (1, 1.25)
             color: 1, 0, 0, 1
         Label:
             id: wincountLabel
             text: 'Wincount:'
-            size_hint: (1, 0.1)
+            size_hint: (1, 1.25)
             color: 1, 0, 0, 1
         Label:
             id: timelivedLabel
             text: 'Time lived:'
-            size_hint: (1, 0.1)
+            size_hint: (1, 1.25)
             color: 1, 0, 0, 1
         Button:
             id: resetButton
             text: 'Reset Statistics'
             background_color: (0.1,0.3,0.7,1)
-            size_hint: (1, 0.25)
+            size_hint: (1, 1.25)
             #on_release: root.reset_statistics()
         Button:
             id: backtomenuButton
             text: 'Back to Main Menu'
             background_color: (1,0,0,1)
-            size_hint: (1, 0.25)
+            size_hint: (1, 0.5)
             on_release: root.manager.current = 'mainmenu'
