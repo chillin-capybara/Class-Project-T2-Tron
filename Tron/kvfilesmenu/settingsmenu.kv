@@ -1,0 +1,67 @@
+# Arena Type
+# Difficulty
+# Back to Main Menu
+# Name Input
+<SettingsMenu>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+        Label:
+            id: displaymenunameLabel
+            text: 'Settings Menu'
+            size_hint: (1, 0.1)
+            color: 1, 0, 0, 1
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,1)
+            Label:
+                id: changenameLabel
+                text: 'Change Player Name:'
+                size_hint: (0.5, 1)
+                color: 1, 0, 0, 1
+            TextInput:
+                id: nameTextInput
+                hint_text: 'Player 1'
+                #on_text: root.updatenameinput(nameTextInput.text)
+        Button:
+            id: arenatypeButton
+            text: 'Change Arena Type'
+            background_color: (0.1,0.3,0.7,1)
+            size_hint: (1, 2)
+            #on_release: root.changearenatype()
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: (1,2)
+            Label:
+                id: difficultytextLabel
+                text: 'Change Difficulty'
+                size_hint: (2, 1)
+                color: 1, 0, 0, 1
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: (0.25,1)
+                Button:
+                    id: difficulty1Button
+                    text: 'easy'
+                    background_color: (0.1,0.3,0.7,1)
+                    #size_hint: (0.25, 2.5)
+                    on_release: root.changedifficulty(difficulty1Button.text)
+                Button:
+                    id: difficulty2Button
+                    text: 'hard'
+                    background_color: (0.1,0.3,0.7,1)
+                    #size_hint: (0.25, 2.5)
+                    on_release: root.changedifficulty(difficulty2Button.text)
+            Label:
+                id: difficultyendLabel
+                text: ''
+                size_hint: (0.5, 1)
+                color: 1, 0, 0, 2.5
+        Button:
+            id: backtomenuButton
+            text: 'Back to Main Menu (Save)'
+            background_color: (1,0,0,1)
+            size_hint: (1, 0.5)
+            #on_press: root.savechanges(nameTextInput.text, difficultyendlabel.text)
+            on_release: root.manager.current = 'mainmenu'
