@@ -1,13 +1,9 @@
-from .Client import Client
 from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
-from .JSONComm import JSONComm
-from .CommProt import CommProt
 from ..Core.Exceptions import ClientError
+from .Factory import Factory
 import socket
 import names
 import logging
-
-
 
 """
 Realisation of TCP Client Interface for TCP Client
@@ -33,7 +29,7 @@ class TCPCLient(Client):
 		"""
 		self.__Player = []
 
-		self.__Comm: CommProt = JSONComm()
+		self.__Comm: CommProt = Factory.CommProt()
 		#self.__RecieverThread = ReceiverClientThread()
 
 		# Attach client_ready ack handler to event

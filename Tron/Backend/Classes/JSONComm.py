@@ -1,5 +1,4 @@
 from .CommProt import CommProt
-from .Game import Game
 from .Player import Player
 from .Factory import Factory
 from .Arena import Arena

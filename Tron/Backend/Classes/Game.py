@@ -1,6 +1,7 @@
 from .Client import Client
 from .Player import Player
 from .Factory import Factory
+from .TCPCLient import TCPCLient
 from .Arena import Arena
 from ..Core.Event import Event
 
@@ -49,7 +50,7 @@ class Game(object):
 		self.__Players = []
 
 		# Initialize Client
-		self.__client = Factory.Client()
+		self.__client = TCPCLient()
 
 		# Initialize Events
 		self.ECountDown = Event('seconds')
