@@ -25,15 +25,11 @@ class TCPCLient(Client):
 
 	__RecieverThread = None
 
-	def __init__(self, host = "", port=23456):
+	def __init__(self):
 		"""
-		Initialize TCP Client on the given host IP and port
-		Args:
-			host (str): IPv4 adress of host (any = "")
-			port (int): Port number of the Server
-		Raises:
-			TypeError: Not valid types
-			ValueError: Port Number is invalid
+		Initialize a new TCP Client
+		Details:
+			Initialize collections and Event handlers
 		"""
 		self.__Player = []
 
@@ -85,6 +81,9 @@ class TCPCLient(Client):
 			# Create IPv4 TCP socket:
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.connect ((server, port))
+
+			# Start the client threads
+			self.__create_threads(self.__sock)
 
 		except Exception as e:
 			# raise ClientError
@@ -138,17 +137,6 @@ class TCPCLient(Client):
 		# Start the Threads
 		senderThread.start()
 		receiverThread.start()
-
-	def Start(self):
-
-		try:
-			# Start recieving on socket
-			# TODO: Start new thread for client_socket
-			self.__create_threads(self.__sock)
-			input("Waiting...")
-
-		except:
-			pass
 
 	def handle_ready_ack(self, sender, player_id):
 		"""

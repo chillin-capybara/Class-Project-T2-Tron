@@ -1,4 +1,4 @@
-from Backend.Core.Event import Event
+from ..Core.Event import Event
 class Client(object):
 	"""
 	Client Interface for the game server
@@ -8,6 +8,8 @@ class Client(object):
 	ECClientReady    = None
 	ECClientReadyAck = None
 	ECClientError    = None
+	EUpdatePlayers   = None
+	ECountDown       = None
 
 	def __init__(self):
 		"""
@@ -17,6 +19,8 @@ class Client(object):
 		self.ECClientError    = Event()
 		self.ECClientReady    = Event()
 		self.ECClientReadyAck = Event()
+		self.EUpdatePlayers   = Event('players')
+		self.ECountDown = Event('seconds')
 
 	def attachPlayersUpdated(self, callback):
 		"""

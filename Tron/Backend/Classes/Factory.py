@@ -1,5 +1,7 @@
 from .HumanPlayer import HumanPlayer
 from .Player import Player as IPlayer
+from .Client import Client
+from .TCPCLient import TCPCLient
 
 class Factory:
 	"""
@@ -32,3 +34,7 @@ class Factory:
 			return obj.isPlayer() == True
 		except:
 			return False
+	
+	@staticmethod
+	def Client() -> Client:
+		return TCPCLient()

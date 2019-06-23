@@ -176,7 +176,8 @@ class ReceiverThread(threading.Thread):
 				else:
 					self.__comm_proto.process_response(data)
 			except MessageError:
-				logging.warning("Invalid message received from player ID=%d" % self.__player_id)
+				#logging.warning("Invalid message received from player ID=%d" % self.__player_id)
+				pass # TODO: DO something with invalid messages
 			except ValueError as v:
 				# Invalid message was sent
 				logging.warning("Invalid data received." + str(v))
