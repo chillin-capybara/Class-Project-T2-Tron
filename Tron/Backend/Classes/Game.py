@@ -51,7 +51,7 @@ class Game(object):
 		self.__Players = []
 
 		# Initialize Client
-		self.__client = TCPCLient()
+		self.__client = TCPCLient(self)
 
 		# Initialize Events
 		self.ECountDown = Event('seconds')
