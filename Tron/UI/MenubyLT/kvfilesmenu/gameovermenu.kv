@@ -38,13 +38,14 @@
         Label:
             id: statusenemiesLabel
             text: 'Other players will grab a coffee. Wanna join?'
+            #if root.counter == 0 else str(round(root.counter, 1)) -> with boolean and enemies left -> point to variable
             color: 0, 0, 0, 1
 
         Button:
             id: revengeButton
             text: 'Press for revenge'
-            #on_release:
-            #    root.manager.current = 'gamestartmenu'
+            on_release:
+                root.manager.current = 'gamestartmenu'
             #    root.startGame()
 
         Button:
