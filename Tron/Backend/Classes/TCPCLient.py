@@ -1,4 +1,4 @@
-from Client import Client
+from .Client import Client
 
 class TCPCLient(Client):
 	pass
