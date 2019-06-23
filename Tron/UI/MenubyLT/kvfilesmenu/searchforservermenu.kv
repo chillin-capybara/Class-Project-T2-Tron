@@ -38,13 +38,13 @@
             text: 'Connect to the choosen Server (Not implemented yet)'
             #on_release:
             #    root.manager.current = 'gamestartmenu'
-            #    root.startGame()
+            #    root.getserverOnline()
             #    root.connecttoServer()
 
         Button:
             id: backtomenuButton
             text: 'Return to the Main Menu (Not implemented yet)'
-            #on_release: root.manage.current = 'mainmenu'
+            on_release: root.manager.current = 'mainmenu'
 
         BoxLayout:
             Button:

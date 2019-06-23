@@ -5,24 +5,17 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 
-# Create both screens. Please note the root.manager.current: this is how
-#you can control the ScreenManager from kv. Each screen has by default a
-# property manager that gives you the instance of the ScreenManager used.
 
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
 Builder.load_file('kvfilesmenu/searchforservermenu.kv')
 Builder.load_file('kvfilesmenu/createservermenu.kv')
 Builder.load_file('kvfilesmenu/pausemenu.kv')
-
-#following will come later in the implementation with Oliver
-#Builder.load_file('mainmenu.kv')
-#Builder.load_file('statisticsmenu.kv')
-#Builder.load_file('settingsmenu.kv')
-#Builder.load_file('aboutmenu.kv')
-
-#following will come later in the implementation with Ludwig
-#Builder.load_file('gamestartmenu')
+Builder.load_file('kvfilesmenu/mainmenu.kv')
+Builder.load_file('kvfilesmenu/statisticsmenu.kv')
+Builder.load_file('kvfilesmenu/settingsmenu.kv')
+Builder.load_file('kvfilesmenu/aboutmenu.kv')
+#Builder.load_file('kvfilesmenu/gamestartmenu')
 
 class GameOverMenu(Screen):
 
@@ -81,8 +74,6 @@ class GameOverMenu(Screen):
 		Return:
 			-
 		"""
-        #call starting game function
-        raise NotImplementedError
     
     def exitGame(self):
         """
@@ -97,6 +88,8 @@ class GameOverMenu(Screen):
         raise NotImplementedError
     
 class ConnectionLostMenu(Screen):
+
+	#Fehlt: Game Start Button
     
     def startGame(self):
         """
@@ -192,12 +185,12 @@ class GameStartMenu(Screen):
     pass
 
 screen_manager = ScreenManager()
+screen_manager.add_widget(MainMenu(name='mainmenu'))
 screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
 screen_manager.add_widget(ConnectionLostMenu(name='connectionlostmenu'))
 screen_manager.add_widget(SearchForServerMenu(name='searchforservermenu'))
 screen_manager.add_widget(CreateServerMenu(name='createservermenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
-screen_manager.add_widget(MainMenu(name='mainmenu'))
 screen_manager.add_widget(StatisticsMenu(name='statisticsmenu'))
 screen_manager.add_widget(SettingsMenu(name='settingsmenu'))
 screen_manager.add_widget(AboutMenu(name='aboutmenu'))
@@ -207,7 +200,7 @@ screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 class MenusbyLT(App):
 
     def build(self):
-        Window.clearcolor = (1, 1, 1 , 1)
+        Window.clearcolor = (0.5, 0.5, 1 , 1)
         return screen_manager
 
 if __name__ == '__main__':
