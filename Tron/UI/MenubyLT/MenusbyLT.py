@@ -200,7 +200,7 @@ screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 class MenusbyLT(App):
 
     def build(self):
-        Window.clearcolor = (1, 1, 1 , 1)
+        Window.clearcolor = (0.5, 0.5, 1 , 1)
         return screen_manager
 
 if __name__ == '__main__':
