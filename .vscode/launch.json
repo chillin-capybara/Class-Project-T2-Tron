@@ -10,7 +10,7 @@
             "name": "Python: Start Game UI",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/mainUI.py",
+            "program": "${workspaceFolder}/Tron/UI/MenubyLT/__main__.py",
             "console": "integratedTerminal"
         }
     ]
