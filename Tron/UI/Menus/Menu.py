@@ -226,6 +226,10 @@ class SettingsMenu(Screen):
 	def changedifficulty(self,choice):
 		self.ids.difficultyendLabel.text=choice
 
+	def savechanges(self, name, color):
+		self.ids.difficultyendLabel.text=name
+
+
 class StatisticsMenu(Screen):
     pass
 
