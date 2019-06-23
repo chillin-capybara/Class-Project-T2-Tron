@@ -1,17 +1,32 @@
+# Arena Type
+# Difficulty
+# Back to Main Menu
+# Name Input
 <SettingsMenu>:
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
         padding: 10
-
         Label:
             id: displaymenunameLabel
             text: 'Settings Menu'
-            size_hint: 1, .3
+            size_hint: (1, 0.1)
             color: 1, 0, 0, 1
-
         Button:
-            text: 'Back to Main Menu'
-            background_color: (0.9,0.1,0.1,53)
+            id: arenatypeButton
+            text: 'Chang Arena Type'
+            background_color: (0.1,0.3,0.7,1)
             size_hint: (1, 0.25)
-            on_press: root.manager.current = 'mainmenu'
+            #on_release: root.changearenatype()
+        Button:
+            id: difficultyButton
+            text: 'Change Difficulty'
+            background_color: (0.1,0.3,0.7,1)
+            size_hint: (1, 0.25)
+            #on_release: root.changedifficulty()
+        Button:
+            id: backtomenuButton
+            text: 'Back to Main Menu'
+            background_color: (1,0,0,1)
+            size_hint: (1, 0.25)
+            on_release: root.manager.current = 'mainmenu'

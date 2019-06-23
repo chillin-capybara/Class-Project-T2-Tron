@@ -1,17 +1,23 @@
+# About Display
+# Back to Main Menu
 <AboutMenu>:
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
         padding: 10
-
         Label:
-            id: displaymenunameLabel
+            id: menunameLabel
             text: 'About Menu'
-            size_hint: 1, .3
+            size_hint: (1, 0.1)
             color: 1, 0, 0, 1
-
+        Label:
+            id: abouttextLabel
+            text: 'A-Moll \r\n Our team consist of Artem, Marcell, Oliver, Lorenz and Ludwig: A-Moll \r\n But we are not a sad minor scale! ;)'
+            size_hint: 1, 1
+            color: 1, 0, 0, 1
         Button:
+            id: backtomenuButton
             text: 'Back to Main Menu'
-            background_color: (0.9,0.1,0.1,53)
-            size_hint: (1, 0.25)
-            on_press: root.manager.current = 'mainmenu'
+            background_color: (1,0,0,1)
+            size_hint: 1, 0.25
+            on_release: root.manager.current = 'mainmenu'

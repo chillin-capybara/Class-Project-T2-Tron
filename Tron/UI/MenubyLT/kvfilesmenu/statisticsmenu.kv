@@ -1,17 +1,41 @@
+# Display Name
+# Display Wincount
+# Display Time Lived
+# Reset Statistics
 <StatisticsMenu>:
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
         padding: 10
-
         Label:
-            id: displaymenunameLabel
+            id: menunameLabel
             text: 'Statistics Menu'
-            size_hint: 1, .3
+            size_hint: (1, 0.1)
             color: 1, 0, 0, 1
-
+        Label:
+            id: nameLabel
+            text: 'Name:'
+            size_hint: (1, 0.1)
+            color: 1, 0, 0, 1
+        Label:
+            id: wincountLabel
+            text: 'Wincount:'
+            size_hint: (1, 0.1)
+            color: 1, 0, 0, 1
+        Label:
+            id: timelivedLabel
+            text: 'Time lived:'
+            size_hint: (1, 0.1)
+            color: 1, 0, 0, 1
         Button:
-            text: 'Back to Main Menu'
-            background_color: (0.9,0.1,0.1,53)
+            id: resetButton
+            text: 'Reset Statistics'
+            background_color: (0.1,0.3,0.7,1)
             size_hint: (1, 0.25)
-            on_press: root.manager.current = 'mainmenu'
+            #on_release: root.reset_statistics()
+        Button:
+            id: backtomenuButton
+            text: 'Back to Main Menu'
+            background_color: (1,0,0,1)
+            size_hint: (1, 0.25)
+            on_release: root.manager.current = 'mainmenu'
