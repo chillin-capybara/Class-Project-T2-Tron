@@ -1,4 +1,4 @@
-from Tron.Backend.Core.Event import Event
+from Backend.Core.Event import Event
 class Client(object):
 	"""
 	Client Interface for the game server

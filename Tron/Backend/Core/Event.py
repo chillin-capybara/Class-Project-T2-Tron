@@ -53,8 +53,14 @@ class Event(object):
 		# Get the variable names of the callback
 		callable_args: list = callback.__code__.co_varnames
 
+		# Check prototype arguments in function
 		for arg in self.__args:
 			if arg not in callable_args:
+				return False
+		
+		# Check arguments in prototype
+		for arg in callable_args:
+			if arg not in self.__args:
 				return False
 
 		return True
