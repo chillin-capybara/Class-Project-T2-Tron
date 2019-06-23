@@ -11,7 +11,6 @@ import random
 
 from Backend.Core.Vect2D import Vect2D
 
-# https://github.com/amatelin/Kivy-snake-tutorial/blob/master/main.py
 
 
 class TrackWidget(Widget):

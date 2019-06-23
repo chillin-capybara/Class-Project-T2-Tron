@@ -4,14 +4,10 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-
         {
-            "name": "Python: Start Game UI",
+            "name": "Python: Aktuelle Datei",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/Tron/UI/MenubyLT/__main__.py",
+            "program": "${file}",
             "console": "integratedTerminal"
         }
-    ]
-}

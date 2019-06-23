@@ -1,5 +1,5 @@
-from Client import Client
-from TCPCLient import TCPCLient
+from .Client import Client
+from .TCPCLient import TCPCLient
 
 class Game(object):
 	"""

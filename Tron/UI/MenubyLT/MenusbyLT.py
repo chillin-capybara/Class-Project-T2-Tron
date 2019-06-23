@@ -222,10 +222,11 @@ class PauseMenu(Screen):
 class MainMenu(Screen):
     pass
 
-class StatisticsMenu(Screen):
-    pass
-
 class SettingsMenu(Screen):
+	def changedifficulty(self,choice):
+		self.ids.difficultyendLabel.text=choice
+
+class StatisticsMenu(Screen):
     pass
 
 class AboutMenu(Screen):
