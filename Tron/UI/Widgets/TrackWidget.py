@@ -34,7 +34,7 @@ class TrackWidget(Widget):
         
         for i in range(50):
             linepoints.append(Vect2D(1+i, 10+i))
-        for t in range(1):
+        for t in range(len(linepoints)-3):
             print (len(linepoints))
             if linepoints[2*t] != linepoints[2*t+2] and linepoints[2*t+1] != linepoints[2*t+3]:
                 break
