@@ -26,8 +26,10 @@ Builder.load_string("""
             valign: "middle"
             halign: "center"
             color: 1, 1, 1, 1
-            text: root.getPlayerList()[0]
-            
+            text_size: root.width, None
+            text: 
+                root.getPlayerList()[0] 
+                
 """)
 
 class PlayerWidget(App, BoxLayout):

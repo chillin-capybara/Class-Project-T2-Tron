@@ -4,7 +4,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-#from ..mainUI import GameApp
+from ..mainUI import GameApp
 
 
 import sys
@@ -136,11 +136,12 @@ class SearchForServerMenu(Screen):
 			inputIp (str):
 			inputPort (int):
 		"""
+
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
-		#start_game = GameApp()
-		#start_game.run()
+		start_game = GameApp()
+		start_game.run()
 		return self.inputIp, self.inputPort
 
 

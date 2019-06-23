@@ -62,7 +62,7 @@ class GameUI(Widget):
     playerWidgetSize = ListProperty([]) 
     labelHeight = NumericProperty()
     def getplayerWidgetSize(self):
-        self.playerWidgetSize = [500 , 100]
+        self.playerWidgetSize = [500 , 200]
         # self.labelHeight = 3.0
         # len(Game.getPlayers())
         # self.playerWidgetSize = [int(labelHeight*100) , 100]
