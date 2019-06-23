@@ -1,5 +1,6 @@
 from .HumanPlayer import HumanPlayer
-from .Player import Player
+from .Player import Player as IPlayer
+
 
 class Factory:
 	"""
@@ -7,7 +8,7 @@ class Factory:
 	"""
 
 	@staticmethod
-	def Player(playername: str, color: int) -> Player:
+	def Player(playername: str, color: int) -> IPlayer:
 		"""
 		Factor a new player instance of HumanPlayer or RandomPlayer
 		Args:
@@ -16,8 +17,23 @@ class Factory:
 		Returns:
 			Player: Factored Player
 		"""
+		new = None
 		new = HumanPlayer()
 		new.setName(playername)
 		new.setColor(color)
 
 		return new
+
+	@staticmethod
+	def isPlayer(obj) -> bool:
+		"""
+		Returns whether an object is any of player type
+		"""
+		try:
+			return obj.isPlayer() == True
+		except:
+			return False
+
+	#@staticmethod
+	#def Client():
+	#	return TCPCLient()

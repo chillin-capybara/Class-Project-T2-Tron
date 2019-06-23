@@ -78,7 +78,8 @@ class GameOverMenu(Screen):
 		Return:
 			-
 		"""
-		raise NotImplementedError
+		start_game = GameApp()
+		start_game.run()
 
 	def exitGame(self):
 		"""
@@ -95,9 +96,9 @@ class GameOverMenu(Screen):
 class ConnectionLostMenu(Screen):
 
 	#Fehlt: Game Start Button
-    
-    def startGame(self):
-        """
+
+	def startGame(self):
+		"""
 		Send Startsignal to server and begin countdown
 
 		Args:
@@ -105,8 +106,8 @@ class ConnectionLostMenu(Screen):
 		Return:
 			-
 		"""
-        #call starting game function
-        raise NotImplementedError
+		start_game = GameApp()
+		start_game.run()
 
 class SearchForServerMenu(Screen):
 
@@ -179,8 +180,8 @@ class CreateServerMenu(Screen):
 		Return:
 			-
 		"""
-		#call starting game function
-		raise NotImplementedError
+		start_game = GameApp()
+		start_game.run()
 
 class PauseMenu(Screen):
 
@@ -205,8 +206,8 @@ class PauseMenu(Screen):
 		Return:
 			-
 		"""
-		#call starting game function
-		raise NotImplementedError
+		start_game = GameApp()
+		start_game.run()
 
 	def exitGame(self):
 		"""
