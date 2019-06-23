@@ -2,7 +2,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
-from UI.MenubyLT import MenusbyLT
+from UI.Menus import Menus
 
 if __name__ == "__main__":
-    MenusbyLT().run()
+    Menus().run()
