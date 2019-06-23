@@ -19,7 +19,7 @@ class RectangleArena(Arena):
 	__mode = 0 
 
 	
-	#size
+	#Size setter implementation
 	@property
 	def sizeX(self):
 		"""TODO: DOCSTRING"""
@@ -49,21 +49,21 @@ class RectangleArena(Arena):
 				self.__sizeY = new_value
 		else:
 			raise TypeError
-
+	#Name setter implementation
 	@property
 	def name(self):
 		"""TODO: DOCSTRING"""
 		return self.__name 
 
-	@sizeX.setter
-	def name(self, new_value):
-		if type(new_value) == str:
-			if (len(new_value) < MIN_ARENA_NAME_LENGTH) | (len(new_value) > MAX_ARENA_NAME_LENGTH) : # check, if the word's length is ok
-				raise ValueError
-			else:
-				self.__name = new_value
-		else:
-			raise TypeError
+	# @sizeX.setter
+	# def name(self, new_value):
+	# 	if type(new_value) == str:
+	# 		if (len(new_value) < MIN_ARENA_NAME_LENGTH) | (len(new_value) > MAX_ARENA_NAME_LENGTH) : # check, if the word's length is ok
+	# 			raise ValueError
+	# 		else:
+	# 			self.__name = new_value
+	# 	else:
+	# 		raise TypeError
 
 
 	def __init__(self, name: str, size, skin: int, mode: int):
@@ -75,13 +75,6 @@ class RectangleArena(Arena):
 				skin(int): Skin of the Arena 
 				mode(int): Mode of the Arena
 		"""
-		#name 
-		# if type (name) != str:
-		# 	raise TypeError
-		# else:
-		# 	if len (name) > 20:	
-		# 		raise ValueError
-		# 	else:	
 
 		self.__name = name
 
