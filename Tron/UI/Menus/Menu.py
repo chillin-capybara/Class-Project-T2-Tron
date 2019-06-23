@@ -140,9 +140,9 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
+		GAME.ConnectToServer(self.inputIp, self.inputPort)
 		start_game = GameApp()
 		start_game.run()
-		GAME.ConnectToServer(self.inputIp, self.inputPort)
 
 
 	def updateconnecttoserverButton(self, inputIp, inputPort):
@@ -226,6 +226,23 @@ class MainMenu(Screen):
 class SettingsMenu(Screen):
 	def changedifficulty(self,choice):
 		self.ids.difficultyendLabel.text=choice
+	
+	def savechanges(self, playername):
+		"""
+		Set the Player Name 
+		TODO(+color needs to be implemented)
+
+		Args:
+			playername (str): new playername
+		TODO(playercolor (int): new playercolor)
+		Return:
+			-
+		"""
+
+		self.playername = playername
+
+		GAME.setPlayerName(self.playername)
+
 
 class StatisticsMenu(Screen):
     pass

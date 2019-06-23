@@ -9,7 +9,7 @@ from kivy.graphics import Triangle, Rectangle, Ellipse, Line
 from kivy.clock import Clock
 import random
 
-from ...Backend.Core.Vect2D import Vect2D
+from Backend.Core.Vect2D import Vect2D
 
 
 

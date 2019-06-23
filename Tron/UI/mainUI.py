@@ -8,8 +8,7 @@ from kivy.animation import Animation
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty, ObjectProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
-from ..Backend.Core.Vect2D import Vect2D
-from ..Backend.Core.Vect2D import Vect2D
+from Backend.Core.Vect2D import Vect2D
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget

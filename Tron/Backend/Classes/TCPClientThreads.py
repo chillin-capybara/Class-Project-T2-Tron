@@ -123,7 +123,8 @@ class ReceiverClientThread(threading.Thread):
 				self.__Comm.process_response(data)
 			except MessageError:
 				# Invalid message was received / Processed
-				logging.warning("Invalid message received from server")
+				#logging.warning("Invalid message received from server")
+				pass
 
 		# # FSM
 		# 	if self.__stateFSM == makros.INIT_STATE:
