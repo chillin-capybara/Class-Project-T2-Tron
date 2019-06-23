@@ -241,6 +241,8 @@ class SettingsMenu(Screen):
 
 		self.playername = playername
 
+		print(self.playername, flush=True)
+
 		GAME.setPlayerName(self.playername)
 
 

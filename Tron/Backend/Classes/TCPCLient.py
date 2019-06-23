@@ -19,7 +19,7 @@ class TCPCLient(Client):
 	__Comm         = None
 	__Player       = None
 	__players      = None
-	self.__hook = None
+	__hook = None
 
 
 	__RecieverThread = None
