@@ -1,7 +1,22 @@
+from Tron.Backend.Core.Event import Event
 class Client(object):
 	"""
 	Client Interface for the game server
 	"""
+
+	#Client Events
+	ECClientReady    = None
+	ECClientReadyAck = None
+	ECClientError    = None
+
+	def __init__(self):
+		"""
+		TODO: DOCSTRING
+		"""
+		#my own Client Events
+		self.ECClientError    = Event()
+		self.ECClientReady    = Event()
+		self.ECClientReadyAck = Event()
 
 	def attachPlayersUpdated(self, callback):
 		"""

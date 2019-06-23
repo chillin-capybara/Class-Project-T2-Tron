@@ -20,7 +20,8 @@ class TCPCLient(Client):
 	__bufferSize   = 4096
 	__Comm         = None
 	__Player       = None
-	__players      = None 
+	__players      = None
+
 
 	__RecieverThread = None
 
@@ -48,6 +49,7 @@ class TCPCLient(Client):
 		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
 		# self.__RecieverThread.EServerNotification += handle_serever_notification
 		self.__Comm.EServerNotification += self.handle_serever_notification
+
 
 
 	def attachPlayersUpdated(self, callback):
@@ -152,8 +154,8 @@ class TCPCLient(Client):
 		"""
 		TODO: DOCKSTRING
 		"""
-		print("I am accepted with ID: %d" % player_id, flush = True)
-		#ReceiverClientThread.__stateFSM = makros.CLEINT_READY_ACK
+		self.ECClientReadyAck(self, player_id)
+		logging.info("I am accepted with ID: %d" % player_id)
 
 	def handle_ingame(self, sender, players):
 		"""
@@ -173,7 +175,7 @@ class TCPCLient(Client):
 			msg (str): Error message sent by the server
 		"""
 		# TODO: Artem -> behandlung von error messages
-		#ReceiverClientThread.__stateFSM = makros.CLIENT_ERROR
+		self.ECClientError(self, msg)
 		self.__sock.close()
 		logging.error("Server ERROR: %s" % msg)
 		logging.info("Connection closed because of Server ERROR")
