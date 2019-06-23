@@ -124,8 +124,6 @@ class TCPServer(Server):
 		# Reserve the objects for the players
 		for i in range(0, players):
 			self.__players.append(Factory.Player("", 0))
-			print(isinstance(Factory.Player("", 0), Player))
-
 	
 	def getPlayerNumber(self):
 		"""
@@ -163,8 +161,15 @@ class TCPServer(Server):
 		"""
 		# Create a protocoll instance for every thread pair!
 		thr_proto = JSONComm()
+
 		senderThread = SenderThread(self, sock, thr_proto, player_id)
-		receiverThread = ReceiverThread(self, sock, thr_proto, player_id)
+		receiverThread = ReceiverThread(sock, thr_proto, player_id)
+
+		# Add event handlers for the receiver thread
+		receiverThread.EClientIngame += self.handler_client_ingame
+		receiverThread.EClientReady += self.handler_client_ready
+		receiverThread.EExitGame += self.handler_exit_game
+		#receiverThread.EClientError += TODO ADD error handler
 
 		# Start the Threads
 		senderThread.start()
@@ -200,24 +205,24 @@ class TCPServer(Server):
 		except Exception as e:
 			raise e
 
-	def hook_player_ready(self, player_id: int, player: Player):
+	def handler_client_ready(self, sender: ReceiverThread, player):
 		"""
-		Uptade the player object, which belongs to the thread
+		Event handler for player ready event
 		"""
 		# PRINT ALL THE PLAYER IN THE LIST
-		self.__players[player_id] = player
-		logging.info("%s joined with ID=%d" % (player.getName(), player_id))
+		self.__players[sender.player_id] = player
+		logging.info("%s joined with ID=%d" % (player.getName(), sender.player_id))
 		
 	
-	def hook_client_ingame(self, player_id, player: Player):
+	def handler_client_ingame(self, sender: ReceiverThread, player: Player):
 		"""
-		Update a specific player object ingame
+		Event handler for updating play objects
 		"""
-		self.__players[player_id] = player
+		self.__players[sender.player_id] = player
 	
-	def hook_player_leave(self, player_id: int):
+	def handler_exit_game(self, sender: ReceiverThread):
 		"""
 		Log and communicates with the clients if somebody leaves
 		"""
-		logging.info("%s has left the match!", (self.__players[player_id].getName()))
+		logging.info("%s has left the match!", (self.__players[sender.player_id].getName()))
 

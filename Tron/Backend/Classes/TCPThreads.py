@@ -4,13 +4,13 @@ import logging
 import time
 from ..Core.Exceptions import ServerError
 from ..Core.Exceptions import MessageError
+from ..Core.Event import Event
 from .CommProt import CommProt
 class SenderThread(threading.Thread):
 	"""
 	Thread for implementing send functionality for TCP Clients
 	Only responsible for Sending in-game data
 	"""
-	__hook = None
 	__sockfd = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__comm_proto = None
@@ -75,12 +75,31 @@ class ReceiverThread(threading.Thread):
 
 	Responsible for handling request - response communication and receiving new player data 
 	"""
-	__hook = None
 	__sockfd = None # Socket for client communication
 	__comm_proto = None
 	__player_id = None # Player index of the player on the server
 
-	def __init__(self, hook, sockfd, comm_proto, player_id):
+	# Define Events
+	EClientError   = None # (sender=, msg=)
+	EClientReady   = None # (sender=, player=)
+	EClientIngame  = None # (sender=, player=)
+	EExitGame      = None # (sender=)
+
+	@property
+	def player_id(self):
+		return self.__player_id
+	
+	@player_id.setter
+	def player_id(self, new_value):
+		"""
+		TODO: DOCS
+		"""
+		if type(new_value) == int:
+			self.__player_id = new_value
+		else:
+			raise TypeError
+
+	def __init__(self, sockfd, comm_proto, player_id):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -90,9 +109,15 @@ class ReceiverThread(threading.Thread):
 			player_id (int): Index of the player on the server
 		Raises:
 			TypeError: sockfd is not a socket
-		TODO: CHECK COmm PROTO
+		TODO: CHECK Comm PROTO
 		"""
-		self.__hook = hook
+		# Create class events
+		self.EClientError   = Event()
+		self.EClientReady   = Event()
+		self.EExitGame      = Event()
+		self.EClientIngame  = Event()
+
+		self.player_id = player_id
 
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
@@ -105,11 +130,6 @@ class ReceiverThread(threading.Thread):
 		self.__comm_proto.EClientReady += self.handle_client_ready
 		self.__comm_proto.EClientIngame += self.handle_client_ingame
 		self.__comm_proto.EExitGame += self.handle_exit_game
-
-		if type(player_id) == int:
-			self.__player_id = player_id
-		else:
-			raise TypeError
 
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
@@ -138,7 +158,7 @@ class ReceiverThread(threading.Thread):
 				logging.debug(data)
 			except Exception:
 				# Connection is broken: Hook that player is leaving
-				self.__hook.hook_player_leave(self.__player_id)
+				self.EExitGame(self)
 				break
 		logging.debug("Closing receiver thread %d..." % self.__player_id)
 	
@@ -160,7 +180,7 @@ class ReceiverThread(threading.Thread):
 		"""
 
 		# Send the reeived data back to update the server
-		self.__hook.hook_player_ready(self.__player_id, player)
+		self.EClientReady(self, player=player)
 	
 	def handle_client_ingame(self, sender, player):
 		"""
@@ -173,7 +193,7 @@ class ReceiverThread(threading.Thread):
 			player (Player): Data of the current player send
 		"""
 		#Send the updated data with the player index to the main thread
-		self.__hook.hook_client_ingame(self.__player_id, player)
+		self.EClientIngame(self, player=player)
 	
 	def handle_exit_game(self, sender):
 		"""
@@ -185,5 +205,5 @@ class ReceiverThread(threading.Thread):
 		self.__sockfd.close()
 
 		# Hook the event back to the server
-		self.__hook.hook_player_leave(self.__player_id)
+		self.EExitGame(self)
 			
