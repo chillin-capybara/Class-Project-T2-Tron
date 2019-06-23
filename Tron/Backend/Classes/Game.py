@@ -4,6 +4,7 @@ from .Factory import Factory
 from .TCPCLient import TCPCLient
 from .Arena import Arena
 from ..Core.Event import Event
+import logging
 
 class Game(object):
 	"""
@@ -50,7 +51,7 @@ class Game(object):
 		self.__Players = []
 
 		# Initialize Client
-		self.__client = TCPCLient()
+		self.__client = TCPCLient(self)
 
 		# Initialize Events
 		self.ECountDown = Event('seconds')
@@ -76,6 +77,7 @@ class Game(object):
 			TypeError: Invalid player name
 		"""
 		self.me.setName(playername)
+		logging.debug("Player name set to %s" % playername)
 	
 	def setColor(self, color: int) -> None:
 		"""
@@ -87,6 +89,7 @@ class Game(object):
 			ValueError: Color is negative
 		"""
 		self.me.setColor(color)
+		logging.debug("Player color set to %d" % color)
 	
 	def getColor(self):
 		"""
@@ -106,6 +109,7 @@ class Game(object):
 			TODO: WHAT RAISES???
 		"""
 		self.__client.Connect(server, port)
+		logging.debug("Connectiong to %s on port %d" % (server, port))
 
 
 	def getPlayers(self) -> list:
@@ -117,12 +121,13 @@ class Game(object):
 		"""
 		return self.Players
 
-	def UpdatePlayers(self, players):
+	def UpdatePlayers(self,sender, players):
 		"""
 		Update the players of the current game, based on the receved data from Client
 		Interface
 
 		Args:
+			sender : Caller of the event
 			players (iter): Objects of players
 		
 		Raises:

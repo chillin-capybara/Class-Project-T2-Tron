@@ -5,10 +5,9 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from ..mainUI import GameApp
+from Backend.Classes.Game import Game
 
-
-import sys
-print(sys.path)
+GAME = Game()
 
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
@@ -141,9 +140,9 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
+		GAME.ConnectToServer(self.inputIp, self.inputPort)
 		start_game = GameApp()
 		start_game.run()
-		return self.inputIp, self.inputPort
 
 
 	def updateconnecttoserverButton(self, inputIp, inputPort):
@@ -227,6 +226,25 @@ class MainMenu(Screen):
 class SettingsMenu(Screen):
 	def changedifficulty(self,choice):
 		self.ids.difficultyendLabel.text=choice
+	
+	def savechanges(self, playername):
+		"""
+		Set the Player Name 
+		TODO(+color needs to be implemented)
+
+		Args:
+			playername (str): new playername
+		TODO(playercolor (int): new playercolor)
+		Return:
+			-
+		"""
+
+		self.playername = playername
+
+		print(self.playername, flush=True)
+
+		GAME.setPlayerName(self.playername)
+
 
 class StatisticsMenu(Screen):
     pass

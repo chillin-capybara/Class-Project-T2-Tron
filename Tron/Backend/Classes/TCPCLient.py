@@ -2,6 +2,8 @@ from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
 from ..Core.Exceptions import ClientError
 from .Factory import Factory
 from .Client import Client
+from .JSONComm import JSONComm
+from .CommProt import CommProt
 import socket
 import logging
 
@@ -17,19 +19,21 @@ class TCPCLient(Client):
 	__Comm         = None
 	__Player       = None
 	__players      = None
+	__hook = None
 
 
 	__RecieverThread = None
 
-	def __init__(self):
+	def __init__(self, hook):
 		"""
 		Initialize a new TCP Client
 		Details:
 			Initialize collections and Event handlers
 		"""
 		self.__Player = []
+		self.__hook = hook
 
-		self.__Comm: CommProt = Factory.CommProt()
+		self.__Comm: CommProt = JSONComm()
 		#self.__RecieverThread = ReceiverClientThread()
 
 		# Attach client_ready ack handler to event
@@ -42,7 +46,7 @@ class TCPCLient(Client):
 		# self.__RecieverThread.EServerNotification += handle_serever_notification
 		self.__Comm.EServerNotification += self.handle_serever_notification
 
-
+		super().__init__()
 
 	def attachPlayersUpdated(self, callback):
 		"""
@@ -79,7 +83,7 @@ class TCPCLient(Client):
 			self.__sock.connect ((server, port))
 
 			# Start the client threads
-			self.__create_threads(self.__sock)
+			self.__create_threads(self.__sock, self.__hook)
 
 		except Exception as e:
 			# raise ClientError
@@ -116,7 +120,7 @@ class TCPCLient(Client):
 		"""
 		raise NotImplementedError
 
-	def __create_threads(self, sock: socket.socket):
+	def __create_threads(self, sock: socket.socket, hook):
 		"""
 		Create send and receive threads for connection to the server
 
@@ -127,8 +131,8 @@ class TCPCLient(Client):
 			TypeError: sock is not a socket
 			ServerError: ???
 		"""
-		senderThread = SenderClientThread(sock, self.__Comm)
-		receiverThread = ReceiverClientThread(sock, self.__Comm)
+		senderThread = SenderClientThread(sock, self.__Comm, hook)
+		receiverThread = ReceiverClientThread(sock, self.__Comm, hook)
 
 		# Start the Threads
 		senderThread.start()

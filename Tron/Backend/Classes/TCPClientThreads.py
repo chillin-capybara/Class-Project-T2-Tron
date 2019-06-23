@@ -27,8 +27,9 @@ class SenderClientThread(threading.Thread):
 	__sockfd: socket.socket = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__Comm = None
+	__hook = None
 
-	def __init__(self, sockfd, comm):
+	def __init__(self, sockfd, comm, hook):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 
@@ -44,6 +45,7 @@ class SenderClientThread(threading.Thread):
 			raise TypeError
 
 		self.__Comm = comm
+		self.__hook = hook
 		
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
@@ -55,12 +57,10 @@ class SenderClientThread(threading.Thread):
 			sends updates of the in-game state to the server
 			whenewer it is needed
 		"""
-		myplayer = Factory.Player("", 1)
-		self.__sockfd.send(self.__Comm.client_ready(myplayer))
+		self.__sockfd.send(self.__Comm.client_ready(self.__hook.me))
 		time.sleep(1)
 		while True:
-			myplayer.setPosition(randint(0,200), randint(0,200))
-			sent_bytes = self.__sockfd.send(self.__Comm.client_ingame(myplayer))
+			sent_bytes = self.__sockfd.send(self.__Comm.client_ingame(self.__hook.me))
 
 			#self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
 			time.sleep(0.01)
@@ -77,11 +77,12 @@ class ReceiverClientThread(threading.Thread):
 	__player_id = None # Player index of the player on the server
 	__Comm = None
 	__stateFSM = None
+	__hook = None
 
 	EIngameUpdate = None
 	EServerNotification = None
 
-	def __init__(self, sockfd, comm):
+	def __init__(self, sockfd, comm, hook):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -102,7 +103,7 @@ class ReceiverClientThread(threading.Thread):
 
 		self.__Comm = comm
 		self.__stateFSM = makros.INIT_STATE
-
+		self.__hook = hook
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
 	
@@ -123,7 +124,8 @@ class ReceiverClientThread(threading.Thread):
 				self.__Comm.process_response(data)
 			except MessageError:
 				# Invalid message was received / Processed
-				logging.warning("Invalid message received from server")
+				#logging.warning("Invalid message received from server")
+				pass
 
 		# # FSM
 		# 	if self.__stateFSM == makros.INIT_STATE:

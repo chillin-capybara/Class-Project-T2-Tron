@@ -3,7 +3,7 @@ from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.animation import Animation
-from ...Backend.Core.Vect2D import Vect2D
+from Backend.Core.Vect2D import Vect2D
 
 Builder.load_string("""
 <CountdownWidget>:
