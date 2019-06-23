@@ -10,8 +10,8 @@ from kivy.core.window import Window
 import sys
 print(sys.path)
 
-#Builder.load_file('UI/MenusbyLT/kvfilesmenu/gameovermenu.kv')
-#Builder.load_file('../kvfilesmenu/connectionlostmenu.kv')
+Builder.load_file('kvfilesmenu/gameovermenu.kv')
+Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
 Builder.load_file('kvfilesmenu/searchforservermenu.kv')
 Builder.load_file('kvfilesmenu/createservermenu.kv')
 Builder.load_file('kvfilesmenu/pausemenu.kv')
