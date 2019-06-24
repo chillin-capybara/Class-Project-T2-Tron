@@ -4,82 +4,88 @@ from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.properties import NumericProperty, ObjectProperty, ListProperty
 from kivy.animation import Animation
-from kivy.graphics import Triangle, Rectangle, Ellipse, Line
+from kivy.graphics import *
 
 from kivy.clock import Clock
 import random
+import math
 
+from Backend.Classes.HumanPlayer import HumanPlayer
 from Backend.Core.Vect2D import Vect2D
+from Backend.Classes.Game import Game
+from Backend.Classes.Player import Player
 
-
+fieldSize = (100, 100)
 
 class TrackWidget(Widget):
-    # function for creating the single rectangles, creating the typical snake feeling
-    updatesPerSecond = 10
-    fieldSize = (100, 100)
-
-    def startTrack(self):
-        # function responsible for the drawing part
+    def update(self):
         self.canvas.clear()
 
-        with self.canvas.before:
-            Line(width=1, rectangle=(self.x + 1, self.y + 1, self.width - 2, self.height - 2))
+        p1 = HumanPlayer()
+        p1.setName("Simon")
+        p1.setColor(0)
+        p1.setPosition(20, 20)
+        p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+        p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
-        # runs the update function every periode
-        Clock.schedule_interval(self.update, 0.5 / self.updatesPerSecond)
+        p2 = HumanPlayer()
+        p2.setName("Ludi")
+        p2.setColor(3)
+        p2.setPosition(50, 50)
+        p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
+        p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
 
+        players = [ p1, p2 ]
 
-    def update(self, *args):
-        # function for updating the linepoints and draw new
-        linepoints = []
-        
-        # for i in range(random.randint(1, 50)):
-        #     linepoints.append(Vect2D(random.randint(1, 99), random.randint(1, 99)))
-        for i in range(50):
-            linepoints.append(Vect2D(1+i, 10+i))
-            self.straightlinechecker(linepoints)
-
-
-        self.canvas.clear()
         with self.canvas:
-            for point in linepoints:
-                x = (point.x - 1) * 5
-                y = (point.y - 1) * 5
-                Rectangle(pos=(x, y), size=(5, 5))
 
-    def straightlinechecker(self, *args):
-        # function for checking if two points in list are straight line 
-        # linepoints = [] # Fr.S. wenn auskommentiert kommt nichts mehr bei raus (nimmt Liste nicht von draußem)
+            for player in players:
+                track = player.getLine()
+                allPoints = self.constructMissingPoints(track)
+
+                colorId = player.getColor()
+                Color(rgba = self.getColorFromId(colorId))
+
+                for point in allPoints:
+                    xPos = point.x * 5 - 2.5
+                    yPos = point.y * 5 - 2.5
+                    Rectangle(pos=(xPos, yPos), size=(5, 5))
+
+
+    def getColorFromId(self, colorId):
+        switcher = {
+            0: (1, 0, 0, 1),
+            1: (0, 1, 0, 1),
+            2: (0, 0, 1, 1),
+            3: (0, 1, 1, 1),
+            4: (1, 1, 0, 1),
+            5: (1, 0, 1, 1),
+        }
+
+        return switcher.get(colorId, (1, 1, 1, 1))
+
+    def constructMissingPoints(self, tack):
+        allPoints = []
+        pointCount = len(tack)
+
+        for i in range(0, pointCount - 1):
+            startPoint = tack[i]
+            endPoint = tack[i + 1]
+
+            # startPoint = (10, 10)
+            # endPoint = (14, 10)
+            
+            # (14 - 10) + (10 - 10) = 4
+            lineLength = abs((endPoint.x - startPoint.x) + (endPoint.y - startPoint.y))
+
+            deltaX = (endPoint.x - startPoint.x) / lineLength
+            deltaY = (endPoint.y - startPoint.y) / lineLength
+
+            for j in range(0, lineLength):
+                xVal = round(startPoint.x + deltaX * j)
+                yVal = round(startPoint.y + deltaY * j)
+
+                allPoints.append(Vect2D(xVal, yVal))
         
-        for t in range(len(self.linepoints)-3):
-            print (len(self.linepoints))
-            if self.linepoints[2*t] == self.linepoints[2*t+2]:
-                self.constructvertilane()
-            elif self.linepoints[2*t+1] == self.linepoints[2*t+3]:
-                self.constructhorilane()
-            else:
-                break
-
-    def constructvertilane(self, *args):
-        # function for getting all points between two side points
-        # Fr.S. wie bekomme ich den straightpoints wieder raus
-        linepoints = [0, 10, 0, 100]
-        straightpoints = []
-        for i in range(linepoints[1], linepoints[3]):
-            straightpoints.append(linepoints[0])
-            straightpoints.append(linepoints[1]+i)
-            
-   
-   
-    def constructhorilane(self, *args):
-        # function for getting all points between two side points
-        linepoints = [0, 30, 100, 30]
-        straightpoints = []
-        for i in range(linepoints[0], linepoints[2]):
-            straightpoints.append(linepoints[0]+i)
-            straightpoints.append(linepoints[1])
-            
-
-    # Events
-    def on_finished(self):
-        pass
+        allPoints.append(tack[-1])
+        return allPoints

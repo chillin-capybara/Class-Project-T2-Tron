@@ -41,35 +41,63 @@ Builder.load_string("""
         start_value: 2
         on_finished: 
             root.do_finished()         
-            trackWidget.startTrack()
 
     # kv file for the track representation
     TrackWidget:
         id: trackWidget
         size: root.size
         opacity: 1 if root.game_is_running else 0
+        # linepoints: root.linepoints
     # kv file for displaying all ingame players with colors
-    PlayerWidget:
-        id: playerWidget0
-        size: root.getplayerWidgetSize()[0], root.getplayerWidgetSize()[1]
-        opacity: 1
-        pos: 60, 400
+
+    AnchorLayout:
+        size: root.size
+        anchor_x: "right"
+        anchor_y: "top"
+        PlayerWidget:
+            id: playerWidget0
+            pos: 0, 0
+            size: root.getPlayerWidgetSize()
+            size_hint: None, None
+            playerList: root.playerList
 """)
 
 
+updatesPerSeconds = 20
+
 class GameUI(Widget): 
+    playerList = ListProperty([
+        { 
+            "name": "Simon", 
+            "color": (1, 0, 0, 1)
+        },
+        { 
+            "name": "Ludi", 
+            "color": (0, 1, 0, 1)
+        },
+        { 
+            "name": "Dani", 
+            "color": (0, 0, 1, 1)
+        }
+    ])    
     countdown_is_running = BooleanProperty(False)
     game_is_running = BooleanProperty(False)
     playPos = ObjectProperty(Vect2D(10, 0))
-    playerWidgetSize = ListProperty([]) 
     labelHeight = NumericProperty()
-    def getplayerWidgetSize(self):
+    linepoints = ListProperty([0, 10, 100, 10])
+
+    def __init__(self, **kwargs):
+        super(GameUI, self).__init__(**kwargs)
+        self.update()
+        #Clock.schedule_interval(self.update, 1 / updatesPerSeconds)
+
+    def update(self, *args):
+        self.ids.trackWidget.update()
+
+    def getPlayerWidgetSize(self):
         # creates the hight for the widget in duty of displaying all players online
-        self.playerWidgetSize = [500 , 200]
-        # self.labelHeight = 3.0
-        # len(Game.getPlayers())
-        # self.playerWidgetSize = [int(labelHeight*100) , 100]
-        return self.playerWidgetSize
+        playerCount = len(self.playerList)
+        return (100, playerCount * 20)
 
     def do_finished(self):
         # event handler, sets the Booleans for opacity
