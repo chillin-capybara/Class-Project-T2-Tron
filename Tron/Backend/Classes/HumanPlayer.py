@@ -37,6 +37,9 @@ class HumanPlayer(Player):
 	def getTrack(self):
 		return self.__track
 
+	def getLine(self):
+		return self.__track.getLine()
+
 	def getName(self) -> str:
 		"""
 		get the Name from the Sever
@@ -203,7 +206,7 @@ class HumanPlayer(Player):
 		self.__Velocity.y = y
 
 
-	def addTrack(self, track_segment):
+	def addTrack(self, start, end):
 		"""
 		Add a new track element to the pulled "light-track" of the player
 
@@ -216,7 +219,7 @@ class HumanPlayer(Player):
 		Note:
 		TrackError is defined in Core.Exceptions
 		"""
-		LightTrack.addElement(track_segment)
+		self.__track.addElement(start, end)
 
 
 	def enterPause(self):
@@ -244,7 +247,7 @@ class HumanPlayer(Player):
 		else:
 			raise TypeError
 
-# test Player implementation
-testPlayer = HumanPlayer()
-testPlayer.__Name = "Max Mustermann"
-testPlayer.__Color = 2
+# # test Player implementation
+# testPlayer = HumanPlayer()
+# testPlayer.__Name = "Max Mustermann"
+# testPlayer.__Color = 2
