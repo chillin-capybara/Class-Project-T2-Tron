@@ -35,9 +35,9 @@ class TrackWidget(Widget):
         
         # for i in range(random.randint(1, 50)):
         #     linepoints.append(Vect2D(random.randint(1, 99), random.randint(1, 99)))
-        
-        
-        straightlinechecker(linepoints)
+        for i in range(50):
+            linepoints.append(Vect2D(1+i, 10+i))
+            self.straightlinechecker(linepoints)
 
 
         self.canvas.clear()
@@ -47,16 +47,38 @@ class TrackWidget(Widget):
                 y = (point.y - 1) * 5
                 Rectangle(pos=(x, y), size=(5, 5))
 
-    def straightlinechecker(self, linepoints2):
+    def straightlinechecker(self, *args):
         # function for checking if two points in list are straight line 
-        for i in range(50):
-            linepoints2.append(Vect2D(1+i, 10+i))
-        for t in range(len(linepoints2)-3):
-            print (len(linepoints2))
-            if linepoints2[2*t] != linepoints2[2*t+2] and linepoints2[2*t+1] != linepoints2[2*t+3]:
+        # linepoints = [] # Fr.S. wenn auskommentiert kommt nichts mehr bei raus (nimmt Liste nicht von draußem)
+        
+        for t in range(len(self.linepoints)-3):
+            print (len(self.linepoints))
+            if self.linepoints[2*t] == self.linepoints[2*t+2]:
+                self.constructvertilane()
+            elif self.linepoints[2*t+1] == self.linepoints[2*t+3]:
+                self.constructhorilane()
+            else:
                 break
 
-
+    def constructvertilane(self, *args):
+        # function for getting all points between two side points
+        # Fr.S. wie bekomme ich den straightpoints wieder raus
+        linepoints = [0, 10, 0, 100]
+        straightpoints = []
+        for i in range(linepoints[1], linepoints[3]):
+            straightpoints.append(linepoints[0])
+            straightpoints.append(linepoints[1]+i)
+            
+   
+   
+    def constructhorilane(self, *args):
+        # function for getting all points between two side points
+        linepoints = [0, 30, 100, 30]
+        straightpoints = []
+        for i in range(linepoints[0], linepoints[2]):
+            straightpoints.append(linepoints[0]+i)
+            straightpoints.append(linepoints[1])
+            
 
     # Events
     def on_finished(self):
