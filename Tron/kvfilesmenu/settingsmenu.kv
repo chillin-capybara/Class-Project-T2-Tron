@@ -24,40 +24,18 @@
                 id: nameTextInput
                 hint_text: 'Player 1'
                 #on_text: root.updatenameinput(nameTextInput.text)
-        Button:
-            id: arenatypeButton
-            text: 'Change Arena Type'
-            background_color: (0.1,0.3,0.7,1)
-            size_hint: (1, 2)
-            #on_release: root.changearenatype()
         BoxLayout:
             orientation: 'horizontal'
-            size_hint: (1,2)
+            size_hint: (1,1)
             Label:
-                id: difficultytextLabel
-                text: 'Change Difficulty'
-                size_hint: (2, 1)
-                color: 1, 0, 0, 1
-            BoxLayout:
-                orientation: 'vertical'
-                size_hint: (0.25,1)
-                Button:
-                    id: difficulty1Button
-                    text: 'easy'
-                    background_color: (0.1,0.3,0.7,1)
-                    #size_hint: (0.25, 2.5)
-                    on_release: root.changedifficulty(difficulty1Button.text)
-                Button:
-                    id: difficulty2Button
-                    text: 'hard'
-                    background_color: (0.1,0.3,0.7,1)
-                    #size_hint: (0.25, 2.5)
-                    on_release: root.changedifficulty(difficulty2Button.text)
-            Label:
-                id: difficultyendLabel
-                text: ''
+                id: changenameLabel
+                text: 'Change Color:'
                 size_hint: (0.5, 1)
-                color: 1, 0, 0, 2.5
+                color: 1, 0, 0, 1
+            TextInput:
+                id: nameTextInput
+                hint_text: 'Color in Int'
+                #on_text: root.updatenameinput(nameTextInput.text)
         Button:
             id: backtomenuButton
             text: 'Back to Main Menu (Save)'

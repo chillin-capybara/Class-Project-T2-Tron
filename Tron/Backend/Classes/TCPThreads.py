@@ -137,10 +137,10 @@ class ReceiverThread(threading.Thread):
 		TODO: CHECK Comm PROTO
 		"""
 		# Create class events
-		self.EClientError   = Event()
-		self.EClientReady   = Event()
+		self.EClientError   = Event('msg')
+		self.EClientReady   = Event('player')
 		self.EExitGame      = Event()
-		self.EClientIngame  = Event()
+		self.EClientIngame  = Event('player')
 
 		self.player_id = player_id
 
