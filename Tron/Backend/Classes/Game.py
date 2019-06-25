@@ -51,7 +51,7 @@ class Game(object):
 
 	def __init__(self):
 		# Create a local player for the current game
-		self.__me = Factory.Player("", 0)
+		self.__me = Factory.Player("", (0,0,0))
 
 		# Initialize the players 
 		self.__Players = []
@@ -131,7 +131,7 @@ class Game(object):
 		self.__server.setPlayerNumber(player_number)
 
 		# Create a new thread for the server
-		self.__server_thread = threading.Thread(target=server.Start)
+		self.__server_thread = threading.Thread(target=self.__server.Start)
 
 		# Start the server
 		self.__server_thread.start()

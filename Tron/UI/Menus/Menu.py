@@ -292,7 +292,7 @@ class SettingsMenu(Screen):
 		"""
 		# Save the name and the color
 		GAME.setPlayerName(playername)
-		GAME.setColor(int(color))
+		# TODO IMPLEMENT RGB Color picker
 
 		print("Playername changed to: %s" % playername)
 		print("Color changed to %d" % int(color))

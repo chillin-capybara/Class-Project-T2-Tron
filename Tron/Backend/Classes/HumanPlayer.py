@@ -264,19 +264,17 @@ class HumanPlayer(Player):
 		#TODO: Error while communicating the pause request
 
 
-	def move(self, time: int):
+	def move(self, time):
 		"""
 		Update the players position based on the velocity and the spent time
 
 		Args:
 		time: Spent time
 		Raises:
-		TypeError: time is not an integer
+			TODO TYPE CHECKING
 		"""
-		if type(time) == int:
-			self.__Position += self.__Velocity.x * time, self.__Velocity.y * time
-		else:
-			raise TypeError
+		self.__Position.x += self.__Velocity.x * time
+		self.__Position.y += self.__Velocity.y * time
 
 # # test Player implementation
 # testPlayer = HumanPlayer()
