@@ -25,7 +25,7 @@ class PlayerWidget(Widget):
 
     def on_playerList(self, instance, value):
         self.ids.boxLayout1.clear_widgets()
-
+        
         for player in value:
             self.ids.boxLayout1.add_widget(Label(
                 text = player["name"],

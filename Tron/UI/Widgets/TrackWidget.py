@@ -34,6 +34,7 @@ class TrackWidget(Widget):
         p2.setPosition(50, 50)
         p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
         p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+        p2.addTrack(Vect2D(45, 45), Vect2D(80, 45))
 
         players = [ p1, p2 ]
 
