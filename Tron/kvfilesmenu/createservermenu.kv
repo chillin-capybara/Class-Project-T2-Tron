@@ -89,13 +89,26 @@
                 text: 'Diffculty 2'
                 size_hint_x: .17
 
+        BoxLayout:
+            orientation: 'vertical'
+
+            Label:
+                text: 'Number of Players ' + str(int(numberplayersSlider.value))
+
+            Slider:
+                id: numberplayersSlider
+                min: 0
+                max: 10
+                step: 1
+
 
         Button:
             id: serverstartButton
             text: 'Start the Server(Not implemented yet)'
             on_release:
-                root.createServer()
-                root.manager.current = ('searchforservermenu')
+                root.createServer(int(numberplayersSlider.value))
+                root.startGame
+                root.manager.current = ('gamestartmenu')
 
         Button:
             id: backtomenuButton
