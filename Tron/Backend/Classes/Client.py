@@ -67,3 +67,9 @@ class Client(object):
 			iter: Iterable collection of the available servers
 		"""
 		raise NotImplementedError
+	
+	def requestPause(self):
+		"""
+		Send a pause request to the server.
+		"""
+		raise NotImplementedError
