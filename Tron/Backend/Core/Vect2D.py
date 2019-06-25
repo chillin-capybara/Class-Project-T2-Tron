@@ -92,7 +92,7 @@ class Vect2D(object):
 			return result
 		## integer multiplication implementation 
 		elif type(other) == int:
-			result = (self.x * other) + (self.y * other)
+			result = Vect2D(self.x * other, self.y * other)
 			return result
 		else:
 			raise TypeError
