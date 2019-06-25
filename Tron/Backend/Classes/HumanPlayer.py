@@ -16,7 +16,7 @@ class HumanPlayer(Player):
 	"""
 
 	__Name = ""  # Name of the player
-	__Color = 0  # Color of the player
+	__Color = None  # Color of the player
 	__Position = None
 	__Velocity = None
 	# __Track = #TODO
@@ -92,7 +92,7 @@ class HumanPlayer(Player):
 		get the player's Color
 
 		Returns:
-		int: player's color
+			(r,g,b): player's color
 
 		"""
 		return self.__Color
@@ -181,24 +181,20 @@ class HumanPlayer(Player):
 			raise TypeError
 
 
-	def setColor(self, color: int):
+	def setColor(self, color: tuple):
 		"""
 		Set the color of the player
 
 		Args:
-		color (int): New color code based on the game specification
+			color (r,g,b): New color code based on the game specification
 
 		Raises:
 		TypeError: The entered value is not an int
 		ValueError: The entered color doesn't exists
 		"""
-		if type(color) == int:
-			if color > MAX_COLOR_NUMBER: 
-				raise ValueError
-			else:
-				self.__Color = color
-		else:
+		if type(color) is not tuple:
 			raise TypeError
+		self.__Color = color
 
 
 	def setPosition(self, x: int, y: int):
@@ -268,19 +264,17 @@ class HumanPlayer(Player):
 		#TODO: Error while communicating the pause request
 
 
-	def move(self, time: int):
+	def move(self, time):
 		"""
 		Update the players position based on the velocity and the spent time
 
 		Args:
 		time: Spent time
 		Raises:
-		TypeError: time is not an integer
+			TODO TYPE CHECKING
 		"""
-		if type(time) == int:
-			self.__Position += self.__Velocity.x * time, self.__Velocity.y * time
-		else:
-			raise TypeError
+		self.__Position.x += self.__Velocity.x * time
+		self.__Position.y += self.__Velocity.y * time
 
 # # test Player implementation
 # testPlayer = HumanPlayer()

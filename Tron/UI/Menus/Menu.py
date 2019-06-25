@@ -113,6 +113,9 @@ class SearchForServerMenu(Screen):
 	ip = '-'
 	port = 0
 
+	def connecttoserverbuttonPressed(self):
+		pass
+
 	def getserverOnline(self):
 		"""
 		Get the server which are online
@@ -140,7 +143,8 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
-		GAME.ConnectToServer(self.inputIp, self.inputPort)
+		#GAME.ConnectToServer(self.inputIp, self.inputPort)
+		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
 		start_game = GameApp()
 		start_game.run()
 
@@ -159,11 +163,11 @@ class SearchForServerMenu(Screen):
 		self.inputPort = inputPort
 		if inputIp:
 			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connectiontoserverButton.text = output
+			self.ids.connecttoserverButton.text = output
 		
 		elif inputPort:
 			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connectiontoserverButton.text = output
+			self.ids.connecttoserverButton.text = output
 
 		else:
 			pass
@@ -292,7 +296,7 @@ class SettingsMenu(Screen):
 		"""
 		# Save the name and the color
 		GAME.setPlayerName(playername)
-		GAME.setColor(int(color))
+		# TODO IMPLEMENT RGB Color picker
 
 		print("Playername changed to: %s" % playername)
 		print("Color changed to %d" % int(color))
@@ -328,7 +332,10 @@ class AboutMenu(Screen):
     pass
 
 class GameStartMenu(Screen):
-    pass
+
+	def destroyserver(self):
+
+		GAME.DestroyServer()
 
 screen_manager = ScreenManager()
 screen_manager.add_widget(MainMenu(name='mainmenu'))

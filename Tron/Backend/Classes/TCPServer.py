@@ -129,7 +129,7 @@ class TCPServer(Server):
 
 		# Reserve the objects for the players
 		for i in range(0, players):
-			self.__players.append(Factory.Player("", 0))
+			self.__players.append(Factory.Player("", (0,0,0)))
 		
 		# Initialize the message queues for the sender thread
 		self.__queues = []
@@ -289,7 +289,17 @@ class TCPServer(Server):
 				self.__player_index += 1
 
 		except Exception as e:
-			raise e
+			logging.warning(str(e))
+
+		logging.info("Server Stopped!")
+	
+	def Stop(self):
+		"""
+		Stop the server, when running
+		"""
+		logging.info("Closing server by user...")
+		# Destroy the socket
+		self.__sock.close()
 
 	def handler_client_ready(self, sender: ReceiverThread, player: Player):
 		"""

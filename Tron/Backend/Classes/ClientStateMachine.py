@@ -27,10 +27,10 @@ class StateMaschine:
 		if (type(newstate) is not int):
 			raise TypeError
 		
-		StateMaschine.EStateChange(oldstate=StateMaschine.state, newstate=newstate)
+		StateMaschine.EStateChange(None, oldstate=StateMaschine.state, newstate=newstate)
 		oldstate = StateMaschine.state 
 		StateMaschine.state = newstate
-		logging.debug("Client State changing from %d to %d" (oldstate, newstate))
+		logging.debug("Client State changing from %d to %d" % (oldstate, newstate))
 	
 def on_state_change(sender, oldstate, newstate):
 	"""

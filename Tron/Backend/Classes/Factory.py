@@ -8,7 +8,7 @@ class Factory:
 	"""
 
 	@staticmethod
-	def Player(playername: str, color: int) -> IPlayer:
+	def Player(playername: str, color: tuple) -> IPlayer:
 		"""
 		Factor a new player instance of HumanPlayer or RandomPlayer
 		Args:

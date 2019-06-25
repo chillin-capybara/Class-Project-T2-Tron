@@ -83,6 +83,7 @@ class TCPCLient(Client):
 
 		except Exception as e:
 			# raise ClientError
+			raise e
 			raise ClientError(str(e))
 		# communicate ACK
 		# communicate
@@ -193,7 +194,7 @@ class TCPCLient(Client):
 
 		"""
 		logging.info(msg)
-	def requestPause (self):
+	def requestPause (self, sender):
 		"""
 		Function to handle Pause request 
 

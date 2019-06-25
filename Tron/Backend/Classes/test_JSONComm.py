@@ -162,36 +162,36 @@ class TestJSONComm(unittest.TestCase):
 		comm = JSONComm()
 
 		# Setup a player object
-		player = Factory.Player("", 0)
+		player = Factory.Player("", (0,0,0))
 		player.setName("This is my playername")
-		player.setColor(2)
+		player.setColor((2,2,2))
 
 		# Normal data test
 		self.assertEqual(
 			comm.client_ready(player),
-			bytec('{"type": "client_ready", "playername": "This is my playername", "color": 2, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ready", "playername": "This is my playername", "color_r": 2, "color_g": 2, "color_b": 2, "timestamp": %d}' % get_timestamp())
 		)
 
 		# One word name
 		player.setName("Simplename")
 		self.assertEqual(
 			comm.client_ready(player),
-			bytec('{"type": "client_ready", "playername": "Simplename", "color": 2, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ready", "playername": "Simplename", "color_r": 2, "color_g": 2, "color_b": 2, "timestamp": %d}' % get_timestamp())
 		)
 
 		# Empty name
 		player.setName("")
 		self.assertEqual(
 			comm.client_ready(player),
-			bytec('{"type": "client_ready", "playername": "", "color": 2, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ready", "playername": "", "color_r": 2, "color_g": 2, "color_b": 2, "timestamp": %d}' % get_timestamp())
 		)
 
 		# Empty name and color
 		player.setName("")
-		player.setColor(0)
+		player.setColor((0,0,0))
 		self.assertEqual(
 			comm.client_ready(player),
-			bytec('{"type": "client_ready", "playername": "", "color": 0, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ready", "playername": "", "color_r": 0, "color_g": 0, "color_b": 0, "timestamp": %d}' % get_timestamp())
 		)
 
 		# Validate exceptions
@@ -245,12 +245,12 @@ class TestJSONComm(unittest.TestCase):
 		Test the client_ingame messages
 		"""
 		comm: CommProt = JSONComm()
-		player = Factory.Player("Test", 1)
+		player = Factory.Player("Test", (1,1,1))
 		
 		# Test for random datasets
 		self.assertEqual(
 			comm.client_ingame(player),
-			bytec('{"type": "client_ingame", "playername": "Test", "color": 1, "x": 0, "y": 0, "vx": 0, "vy": 0, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ingame", "playername": "Test", "color_r": 1, "color_g": 1, "color_b": 1, "x": 0, "y": 0, "vx": 0, "vy": 0, "timestamp": %d}' % get_timestamp())
 		)
 
 		# Test for changed position
@@ -259,14 +259,14 @@ class TestJSONComm(unittest.TestCase):
 		# Test for random datasets
 		self.assertEqual(
 			comm.client_ingame(player),
-			bytec('{"type": "client_ingame", "playername": "Test", "color": 1, "x": 1, "y": 2, "vx": 0, "vy": 0, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ingame", "playername": "Test", "color_r": 1, "color_g": 1, "color_b": 1, "x": 1, "y": 2, "vx": 0, "vy": 0, "timestamp": %d}' % get_timestamp())
 		)
 
 		# Test changed velocity
 		player.setVelocity(8,9)
 		self.assertEqual(
 			comm.client_ingame(player),
-			bytec('{"type": "client_ingame", "playername": "Test", "color": 1, "x": 1, "y": 2, "vx": 8, "vy": 9, "timestamp": %d}' % get_timestamp())
+			bytec('{"type": "client_ingame", "playername": "Test", "color_r": 1, "color_g": 1, "color_b": 1, "x": 1, "y": 2, "vx": 8, "vy": 9, "timestamp": %d}' % get_timestamp())
 		)
 
 		# Check for exceptions
@@ -287,7 +287,7 @@ class TestJSONComm(unittest.TestCase):
 		Test the client ready message processor
 		"""
 		comm = JSONComm()
-		player = Factory.Player("Test", 1)
+		player = Factory.Player("Test", (1,1,1))
 
 		# Test for a request for SAMPLE DATA
 		testmsg = comm.client_ready(player)
@@ -300,7 +300,7 @@ class TestJSONComm(unittest.TestCase):
 
 		# Test for a request for Sample DATA
 		player.setName("Artem")
-		player.setColor(2)
+		player.setColor((2,2,2))
 		testmsg = comm.client_ready(player)
 		self.assertEqual(
 			comm.process_response(testmsg)[0],
@@ -312,7 +312,7 @@ class TestJSONComm(unittest.TestCase):
 		# Test for a Changed Player
 		testmsg = comm.client_ready(player)
 		player.setName("Marcell")
-		player.setColor(1)
+		player.setColor((1,1,1))
 		self.assertEqual(
 			comm.process_response(testmsg)[0],
 			CommProt.CLIENT_READY # CHECK IF THE TYPE IS CORRECT
@@ -515,7 +515,7 @@ class TestJSONComm(unittest.TestCase):
 		Test the processing of a client ingame message
 		"""
 		comm = JSONComm()
-		pla : HumanPlayer = Factory.Player("Test", 1)
+		pla : HumanPlayer = Factory.Player("Test", (1,1,1))
 		pla.setPosition(1,1)
 		pla.setVelocity(2,2)
 
@@ -528,7 +528,7 @@ class TestJSONComm(unittest.TestCase):
 		self.assertTrue(comm.process_response(msg)[1] == pla)
 		
 
-		pla = Factory.Player("Test", 1)
+		pla = Factory.Player("Test", (1,1,1))
 		pla.setPosition(-1,-20)
 		pla.setVelocity(10,-3)
 
@@ -539,7 +539,7 @@ class TestJSONComm(unittest.TestCase):
 			(CommProt.CLIENT_INGAME, pla)
 		)
 
-		pla = Factory.Player("Test", 1)
+		pla = Factory.Player("Test", (1,1,1))
 		pla.setPosition(-1,-20)
 		msg = comm.client_ingame(pla)
 
@@ -560,41 +560,41 @@ class TestJSONComm(unittest.TestCase):
 		# Test with positions (0,0)
 		plist = []
 		plist.clear()
-		plist.append(Factory.Player("Test1", 1)) 
-		plist.append(Factory.Player("Test2", 2))
+		plist.append(Factory.Player("Test1", (1,1,1)))
+		plist.append(Factory.Player("Test2", (2,2,2)))
 
 		msg = comm.ingame(plist, None)
-		res_type, res_obj = comm.process_response(msg)
+		res_type, res_obj, arena = comm.process_response(msg) # TODO TEST ARENA
 		self.assertEqual(res_type, comm.INGAME)
 		self.assertEqual(res_obj, plist)
 
 		# Test with sample position
 		plist = []
 		plist.clear()
-		p1 = Factory.Player("Test1", 1)
+		p1 = Factory.Player("Test1", (1,1,1))
 		p1.setPosition(-1,-2)
-		p2 = Factory.Player("Test2", 2)
+		p2 = Factory.Player("Test2", (2,2,2))
 		p2.setPosition(-3,-4)
 		plist.append(p1) 
 		plist.append(p2)
 		
 		msg = comm.ingame(plist, None)
-		res_type, res_obj = comm.process_response(msg)
+		res_type, res_obj, arena = comm.process_response(msg)
 		self.assertEqual(res_type, comm.INGAME)
 		self.assertEqual(res_obj, plist)
 
 		# Test with sample velocity
 		plist = []
 		plist.clear()
-		p1 = Factory.Player("Test1", 1)
+		p1 = Factory.Player("Test1", (1,1,1))
 		p1.setVelocity(1,2)
-		p2 = Factory.Player("Test2", 2)
+		p2 = Factory.Player("Test2", (2,2,2))
 		p2.setVelocity(3,4)
 		plist.append(p1) 
 		plist.append(p2)
 
 		msg = comm.ingame(plist, None)
-		res_type, res_obj = comm.process_response(msg)
+		res_type, res_obj, arena = comm.process_response(msg)
 		self.assertEqual(res_type, comm.INGAME)
 		self.assertEqual(res_obj, plist)
 
