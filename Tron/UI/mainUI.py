@@ -93,15 +93,18 @@ class GameUI(Widget):
     playerList = ListProperty([
         { 
             "name": "Simon", 
-            "color": (1, 0, 0, 1)
+            "color": 1
+            # "color": (1, 0, 0, 1)
         },
         { 
             "name": "Ludi", 
-            "color": (0, 1, 0, 1)
+            # "color": (0, 1, 0, 1)
+            "color": 2
         },
         { 
             "name": "Dani", 
-            "color": (0, 0, 1, 1)
+            # "color": (0, 0, 1, 1)
+            "color": 3
         }
     ])    
     countdown_is_running = BooleanProperty(False)
