@@ -7,7 +7,7 @@ from kivy.lang import Builder
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.animation import Animation
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.listview import ListView
+
 
 from Backend.Classes.Client import Client
 from Backend.Classes.Game import Game

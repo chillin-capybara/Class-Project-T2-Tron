@@ -18,7 +18,7 @@ from Backend.Classes.Player import Player
 
 class TrackWidget(Widget):
     def update(self):
-        fieldsize = (200, 200)
+        fieldsize = (100, 100)
         self.canvas.clear()
 
         p1 = HumanPlayer()
@@ -35,7 +35,7 @@ class TrackWidget(Widget):
         p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
         p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
         p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
-        p1.move(5)
+        # p1.move(5)
 
         players = [ p1, p2 ]
 
@@ -49,14 +49,12 @@ class TrackWidget(Widget):
                 Color(rgba = self.getColorFromId(colorId))
 
                 for point in allPoints:
-                    xPos = point.x * 5 - 2.5
-                    yPos = point.y * 5 - 2.5
-                    print (self.size)
-                    xPos2 = (self.size[0]/fieldsize[0]) * xPos 
+                    xPos = point.x 
+                    yPos = point.y 
+                    xPos2 = (self.size[0]/fieldsize[0]) * xPos
                     yPos2 = (self.size[1]/fieldsize[1]) * yPos
-
-                    # Rectangle(pos=(xPos, yPos), size=(5, 5), size_hint= (None, None) )
-                    Rectangle(pos=(xPos2, yPos2), size=(5, 5), size_hint= (None, None) )
+                    
+                    Rectangle(pos=(xPos2, yPos2), size = ((self.size[0]/fieldsize[0]), (self.size[1]/fieldsize[1])) )
 
     def getColorFromId(self, colorId):
         switcher = {
@@ -72,6 +70,7 @@ class TrackWidget(Widget):
 
     def constructMissingPoints(self, track):
         allPoints = []
+    
         pointCount = len(track)
 
         for i in range(0, pointCount - 1):
@@ -90,8 +89,11 @@ class TrackWidget(Widget):
             for j in range(0, lineLength):
                 xVal = round(startPoint.x + deltaX * j)
                 yVal = round(startPoint.y + deltaY * j)
-
                 allPoints.append(Vect2D(xVal, yVal))
         
         allPoints.append(track[-1])
+
         return allPoints
+
+    def inttofloat(self, track):
+        pass

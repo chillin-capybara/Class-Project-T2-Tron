@@ -4,7 +4,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from ..mainUI import GameApp
+from ..mainUI import GameApp, GameUI
 from Backend.Classes.Game import Game
 
 GAME = Game()
@@ -169,6 +169,9 @@ class SearchForServerMenu(Screen):
 			pass
 
 class CreateServerMenu(Screen):
+	arena = 1
+	difficulty = 1
+
 
 	def startGame(self):
 		"""
@@ -182,6 +185,50 @@ class CreateServerMenu(Screen):
 		start_game = GameApp()
 		start_game.run()
 
+	def updateArenatype(self, currentarenatype):
+		"""
+		Sets variable arenatype to 1 or 2
+
+		Args:
+			Arenatype (int):
+		Return:
+			-
+		"""
+		self.currentarenatype = currentarenatype
+
+		self.arena = int(self.currentarenatype)
+		
+		print('Arenatype: %d has been choosen.' % (self.arena), flush = True)
+		return self.arena 
+
+	def updateDifficulty(self, currentdifficulty):
+		"""
+		Sets variable arenatype to 1 or 2
+
+		Args:
+			Difficulty (int):
+		Return:
+			-
+		"""
+		self.currentdifficulty = currentdifficulty
+
+		self.difficulty = int(self.currentdifficulty)
+		print('Diffculty: %d has been choosen.' % (self.difficulty), flush = True)
+		return self.difficulty
+		
+	def createServer(self):
+		"""
+		Call open server function and send difficulty and arenatype
+
+		Args:
+			Arenatype (int):
+			Difficulty (int):
+		Return:
+			-
+		"""
+		print('Arenatype: %d and Diffculty: %d have been choosen.' % (self.arena, self.difficulty), flush = True)
+
+
 class PauseMenu(Screen):
 
 	def resumeGame(self):
@@ -194,7 +241,7 @@ class PauseMenu(Screen):
 			-
 		"""
 		#call resume game function
-		raise NotImplementedError
+		self.game_is_running = True
 
 	def startGame(self):
 		"""
@@ -227,7 +274,7 @@ class SettingsMenu(Screen):
 	def changedifficulty(self,choice):
 		self.ids.difficultyendLabel.text=choice
 	
-	def savechanges(self, playername):
+	def savechanges(self, playername, color):
 		"""
 		Set the Player Name 
 		TODO(+color needs to be implemented)
@@ -238,22 +285,29 @@ class SettingsMenu(Screen):
 		Return:
 			-
 		"""
-
 		self.playername = playername
-
 		print(self.playername, flush=True)
-
 		GAME.setPlayerName(self.playername)
+		
+		self.color = int(color)
+		print(self.color, flush=True)
+		GAME.setColor(self.color)
 		#output = "Name: "+playername+""
 		#StatisticsMenu.ids.nameLabel.text=output
 
 
 class StatisticsMenu(Screen):
 	#getname = "Player 1"
-	def getname(self, pname):
-		#name = GAME.getPlayerName()
-		output = "Name: "+pname+""
+	def refresh(self):
+		name = GAME.getPlayerName()
+		output = "Name: "+name+""
+		print(output)
 		self.ids.nameLabel.text=output
+
+		color = GAME.getColor()
+		sol = "Color: %d" % color
+		print(sol)
+		self.ids.colorLabel.text=sol
 
 class AboutMenu(Screen):
     pass
