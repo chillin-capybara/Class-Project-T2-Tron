@@ -5,6 +5,7 @@ import time
 from ..Core.Exceptions import ServerError
 from ..Core.Exceptions import MessageError
 from ..Core.Event import Event
+from ..Core.leasable_collections import *
 from .CommProt import CommProt
 class SenderThread(threading.Thread):
 	"""
@@ -29,8 +30,9 @@ class SenderThread(threading.Thread):
 	__sockfd = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__comm_proto = None
+	__leased_id: LeasableObject = None
 
-	def __init__(self, hook, sockfd, comm_proto, player_id):
+	def __init__(self, hook, sockfd, comm_proto, leased_id: LeasableObject):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -44,14 +46,12 @@ class SenderThread(threading.Thread):
 		"""
 
 		self.__hook = hook
-		
+
+		self.__leased_id = leased_id
+		self.__player_id = leased_id.getObj()
+
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
-		else:
-			raise TypeError
-		
-		if type(player_id) == int:
-			self.__player_id = player_id
 		else:
 			raise TypeError
 
@@ -103,6 +103,7 @@ class ReceiverThread(threading.Thread):
 	__sockfd = None # Socket for client communication
 	__comm_proto = None
 	__player_id = None # Player index of the player on the server
+	__leased_id: LeasableObject = None
 
 	# Define Events
 	EClientError   = None # (sender=, msg=)
@@ -124,7 +125,7 @@ class ReceiverThread(threading.Thread):
 		else:
 			raise TypeError
 
-	def __init__(self, sockfd, comm_proto, player_id):
+	def __init__(self, sockfd, comm_proto, leased_id: LeasableObject):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -142,7 +143,8 @@ class ReceiverThread(threading.Thread):
 		self.EExitGame      = Event()
 		self.EClientIngame  = Event('player')
 
-		self.player_id = player_id
+		self.__leased_id = leased_id
+		self.player_id = leased_id.getObj()
 
 		if type(sockfd) == socket.socket:
 			self.__sockfd = sockfd
@@ -192,6 +194,8 @@ class ReceiverThread(threading.Thread):
 				raise e
 				break
 		logging.debug("Closing receiver thread %d..." % self.__player_id)
+		logging.debug("Releasing the player_id %d" % self.__leased_id.getObj())
+		self.__leased_id.free()
 	
 	def handle_client_error(self, sender, msg):
 		"""

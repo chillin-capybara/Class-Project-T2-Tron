@@ -3,6 +3,7 @@ from .TCPThreads import SenderThread, ReceiverThread
 from .CommProt import CommProt
 from ..Core.Exceptions import ServerError  #ServerError Exception
 from ..Core.core_functions import get_timestamp
+from ..Core.leasable_collections import *
 from .JSONComm import JSONComm
 from .Player import Player
 from .Arena import Arena
@@ -32,6 +33,7 @@ class TCPServer(Server):
 	__settings_locked = False   # Check if server settings are locked
 	__queues = None # Message queues for sender thread
 	__players_ready = 0
+	__playerid_collection: LeasableList = None
 
 	COUNTDOWN_TIME = 5
 
@@ -127,10 +129,14 @@ class TCPServer(Server):
 
 		logging.debug("Number of players set to %d" % players)
 
+		# Create collection for the player id's
+		ids = list(range(0, players))
+		self.__playerid_collection = LeasableList(ids)
+
 		# Reserve the objects for the players
 		for i in range(0, players):
 			self.__players.append(Factory.Player("", (0,0,0)))
-		
+
 		# Initialize the message queues for the sender thread
 		self.__queues = []
 		for i in range(0, players):
@@ -232,8 +238,31 @@ class TCPServer(Server):
 			return (self.__queues[caller.player_id]).popleft()
 		else:
 			raise BufferError("No messages in the queue")
+	def count_all_slots(self):
+		"""
+		Get the number of all the slots on the server.
+		Return:
+			int
+		"""
+		return self.__playerid_collection.count_all()
 
-	def __create_threads(self, sock: socket.socket, player_id: int):
+	def count_free_slots(self):
+		"""
+		Get the number of free slots left on the server
+		Returns:
+			int
+		"""
+		return self.__playerid_collection.count_free()
+	
+	def count_leased_slots(self):
+		"""
+		Get the number of reserved slots on the server.
+		Returns:
+			int
+		"""
+		return self.__playerid_collection.count_leased()
+
+	def __create_threads(self, sock: socket.socket):
 		"""
 		Create send and receive threads for every client connecting to the server
 
@@ -245,12 +274,15 @@ class TCPServer(Server):
 			ServerError: ???
 		"""
 		# Create a protocoll instance for every thread pair!
+		# Lease an id for the player
+		leased_id = self.__playerid_collection.lease()
+
 		thr_proto = JSONComm()
 
 		# NOTE: Sender thread needs a hook
-		senderThread = SenderThread(self, sock, thr_proto, player_id)
+		senderThread = SenderThread(self, sock, thr_proto, leased_id)
 
-		receiverThread = ReceiverThread(sock, thr_proto, player_id)
+		receiverThread = ReceiverThread(sock, thr_proto, leased_id)
 
 		# Add event handlers for the receiver thread
 		receiverThread.EClientIngame += self.handler_client_ingame
@@ -273,7 +305,7 @@ class TCPServer(Server):
 		try:
 			# Start listening on socket
 			self.__sock.listen()
-			logging.info("Server started on port %d, maximal %d players" % (self.__port, self.__playernumber))
+			logging.info("Server started on port %d, maximal %d players" % (self.__port, self.count_all_slots()))
 			
 			while(True):
 
@@ -281,12 +313,7 @@ class TCPServer(Server):
 
 				logging.info("New TCP Connection accepted: " + str(address))
 
-				self.__create_threads(conn, self.__player_index)
-				
-				# Create a new empty player into the array
-				#self.__players.append(Factory.Player("",0))
-
-				self.__player_index += 1
+				self.__create_threads(conn)
 
 		except Exception as e:
 			logging.warning(str(e))
@@ -319,14 +346,15 @@ class TCPServer(Server):
 			self.enqueue_for_player(packet, sender.player_id)
 			return # Exit the handler
 		
-		# Check if the playername is reseved
-		for pl in self.__players:
-			pl : Player
-			if pl.getName() == player.getName():
-				msg = "Player name %s is already reserved on the server." % player.getName()
-				packet = self.__comm_proto.server_error(msg)
-				self.enqueue_for_player(packet, sender.player_id)
-				return # Exit the handler
+		# TODO: DON'T check name existance!!!
+		# # Check if the playername is reseved
+		# for pl in self.__players:
+		# 	pl : Player
+		# 	if pl.getName() == player.getName():
+		# 		msg = "Player name %s is already reserved on the server." % player.getName()
+		# 		packet = self.__comm_proto.server_error(msg)
+		# 		self.enqueue_for_player(packet, sender.player_id)
+		# 		return # Exit the handler
 
 		# PRINT ALL THE PLAYER IN THE LIST
 		self.__players[sender.player_id] = player
@@ -337,29 +365,30 @@ class TCPServer(Server):
 		ready_msg = self.__comm_proto.server_notification(notification_msg)
 		self.enqueue_except_player(ready_msg, sender.player_id)
 
-		self.__players_ready += 1
-
 		# Check if all clients are ready?
 		if self.__players_ready == self.__playernumber:
 			# Let's go start the game
-			msg = "All players (%d of %d) ready, starting game..." % (self.__players_ready, self.__playernumber)
+			msg = "All players (%d of %d) ready, starting game..." % (self.count_leased_slots(), self.count_all_slots())
 			packet = self.__comm_proto.server_notification(msg)
 			self.enqueue_for_all(packet)
 
+			# LOG THE SAME MESSAGE:
+			logging.info(msg)
+
+			# start the game
 			self.start_countdown()
 		else:
 			# Send player ready status report
-			msg = "Players ready: %d of %d" %(self.__players_ready, self.__playernumber)
+			msg = "Players ready: %d of %d" %(self.count_leased_slots(), self.count_all_slots())
 			packet = self.__comm_proto.server_notification(msg)
 			self.enqueue_for_all(packet)
+
+			# LOG THE SAME MESSAGE:
+			logging.info(msg)
 
 		# Acknowledge client
 		packet = self.__comm_proto.client_ready_ack(sender.player_id)
 		self.enqueue_for_player(packet, sender.player_id)
-
-		# TODO REMOVE THIS
-		#packet = self.__comm_proto.server_error("Test server error")
-		#self.enqueue_for_all(packet)
 
 	def start_countdown(self):
 		"""
@@ -385,3 +414,11 @@ class TCPServer(Server):
 		notification_msg = "%s has left the game." % self.__players[sender.player_id].getName()
 		ready_msg = self.__comm_proto.server_notification(notification_msg)
 		self.enqueue_except_player(ready_msg, sender.player_id)
+
+		# Send player ready status report
+		msg = "Players ready: %d of %d" %(self.count_leased_slots(), seFstlf.count_all_slots())
+		packet = self.__comm_proto.server_notification(msg)
+		self.enqueue_for_all(packet)
+
+		# LOG THE SAME MESSAGE:
+		logging.info(msg)

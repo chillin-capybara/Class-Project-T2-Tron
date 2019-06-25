@@ -13,11 +13,12 @@ class LeasableObject(object):
 	"""
 	Wrapper class for an object lease
 	"""
+	__index = 0      # Index of the leaseable object
 	__obj = None     # Stored object
 	__leased = False # Flag for lease status
 	__locker: object = None
 
-	def __init__(self, obj):
+	def __init__(self, obj, index: int):
 		"""
 		Initialize a LeasableObject with for wrapping the original instance.
 		Args:
@@ -31,7 +32,17 @@ class LeasableObject(object):
 
 		# Store the object / reference locally
 		self.__obj = obj
+
+		self.__index = index
 	
+	def get_index(self):
+		"""
+		Get the index of the current object in the collection.
+		Return:
+			int: Index
+		"""
+		return self.__index
+
 	def is_leased(self):
 		"""
 		Determine wether an object is leased or not.
@@ -147,10 +158,20 @@ class LeasableList(object):
 		self.__orig_list = init_list.copy()
 
 		# Create a collection of leaseable objects
+		index = 0
 		for obj in self.__orig_list:
-			self.__collection.append(LeasableObject(obj))
-	
-	def count_free(self):
+			self.__collection.append(LeasableObject(obj, index))
+			index += 1
+
+	def count_all(self) -> int:
+		"""
+		Get the numner of all (free + leased) object in the collection
+		Returns:
+			int
+		"""
+		return len(self.__collection)
+
+	def count_free(self) -> int:
 		"""
 		Get the number of free (leaseable elements) in the collection
 		Returns:
@@ -158,7 +179,7 @@ class LeasableList(object):
 		"""
 		return sum(1 for obj in self.__collection if obj.is_free() == True)
 	
-	def count_leased(self):
+	def count_leased(self) -> int:
 		"""
 		Get the number of leased in the collection
 		Returns:

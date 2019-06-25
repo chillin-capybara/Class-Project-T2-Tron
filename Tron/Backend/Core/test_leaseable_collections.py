@@ -14,6 +14,7 @@ class TestLeaseableList(unittest.TestCase):
 		coll = LeasableList(mylist)
 
 		# Verify the count of elements
+		self.assertEqual(len(mylist), coll.count_all())
 		self.assertEqual(len(mylist), coll.count_free())
 
 		# First Lease
