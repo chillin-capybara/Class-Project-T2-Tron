@@ -169,7 +169,7 @@ class SearchForServerMenu(Screen):
 			pass
 
 class CreateServerMenu(Screen):
-arena = 1
+	arena = 1
 	difficulty = 1
 
 
