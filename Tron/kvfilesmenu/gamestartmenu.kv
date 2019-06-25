@@ -7,7 +7,9 @@
         Button:
             id: backtomenuButton
             text: 'Return to the Main Menu (Not implemented yet)'
-            on_release: root.manager.current = 'mainmenu'
+            on_release:
+                root.destroyserver
+                root.manager.current = 'mainmenu'
 
     #     Label:
     #         id: displaymenunameLabel
