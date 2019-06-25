@@ -113,6 +113,9 @@ class SearchForServerMenu(Screen):
 	ip = '-'
 	port = 0
 
+	def connecttoserverbuttonPressed(self):
+		pass
+
 	def getserverOnline(self):
 		"""
 		Get the server which are online
@@ -140,7 +143,8 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
-		GAME.ConnectToServer(self.inputIp, self.inputPort)
+		#GAME.ConnectToServer(self.inputIp, self.inputPort)
+		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
 		start_game = GameApp()
 		start_game.run()
 
@@ -159,11 +163,11 @@ class SearchForServerMenu(Screen):
 		self.inputPort = inputPort
 		if inputIp:
 			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connectiontoserverButton.text = output
+			self.ids.connecttoserverButton.text = output
 		
 		elif inputPort:
 			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connectiontoserverButton.text = output
+			self.ids.connecttoserverButton.text = output
 
 		else:
 			pass
