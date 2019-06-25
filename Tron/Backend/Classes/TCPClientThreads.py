@@ -98,7 +98,7 @@ class ReceiverClientThread(threading.Thread):
 			raise TypeError
 
 		self.__Comm = comm
-		self.__stateFSM = makros.INIT_STATE
+		#self.__stateFSM = makros.INIT_STATE
 		self.__hook = hook
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
