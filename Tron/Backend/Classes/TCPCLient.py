@@ -48,12 +48,6 @@ class TCPCLient(Client):
 
 		super().__init__()
 
-	def attachPlayersUpdated(self, callback):
-		"""
-		TODO: DOC
-		"""
-		raise NotImplementedError
-
 	def Connect(self, server, port):
 		"""
 		Connect to the server using the port
@@ -140,7 +134,9 @@ class TCPCLient(Client):
 
 	def handle_ready_ack(self, sender, player_id):
 		"""
-		TODO: DOCKSTRING
+		Handle client acknowledgement messages.
+		Details:
+			Notify the game, that the player got accepted by the server.
 		"""
 		self.ECClientReadyAck(self, player_id)
 		logging.info("I am accepted with ID: %d" % player_id)
@@ -153,7 +149,6 @@ class TCPCLient(Client):
 			players (list): List of player object with current position.
 		"""
 		self.__players = players
-		#logging.debug("Player data refreshed")
 
 	def handle_server_error(self, sender, msg):
 		"""

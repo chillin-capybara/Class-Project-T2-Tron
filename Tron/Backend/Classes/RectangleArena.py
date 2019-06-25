@@ -99,7 +99,7 @@ class RectangleArena(Arena):
 			str: Arena name
 		"""
 		
-		return self.__name #TODO: were is the difference between __str__?
+		return self.__name
 	
 	def __str__(self) -> str:
 		"""
@@ -107,7 +107,7 @@ class RectangleArena(Arena):
 		Returns:
 			str: Arena name
 		"""
-		return self.__name
+		return self.getName()
 
 	def getSize(self):
 		"""
