@@ -6,6 +6,7 @@ from .JSONComm import JSONComm
 from .CommProt import CommProt
 import socket
 import logging
+from Tron.Backend.Classes.ClientStateMachine import StateMaschine
 
 """
 Realisation of TCP Client Interface for TCP Client
@@ -38,12 +39,13 @@ class TCPCLient(Client):
 
 		# Attach client_ready ack handler to event
 		self.__Comm.EClientReadyAck += self.handle_ready_ack
+		self.__Comm.ECountdown += self.handle_countdown
 		self.__Comm.EIngame += self.handle_ingame #+ self.handle_ingame_update
 		self.__Comm.EServerError += self.handle_server_error
 
 
 		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
-		# self.__RecieverThread.EServerNotification += handle_serever_notification
+		#self.__RecieverThread.EServerNotification += handle_serever_notification
 		self.__Comm.EServerNotification += self.handle_serever_notification
 
 		super().__init__()
@@ -138,8 +140,16 @@ class TCPCLient(Client):
 		Details:
 			Notify the game, that the player got accepted by the server.
 		"""
+		StateMaschine.change(StateMaschine.CLIENT_WAITING)
 		self.ECClientReadyAck(self, player_id)
 		logging.info("I am accepted with ID: %d" % player_id)
+
+	def handle_countdown(self, seconds):
+		"""
+		Handle countdown Event 
+		"""
+		StateMaschine.change(StateMaschine.CLIENT_COUNTDOWN)
+		logging.info("Recieved the countdwon. %d seconds!" % seconds)
 
 	def handle_ingame(self, sender, players):
 		"""
@@ -148,7 +158,9 @@ class TCPCLient(Client):
 			sender (CommProt): Caller of the event
 			players (list): List of player object with current position.
 		"""
+		StateMaschine.change(StateMaschine.CLIENT_INGAME)
 		self.__players = players
+		logging.info("I am in Game!")
 
 	def handle_server_error(self, sender, msg):
 		"""
@@ -159,6 +171,7 @@ class TCPCLient(Client):
 		"""
 		# TODO: Artem -> behandlung von error messages
 		self.ECClientError(self, msg)
+		StateMaschine.change(StateMaschine.CLIENT_ERROR)
 		self.__sock.close()
 		logging.error("Server ERROR: %s" % msg)
 		logging.info("Connection closed because of Server ERROR")
@@ -180,3 +193,10 @@ class TCPCLient(Client):
 
 		"""
 		logging.info(msg)
+	def requestPause (self):
+		"""
+		Function to handle Pause request 
+
+		"""
+		StateMaschine.change(StateMaschine.CLIENT_PAUSE)
+		logging.info("Client in Pause")
