@@ -1,4 +1,4 @@
-from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
+from .TCPClientThreads import SenderClientThread, ReceiverClientThread
 from ..Core.Exceptions import ClientError
 from .Factory import Factory
 from .Client import Client
@@ -6,7 +6,7 @@ from .JSONComm import JSONComm
 from .CommProt import CommProt
 import socket
 import logging
-from Tron.Backend.Classes.ClientStateMachine import StateMaschine
+from .ClientStateMachine import StateMaschine
 
 """
 Realisation of TCP Client Interface for TCP Client
@@ -144,7 +144,7 @@ class TCPCLient(Client):
 		self.ECClientReadyAck(self, player_id)
 		logging.info("I am accepted with ID: %d" % player_id)
 
-	def handle_countdown(self, seconds):
+	def handle_countdown(self, sender, seconds):
 		"""
 		Handle countdown Event 
 		"""

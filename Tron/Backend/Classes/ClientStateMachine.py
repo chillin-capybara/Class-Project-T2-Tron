@@ -1,4 +1,3 @@
-from Tron.Backend.Classes.State import State
 from ..Core.Event import Event
 import logging
 
@@ -17,7 +16,7 @@ class StateMaschine:
 	CLIENT_ENDGAME     = 7
 	EXIT_STATE         = 8
 
-	state = StateMaschine.INIT
+	state = INIT
 	EStateChange = Event('oldstate', 'newstate')
 
 	@staticmethod

@@ -182,7 +182,6 @@ class CreateServerMenu(Screen):
 		Return:
 			-
 		"""
-		
 		start_game = GameApp()
 		start_game.run()
 
@@ -228,7 +227,7 @@ class CreateServerMenu(Screen):
 			-
 		"""
 		self.numberplayer = numberplayer
-
+		GAME.CreateServer('', 9876, self.numberplayer)
 		print('Arenatype: %d, Diffculty: %d and %d Players to play have been choosen.' % (self.arena, self.difficulty, self.numberplayer), flush = True)
 
 

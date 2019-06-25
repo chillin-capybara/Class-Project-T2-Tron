@@ -7,7 +7,7 @@ from ..Core.Exceptions import MessageError
 from random import randint
 import logging
 from ..Core.Event import Event
-from Tron.Backend.Classes.ClientStateMachine import StateMaschine
+from .ClientStateMachine import StateMaschine
 
 class SenderClientThread(threading.Thread):
 	"""
