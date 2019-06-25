@@ -25,6 +25,8 @@ class Game(object):
 
 	__server_thread : threading.Thread = None
 
+	__server: TCPServer = None
+
 	# EVENTS TO USE BY UI
 	ECountDown = None
 	EUpdatePlayers = None
@@ -123,10 +125,10 @@ class Game(object):
 			port (int): Port to listen to.
 		"""
 		# Create a new server object
-		server = TCPServer(host, port)
+		self.__server = TCPServer(host, port)
 
 		# Set the number of maximal players
-		server.setPlayerNumber(player_number)
+		self.__server.setPlayerNumber(player_number)
 
 		# Create a new thread for the server
 		self.__server_thread = threading.Thread(target=server.Start)
@@ -138,7 +140,7 @@ class Game(object):
 		"""
 		Abort the thread of the running server.
 		"""
-		self.__server_thread._stop()
+		self.__server.Stop()
 
 	def getPlayers(self) -> list:
 		"""
