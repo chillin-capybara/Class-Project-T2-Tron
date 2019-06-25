@@ -244,10 +244,16 @@ class SettingsMenu(Screen):
 		print(self.playername, flush=True)
 
 		GAME.setPlayerName(self.playername)
+		#output = "Name: "+playername+""
+		#StatisticsMenu.ids.nameLabel.text=output
 
 
 class StatisticsMenu(Screen):
-    pass
+	#getname = "Player 1"
+	def getname(self, pname):
+		#name = GAME.getPlayerName()
+		output = "Name: "+pname+""
+		self.ids.nameLabel.text=output
 
 class AboutMenu(Screen):
     pass
