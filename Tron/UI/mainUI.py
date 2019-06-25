@@ -9,10 +9,15 @@ from kivy.properties import StringProperty, NumericProperty, BooleanProperty, Ob
 from kivy.lang import Builder
 from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
+from Backend.Classes.Game import Game
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
 from UI.Widgets.PlayerWidget import PlayerWidget
+
+from kivy.base import runTouchApp
+from kivy.core.window import Window
+from kivy.uix.widget import Widget
 
 # setting display size to 500, 500
 Config.set('graphics', 'resizable', '1')
@@ -43,10 +48,15 @@ Builder.load_string("""
             root.do_finished()         
 
     # kv file for the track representation
-    TrackWidget:
-        id: trackWidget
+    AnchorLayout:
         size: root.size
-        opacity: 1 if root.game_is_running else 0
+        anchor_x: "center"
+        anchor_y: "center"
+        TrackWidget:
+            id: trackWidget
+            size: root.size
+            opacity: 1 if root.game_is_running else 0
+
         # linepoints: root.linepoints
     # kv file for displaying all ingame players with colors
 
@@ -63,7 +73,7 @@ Builder.load_string("""
 """)
 
 
-updatesPerSeconds = 20
+updatesPerSeconds = 50
 
 class GameUI(Widget): 
     playerList = ListProperty([
@@ -89,7 +99,7 @@ class GameUI(Widget):
     def __init__(self, **kwargs):
         super(GameUI, self).__init__(**kwargs)
         self.update()
-        #Clock.schedule_interval(self.update, 1 / updatesPerSeconds)
+        Clock.schedule_interval(self.update, 1 / updatesPerSeconds)
 
     def update(self, *args):
         self.ids.trackWidget.update()
@@ -111,12 +121,53 @@ class GameUI(Widget):
         Clock.schedule_once(callback, 0.1)
 
 
+class MyKeyboardListener(Widget):
+
+    def __init__(self, game, **kwargs):
+        super(MyKeyboardListener, self).__init__(**kwargs)
+
+        self._game = game
+        self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
+        if self._keyboard.widget:
+            # If it exists, this widget is a VKeyboard object which you can use
+            # to change the keyboard layout.
+            pass
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
+    def _keyboard_closed(self):
+        print('My keyboard have been closed!')
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        print('The key', keycode, 'have been pressed')
+        print(' - text is %r' % text)
+        print(' - modifiers are %r' % modifiers)
+        
+        # Direction up
+        if keycode[1] == 'p':
+            print("p")
+
+    
+
+        # Keycode is composed of an integer + a string
+        # If we hit escape, release the keyboard
+        if keycode[1] == 'escape':
+            keyboard.release()
+
+        # Return True to accept the key. Otherwise, it will be used by
+        # the system.
+        return True
+
+
 
 # Entry Point
 class GameApp(App):
     # creates the Application
     def build(self):
-        return GameUI()
+        game = GameUI()
+        MyKeyboardListener(game)
+        return game
 
 if __name__ == "__main__":
     GameApp().run()

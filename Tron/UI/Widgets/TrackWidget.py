@@ -15,10 +15,10 @@ from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.Player import Player
 
-fieldSize = (100, 100)
 
 class TrackWidget(Widget):
     def update(self):
+        fieldsize = (200, 200)
         self.canvas.clear()
 
         p1 = HumanPlayer()
@@ -34,6 +34,8 @@ class TrackWidget(Widget):
         p2.setPosition(50, 50)
         p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
         p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+        p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+        p1.move(5)
 
         players = [ p1, p2 ]
 
@@ -49,8 +51,12 @@ class TrackWidget(Widget):
                 for point in allPoints:
                     xPos = point.x * 5 - 2.5
                     yPos = point.y * 5 - 2.5
-                    Rectangle(pos=(xPos, yPos), size=(5, 5))
+                    print (self.size)
+                    xPos2 = (self.size[0]/fieldsize[0]) * xPos 
+                    yPos2 = (self.size[1]/fieldsize[1]) * yPos
 
+                    # Rectangle(pos=(xPos, yPos), size=(5, 5), size_hint= (None, None) )
+                    Rectangle(pos=(xPos2, yPos2), size=(5, 5), size_hint= (None, None) )
 
     def getColorFromId(self, colorId):
         switcher = {
@@ -64,13 +70,13 @@ class TrackWidget(Widget):
 
         return switcher.get(colorId, (1, 1, 1, 1))
 
-    def constructMissingPoints(self, tack):
+    def constructMissingPoints(self, track):
         allPoints = []
-        pointCount = len(tack)
+        pointCount = len(track)
 
         for i in range(0, pointCount - 1):
-            startPoint = tack[i]
-            endPoint = tack[i + 1]
+            startPoint = track[i]
+            endPoint = track[i + 1]
 
             # startPoint = (10, 10)
             # endPoint = (14, 10)
@@ -87,5 +93,5 @@ class TrackWidget(Widget):
 
                 allPoints.append(Vect2D(xVal, yVal))
         
-        allPoints.append(tack[-1])
+        allPoints.append(track[-1])
         return allPoints
