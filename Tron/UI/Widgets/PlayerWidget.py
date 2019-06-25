@@ -29,21 +29,11 @@ class PlayerWidget(Widget):
         
         for player in value:
 
-            # colorId = player[1]
+            
             
             self.ids.boxLayout1.add_widget(Label(
                 text = player["name"],
-                color = self.getColorFromId(player["color"])
+                color = player["color"]
             ))
     
-    def getColorFromId(self, colorId):
-        switcher = {
-            0: (1, 0, 0, 1),
-            1: (0, 1, 0, 1),
-            2: (0, 0, 1, 1),
-            3: (0, 1, 1, 1),
-            4: (1, 1, 0, 1),
-            5: (1, 0, 1, 1),
-        }
-
-        return switcher.get(colorId, (1, 1, 1, 1))
+  

@@ -23,19 +23,19 @@ class TrackWidget(Widget):
 
         p1 = HumanPlayer()
         p1.setName("Simon")
-        p1.setColor(0)
+        p1.setColor((1, 1, 1))
         p1.setPosition(20, 20)
         p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
         p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
         p2 = HumanPlayer()
         p2.setName("Ludi")
-        p2.setColor(3)
+        p2.setColor((1, 1, 1))
         p2.setPosition(50, 50)
         p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
         p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
         p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
-        # p1.move(5)
+        
 
         players = [ p1, p2 ]
 

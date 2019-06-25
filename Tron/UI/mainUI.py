@@ -69,7 +69,8 @@ Builder.load_string("""
         TrackWidget:
             id: trackWidget
             size: root.size
-            opacity: 1 if root.game_is_running else 0
+            opacity:  root.slowStartopacity() if root.countdown_is_running else 1
+            #(root.slowStartopacity()) if root.countdown_is_running else 0 #  1 if root.game_is_running else 0
 
         # linepoints: root.linepoints
     # kv file for displaying all ingame players with colors
@@ -93,24 +94,24 @@ class GameUI(Widget):
     playerList = ListProperty([
         { 
             "name": "Simon", 
-            "color": 1
-            # "color": (1, 0, 0, 1)
+            "color": (1, 0, 0, 1)
         },
         { 
             "name": "Ludi", 
-            # "color": (0, 1, 0, 1)
-            "color": 2
+            "color": (0, 1, 0, 1)
+            
         },
         { 
             "name": "Dani", 
-            # "color": (0, 0, 1, 1)
-            "color": 3
+            "color": (0, 0, 1, 1)
+            
         }
     ])    
     countdown_is_running = BooleanProperty(False)
     game_is_running = BooleanProperty(False)
     playPos = ObjectProperty(Vect2D(10, 0))
     opacityValue = NumericProperty(0)
+    opacityValue = 0
     def __init__(self, **kwargs):
         super(GameUI, self).__init__(**kwargs)
         self.update()
@@ -118,6 +119,7 @@ class GameUI(Widget):
 
     def update(self, *args):
         self.ids.trackWidget.update()
+        # self.slowStartopacity()
 
     def getPlayerWidgetSize(self):
         # creates the hight for the widget in duty of displaying all players online
@@ -132,11 +134,66 @@ class GameUI(Widget):
             self.countdown_is_running = False
             self.game_is_running = True
             self.game_is_running = MyKeyboardListener._on_keyboard_down
+            self.opacityValue2 = self.slowStartopacity()
+            
         # after specified time callback function is called anbd game starts
         Clock.schedule_once(callback, 0)
 
     def slowStartopacity(self):
-        pass
+        if self.opacityValue < 1:
+            self.opacityValue += (1/updatesPerSeconds)
+            print (self.opacityValue)
+            return self.opacityValue
+    
+    velocity = (1, 0) # (x, y)
+    speed_constant = 0.01
+    speed_factor = 1
+
+    length_counter = 0
+    length_threshhold = 10
+
+        
+
+    def set_velocity(self, x = velocity[0], y = velocity[1]):
+        self.velocity = (x, y)
+
+
+    # 
+    def update2(self, dt):
+        self.length_counter += 1
+        if self.length_counter >= self.length_threshhold:
+            self.length_counter = 0
+
+            # with self.canvas:
+            #     ball = PongBall()
+            #     last_ball_ps = self.balls[-1].pos
+            #     self.balls.append(ball)
+
+        old_pos = self.balls[0].pos
+        self.speed_factor = self.speed_factor + self.speed_constant
+        self.balls[0].pos = (
+            old_pos[0] + self.velocity[0] * self.speed_factor * 10,
+            old_pos[1] + self.velocity[1] * self.speed_factor * 10
+        )
+
+        if len(self.balls) > 1:
+            for i in range(len(self.balls)):
+                tmp_pos = self.balls[i].pos 
+                self.balls[i].pos = old_pos
+                old_pos = tmp_pos
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class MyKeyboardListener(Widget):
@@ -162,22 +219,25 @@ class MyKeyboardListener(Widget):
         print(' - text is %r' % text)
         print(' - modifiers are %r' % modifiers)
         
-        # Direction up
+        # enterPause Menu
         if keycode[1] == 'p':
-            print("p")
+            print("not Implemented Yet Pause Menu")
+            keyboard.release()
 
-    
+        if keycode[1] == 'a':
+            self._game.set_velocity(-1, 0)
+
+        if keycode[1] == 'd':
+            self._game.set_velocity(1, 0)
 
         # Keycode is composed of an integer + a string
         # If we hit escape, release the keyboard
-        if keycode[1] == 'escape':
-            keyboard.release()
+        # if keycode[1] == 'escape':
+        #     keyboard.release()
 
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
-
-
 
 
 
