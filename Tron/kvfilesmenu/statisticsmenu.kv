@@ -7,11 +7,19 @@
         orientation: 'vertical'
         spacing: 10
         padding: 10
-        Label:
-            id: menunameLabel
-            text: 'Statistics Menu'
+        BoxLayout:
+            orientation: 'horizontal'
             size_hint: (1, 0.1)
-            color: 1, 0, 0, 1
+            Label:
+                id: menunameLabel
+                text: 'Statistics Menu'
+                size_hint: (0.95, 1)
+                color: 1, 0, 0, 1
+            Button:
+                id: refreshButton
+                text: "refresh"
+                size_hint: (0.05,1)
+                on_release: root.refresh
         Label:
             id: nameLabel
             text: "Name: "

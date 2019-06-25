@@ -251,10 +251,16 @@ class SettingsMenu(Screen):
 
 class StatisticsMenu(Screen):
 	#getname = "Player 1"
-	def getname(self, pname):
-		#name = GAME.getPlayerName()
-		output = "Name: "+pname+""
+	def refresh(self):
+		name = GAME.getPlayerName()
+		output = "Name: "+name+""
+		print(output)
 		self.ids.nameLabel.text=output
+
+		color = GAME.getColor()
+		sol = "Color: %d" % color
+		print(sol)
+		self.ids.colorLabel.text=sol
 
 class AboutMenu(Screen):
     pass
