@@ -51,7 +51,7 @@ class Game(object):
 
 	def __init__(self):
 		# Create a local player for the current game
-		self.__me = Factory.Player("", 0)
+		self.__me = Factory.Player("", (0,0,0))
 
 		# Initialize the players 
 		self.__Players = []

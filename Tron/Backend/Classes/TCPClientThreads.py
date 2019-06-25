@@ -122,6 +122,9 @@ class ReceiverClientThread(threading.Thread):
 				# Invalid message was received / Processed
 				#logging.warning("Invalid message received from server")
 				pass
+			except OSError:
+				# Socket refused / closed
+				logging.error("You got disconnected from the server.")
 		logging.debug("Receiver thread stopped stopped")
 
 	# def clientFSM (self):
