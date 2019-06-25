@@ -17,6 +17,11 @@ class Event(object):
 
 		# Check if a pattern is given
 		if len(args) > 0:
+			if 'sender' in args:
+				raise ValueError("Cannot redefine sender. It's mandatory.")
+			if 'self' is args:
+				raise ValueError("Cannot add object-self reference.")
+
 			# Add the prototype arguments to the arg list
 			for carg in args:
 				self.__args.append(carg)
@@ -59,9 +64,9 @@ class Event(object):
 				return False
 		
 		# Check arguments in prototype
-		#for arg in callable_args:
-		#	if arg not in self.__args:
-		#		return False
+		for arg in callable_args:
+			if (arg is not "self") and (arg not in self.__args): # Remove the self parameter
+				return False
 
 		return True
 	
