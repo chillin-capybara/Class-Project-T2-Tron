@@ -301,7 +301,22 @@ class TCPServer(Server):
 			packet = self.__comm_proto.server_error(msg)
 			self.enqueue_for_player(packet, sender.player_id)
 			return # Exit the handler
-
+		
+		# Check for empty playername
+		if player.getName() == "":
+			msg = "Cannot join the game with an empty username"
+			packet = self.__comm_proto.server_error(msg)
+			self.enqueue_for_player(packet, sender.player_id)
+			return # Exit the handler
+		
+		# Check if the playername is reseved
+		for pl in self.__players:
+			pl : Player
+			if pl.getName() == player.getName():
+				msg = "Player name %s is already reserved on the server." % player.getName()
+				packet = self.__comm_proto.server_error(msg)
+				self.enqueue_for_player(packet, sender.player_id)
+				return # Exit the handler
 
 		# PRINT ALL THE PLAYER IN THE LIST
 		self.__players[sender.player_id] = player
