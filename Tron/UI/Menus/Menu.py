@@ -182,6 +182,7 @@ class CreateServerMenu(Screen):
 		Return:
 			-
 		"""
+		
 		start_game = GameApp()
 		start_game.run()
 
@@ -216,7 +217,7 @@ class CreateServerMenu(Screen):
 		print('Diffculty: %d has been choosen.' % (self.difficulty), flush = True)
 		return self.difficulty
 		
-	def createServer(self):
+	def createServer(self, numberplayer):
 		"""
 		Call open server function and send difficulty and arenatype
 
@@ -226,7 +227,9 @@ class CreateServerMenu(Screen):
 		Return:
 			-
 		"""
-		print('Arenatype: %d and Diffculty: %d have been choosen.' % (self.arena, self.difficulty), flush = True)
+		self.numberplayer = numberplayer
+
+		print('Arenatype: %d, Diffculty: %d and %d Players to play have been choosen.' % (self.arena, self.difficulty, self.numberplayer), flush = True)
 
 
 class PauseMenu(Screen):
