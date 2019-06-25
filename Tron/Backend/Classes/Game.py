@@ -134,6 +134,11 @@ class Game(object):
 			TODO: some game error
 		"""
 		self.__Players = players
+	def RequestPause(self):
+		"""
+		Request a pause from this client.
+		"""
+		
 	
 	def PauseEntered(self):
 		"""
