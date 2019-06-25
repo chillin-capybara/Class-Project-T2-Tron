@@ -328,7 +328,10 @@ class AboutMenu(Screen):
     pass
 
 class GameStartMenu(Screen):
-    pass
+
+	def destroyserver(self):
+
+		GAME.DestroyServer()
 
 screen_manager = ScreenManager()
 screen_manager.add_widget(MainMenu(name='mainmenu'))

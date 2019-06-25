@@ -1,8 +1,13 @@
 <GameStartMenu>:
-    # BoxLayout:
-    #     orientation: 'vertical'
-    #     spacing: 10
-    #     padding: 10
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
+
+        Button:
+            id: backtomenuButton
+            text: 'Return to the Main Menu (Not implemented yet)'
+            on_release: root.manager.current = 'mainmenu'
 
     #     Label:
     #         id: displaymenunameLabel
