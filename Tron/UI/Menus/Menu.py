@@ -271,6 +271,9 @@ class MainMenu(Screen):
     pass
 
 class SettingsMenu(Screen):
+
+	nameplayer, colorplayer = 'Seppl', 1
+
 	def changedifficulty(self,choice):
 		self.ids.difficultyendLabel.text=choice
 	
@@ -285,13 +288,12 @@ class SettingsMenu(Screen):
 		Return:
 			-
 		"""
-		self.playername = playername
-		print(self.playername, flush=True)
-		GAME.setPlayerName(self.playername)
-		
-		self.color = int(color)
-		print(self.color, flush=True)
-		GAME.setColor(self.color)
+		# Save the name and the color
+		GAME.setPlayerName(playername)
+		GAME.setColor(int(color))
+
+		print("Playername changed to: %s" % playername)
+		print("Color changed to %d" % int(color))
 		#output = "Name: "+playername+""
 		#StatisticsMenu.ids.nameLabel.text=output
 
@@ -299,15 +301,26 @@ class SettingsMenu(Screen):
 class StatisticsMenu(Screen):
 	#getname = "Player 1"
 	def refresh(self):
-		name = GAME.getPlayerName()
-		output = "Name: "+name+""
-		print(output)
-		self.ids.nameLabel.text=output
+		#name = GAME.getPlayerName()
+		#output = "Name: "+name+""
+		#print(output)
+		#self.ids.nameLabel.text=output
+		print("Updating screen...")
+		print("PLAYERNAME: %s" % GAME.getPlayerName())
+		print("Color: %d" % GAME.getColor())
 
-		color = GAME.getColor()
-		sol = "Color: %d" % color
-		print(sol)
-		self.ids.colorLabel.text=sol
+		outputname = 'Name: %s' % (GAME.getPlayerName())
+		print(outputname, flush= True)
+		self.ids.nameLabel.text = outputname
+
+		#color = GAME.getColor()
+		#sol = "Color: %d" % color
+		#print(sol)
+		#self.ids.colorLabel.text=sol
+
+		outputcolor = 'Name: %d' % (Game.getPlayerColor())
+		print(outputcolor, flush= True)
+		self.ids.colorLabel.text = outputcolor
 
 class AboutMenu(Screen):
     pass
