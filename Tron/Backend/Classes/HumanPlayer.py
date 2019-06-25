@@ -278,7 +278,7 @@ class HumanPlayer(Player):
 		TypeError: time is not an integer
 		"""
 		if type(time) == int:
-			self.__Position = self.__Position + time*self.__Velocity
+			self.__Position += self.__Velocity.x * time, self.__Velocity.y * time
 		else:
 			raise TypeError
 
