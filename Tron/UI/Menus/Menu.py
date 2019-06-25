@@ -227,7 +227,7 @@ class SettingsMenu(Screen):
 	def changedifficulty(self,choice):
 		self.ids.difficultyendLabel.text=choice
 	
-	def savechanges(self, playername):
+	def savechanges(self, playername, color):
 		"""
 		Set the Player Name 
 		TODO(+color needs to be implemented)
@@ -238,12 +238,13 @@ class SettingsMenu(Screen):
 		Return:
 			-
 		"""
-
 		self.playername = playername
-
 		print(self.playername, flush=True)
-
 		GAME.setPlayerName(self.playername)
+		
+		self.color = int(color)
+		print(self.color, flush=True)
+		GAME.setColor(self.color)
 		#output = "Name: "+playername+""
 		#StatisticsMenu.ids.nameLabel.text=output
 
