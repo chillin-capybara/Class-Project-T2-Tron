@@ -88,6 +88,7 @@ class BallGame(Widget):
 
     def set_velocity(self, x = velocity[0], y = velocity[1]):
         self.velocity = (x, y)
+        print(self.velocity)
 
 
     # 
