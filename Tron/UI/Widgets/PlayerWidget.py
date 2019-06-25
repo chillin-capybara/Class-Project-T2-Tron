@@ -6,50 +6,28 @@ from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.properties import NumericProperty, ObjectProperty
 from kivy.animation import Animation
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.listview import ListView
 
-
-from ...Backend.Classes.Client import Client
-from ...Backend.Classes.Game import Game
-
-
-
+from Backend.Classes.Client import Client
+from Backend.Classes.Game import Game
+from Backend.Classes.Player import Player
 
 Builder.load_string("""
 <PlayerWidget>:
-    AnchorLayout:
-        size: root.size
-        anchor_x: "center"
-        anchor_y: "center"
-        Label:
-            # size: self.texture_size
-            id: PlayerWidget0
-            valign: "middle"
-            halign: "center"
-            color: 1, 1, 1, 1
-            text_size: root.width, None
-            text: 
-                root.getPlayerList()[0] 
-                
+    BoxLayout:
+        id: boxLayout1
+        orientation: "vertical"
 """)
 
-class PlayerWidget(App, BoxLayout):
-    
-    playersOnline  = ListProperty([])
-    playersColor = ListProperty([])
-    def getPlayerList(self):
-        # self.playersOnline = Game.getPlayers()
-        self.playersOnline = ['Me' , 'You']
-        return self.playersOnline
-    def getPlayerColor(self):
-        # self.playersColor = Game.getColor()
-        self.playersColor = []
-        self.playersOnline2 = ['Me' , 'You']
-        for x in self.playersOnline2:
-            self.playersColor.append(Player(x).getColor())
+class PlayerWidget(Widget):
+    playerList = ListProperty()
 
-            if x == "":
-                break
+    def on_playerList(self, instance, value):
+        self.ids.boxLayout1.clear_widgets()
 
-    def build(self):
-        return self
-    
+        for player in value:
+            self.ids.boxLayout1.add_widget(Label(
+                text = player["name"],
+                color = player["color"]
+            ))

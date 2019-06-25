@@ -382,9 +382,9 @@ class JSONComm(CommProt):
 				self.EClientChat(self, player_id=pid, msg=msg)
 				return CommProt.CLIENT_CHAT, pid, msg
 			elif decoded['type'] == 'ingame':
-				obj = self.__process_ingame(decoded)
+				obj, obj2 = self.__process_ingame(decoded)
 				self.EIngame(self, players=obj)    # EVENT CALL
-				return CommProt.INGAME, obj        # TODO: EXtend with returning the Arena, too
+				return CommProt.INGAME, obj, obj2
 			elif decoded['type'] == 'client_ingame':
 				obj = self.__process_client_ingame(decoded)
 				self.EClientIngame(self, player=obj) # EVENT CALL
@@ -537,8 +537,12 @@ class JSONComm(CommProt):
 
 	def __process_ingame(self, msgdict: dict):
 		"""
-		TODO
-		DOCUMENT THIS FUNCTIOn
+		Process an ingame update of player and the arena
+		Args:
+			msgdict (dict): Dictionary of the received package
+		Returns:
+			list[Player]: List of players
+			Arena:        Updated arena
 		"""
 		# Check for the players instance
 		if 'players' not in msgdict.keys():
@@ -558,7 +562,7 @@ class JSONComm(CommProt):
 
 			# Add player to the results
 			plarray.append(player)
-		return plarray
+		return plarray, None
 
 	
 	def __process_client_ingame(self, msgdict: dict) -> Player:

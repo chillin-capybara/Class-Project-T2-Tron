@@ -8,7 +8,8 @@ class Track(object):
 		raise NotImplementedError
 
 class LightTrack(Track):
-	__elements = [] # Array of tuples
+	def __init__(self):
+		self.__elements = [] # Array of tuples
 
 	def addElement(self, start: Vect2D, end: Vect2D):
 		
@@ -24,10 +25,8 @@ class LightTrack(Track):
 		for element in self.__elements:
 			start: Vect2D = element[0]
 			end: Vect2D = element[1]
-			yield(start.x)
-			yield(start.y)
-		yield(end.x)
-		yield(end.y)
+			yield(start)
+		yield(end)
 
 	def getLine(self) -> list:
 		return list(self.__generate_line())

@@ -113,7 +113,7 @@ class RectangleArena(Arena):
 		Returns:
 			str: Arena name
 		"""
-		return self.__name
+		return self.getName()
 
 	def getSize(self):
 		"""

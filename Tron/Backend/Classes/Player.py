@@ -127,7 +127,11 @@ class Player(object):
 	def setVelocity(self, x, y):
 		"""
 		Set the velocity of the player to the given x, y directions
-		TODO: DOKU
+		Args:
+			x (int): Velocity along the x axis
+			y (int): Velocity along the y axis
+		Raises:
+			TypeError: Argument type mismatch
 		"""
 		raise NotImplementedError
 	

@@ -281,7 +281,6 @@ class TCPServer(Server):
 
 				logging.info("New TCP Connection accepted: " + str(address))
 
-				# TODO: Start new thread for client_socket
 				self.__create_threads(conn, self.__player_index)
 				
 				# Create a new empty player into the array
