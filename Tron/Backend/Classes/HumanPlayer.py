@@ -8,7 +8,7 @@ MAX_X_GAME_FIELD = 240
 MAX_Y_GAME_FIELD = 240
 MAX_X_VELOCITY = 10**4
 MAX_Y_VELOCITY = 10**4
-
+MAX_COLOR_NUMBER = 100
 
 class HumanPlayer(Player):
 	"""
@@ -26,6 +26,42 @@ class HumanPlayer(Player):
 	__IsInPause = False
 
 	__track = None
+
+# input check Velocity.x
+	@property
+	def velocityX(self):
+		"""
+		property for Velocity type check
+		"""
+		return self.__Velocity.x
+
+	@velocityX.setter
+	def velocityX(self, new_value):
+		if type(new_value) != int:
+			raise TypeError
+		else:
+			if abs (new_value) > MAX_X_VELOCITY:
+				raise ValueError
+			else:
+				self.__Velocity.x = new_value
+
+# input check Velocity.y
+	@property
+	def velocityY(self):
+		"""
+		property for Velocity type check
+		"""
+		return self.__Velocity.y
+
+	@velocityX.setter
+	def velocityY(self, new_value):
+		if type(new_value) != int:
+			raise TypeError
+		else:
+			if abs (new_value) > MAX_Y_VELOCITY:
+				raise ValueError
+			else:
+				self.__Velocity.y = new_value
 
 
 	def __init__(self):
@@ -154,7 +190,7 @@ class HumanPlayer(Player):
 		ValueError: The entered color doesn't exists
 		"""
 		if type(color) == int:
-			if color > 5:  # TODO: adjust maximum number for color
+			if color > MAX_COLOR_NUMBER: 
 				raise ValueError
 			else:
 				self.__Color = color
@@ -198,7 +234,6 @@ class HumanPlayer(Player):
 		Args: 
 		velocity: velocity as Vect2D
 		"""
-		# TODO TYPE CHECKING
 		self.__Velocity.x = x
 		self.__Velocity.y = y
 
@@ -244,7 +279,7 @@ class HumanPlayer(Player):
 		else:
 			raise TypeError
 
-# test Player implementation
-testPlayer = HumanPlayer()
-testPlayer.__Name = "Max Mustermann"
-testPlayer.__Color = 2
+# # test Player implementation
+# testPlayer = HumanPlayer()
+# testPlayer.__Name = "Max Mustermann"
+# testPlayer.__Color = 2
