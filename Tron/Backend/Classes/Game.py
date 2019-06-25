@@ -3,8 +3,10 @@ from .Player import Player
 from .Factory import Factory
 from .TCPCLient import TCPCLient
 from .Arena import Arena
+from .TCPServer import TCPServer
 from ..Core.Event import Event
 import logging
+import threading
 
 class Game(object):
 	"""
@@ -20,6 +22,8 @@ class Game(object):
 	__me: Player = None
 
 	__me_id = 0 # Player ID of the current player
+
+	__server_thread : threading.Thread = None
 
 	# EVENTS TO USE BY UI
 	ECountDown = None
@@ -110,7 +114,31 @@ class Game(object):
 		"""
 		self.__client.Connect(server, port)
 		logging.debug("Connectiong to %s on port %d" % (server, port))
+	
+	def CreateServer(self, host: str = "", port: int = 9876, player_number:int = 10) ->  None:
+		"""
+		Create a new server for clients to connect to
+		Args:
+			host (str): IPv4 Adress to run the server on. default=""
+			port (int): Port to listen to.
+		"""
+		# Create a new server object
+		server = TCPServer(host, port)
 
+		# Set the number of maximal players
+		server.setPlayerNumber(player_number)
+
+		# Create a new thread for the server
+		self.__server_thread = threading.Thread(target=server.Start)
+
+		# Start the server
+		self.__server_thread.start()
+	
+	def DestroyServer(self):
+		"""
+		Abort the thread of the running server.
+		"""
+		self.__server_thread._stop()
 
 	def getPlayers(self) -> list:
 		"""
