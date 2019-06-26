@@ -104,6 +104,7 @@ class BallGame(Widget):
 
         old_pos = self.balls[0].pos
         self.speed_factor = self.speed_factor + self.speed_constant
+        print(self.speed_factor)
         self.balls[0].pos = (
             old_pos[0] + self.velocity[0] * self.speed_factor * 10,
             old_pos[1] + self.velocity[1] * self.speed_factor * 10

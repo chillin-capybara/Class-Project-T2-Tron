@@ -15,56 +15,73 @@ from Backend.Classes.HumanPlayer import HumanPlayer
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.Player import Player
+import UI.mainUI
 
 from kivy.base import runTouchApp
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 
 
+## Fr.S
+# updatesPerSeconds = parent.updatesPerSeconds
+# updatesPerSeconds = 50
+
+p1 = HumanPlayer()
+p1.setName("Simon")
+p1.setColor((1, 1, 1))
+p1.setPosition(20, 20)
+p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+
+p2 = HumanPlayer()
+p2.setName("Ludi")
+p2.setColor((1, 1, 1))
+p2.setPosition(50, 50)
+p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
+p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+
+
+players = [ p1, p2 ]
+
 class TrackWidget(Widget):
-    p1 = HumanPlayer()
-    p1.setName("Simon")
-    p1.setColor((1, 1, 1))
-    p1.setPosition(20, 20)
-    p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
-    p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+    opacityValue = NumericProperty(0)
+    speed_constant = NumericProperty(0.01)
+    speed_factor = NumericProperty(1)
 
-    p2 = HumanPlayer()
-    p2.setName("Ludi")
-    p2.setColor((1, 1, 1))
-    p2.setPosition(50, 50)
-    p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
-    p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
-    p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+    def __init__(self, **kwargs):
+        super(TrackWidget, self).__init__(**kwargs)
 
-
-    players = [ p1, p2 ]
-
-    
+        self.velocity = (0, 1)
 
     def update(self):
         ## function for updating the track
         fieldsize = (100, 100)
         self.canvas.clear()
-        players2 = TrackWidget.players
-        
+        self.increaseOpacity()
+        self.updatespeed_factor()
 
         with self.canvas:
+            self.opacity = self.opacityValue
 
-            for player in players2:
+            for player in players:
                 track = player.getLine()
-                allPoints = self.constructMissingPoints(track)
+                allPoints2 = self.constructMissingPoints(track)
 
                 colorId = player.getColor()
-                Color(rgb = self.getColorFromId(colorId))
+                Color(rgba = self.getColorFromId(colorId))
 
-                for point in allPoints:
+                for point in allPoints2:
                     xPos = point.x
                     yPos = point.y
+
                     xPos2 = (self.size[0]/fieldsize[0]) * xPos
                     yPos2 = (self.size[1]/fieldsize[1]) * yPos
 
-                    Rectangle(pos=(xPos2, yPos2), size = ((self.size[0]/fieldsize[0]), (self.size[1]/fieldsize[1])) )
+                    xSize = self.size[0]/fieldsize[0]
+                    ySize = self.size[1]/fieldsize[1]
+
+                    Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
         # with self.canvas:
         #     for player in players2:
@@ -78,19 +95,29 @@ class TrackWidget(Widget):
     def getColorFromId(self, colorId):
         ## remove
         switcher = {
-            0: (1, 0, 0),
-            1: (0, 1, 0),
-            2: (0, 0, 1),
-            3: (0, 1, 1),
-            4: (1, 1, 0),
-            5: (1, 0, 1),
+            0: (1, 0, 0, self.opacityValue),
+            1: (0, 1, 0, self.opacityValue),
+            2: (0, 0, 1, self.opacityValue),
+            3: (0, 1, 1, self.opacityValue),
+            4: (1, 1, 0, self.opacityValue),
+            5: (1, 0, 1, self.opacityValue),
         }
 
         return switcher.get(colorId, (1, 1, 1, 1))
 
+
+    def increaseOpacity(self):
+        ## function for creating an increasing opacity with increasing time
+        ## Fr. S.
+        if self.parent.parent.countdown_is_running or self.parent.parent.game_is_running:
+            if self.opacityValue < 1:
+                self.opacityValue += 0.01 / UI.mainUI.UPDATES_PER_SECOND
+                print (self.opacityValue)
+                return self.opacityValue
+
     def constructMissingPoints(self, track):
         ## function who creates all missing points in between
-        allPoints = []
+        allPoints2 = []
 
         pointCount = len(track)
 
@@ -110,13 +137,13 @@ class TrackWidget(Widget):
             for j in range(0, lineLength):
                 xVal = round(startPoint.x + deltaX * j)
                 yVal = round(startPoint.y + deltaY * j)
-                allPoints.append(Vect2D(xVal, yVal))
+                allPoints2.append(Vect2D(xVal, yVal))
 
-        allPoints.append(track[-1])
+        allPoints2.append(track[-1])
 
-        return allPoints
+        return allPoints2
 
-    def LineCreator(self):
+    def LineCreator2(self):
         ## test function
         players3 = TrackWidget.players
         print('Hi')
@@ -124,53 +151,66 @@ class TrackWidget(Widget):
 
     
      # (x, y)
-    speed_constant = 0.01
-    speed_factor = 1
-
-    def press_a_key(self, velocity):
-        print("a")
-        if self.velocity[0] == 1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == 1:
-            pass
-        if self.velocity[0] == -1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == -1:
-            pass
-
-
-
-    def press_d_key(self,velocity):
-        print ("d")
-        if self.velocity[0] == 1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == 1:
-            pass
-        if self.velocity[0] == -1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == -1:
-            pass
-
-
-
-    def set_velocity(self, x, y):
-        if  x == 1 and y == 0:
-            self.self.velocity[0] = x
-            self.self.velocity[1] = y
-            print (self.self.velocity)
-    def updateVelocity(self):
-        pass
-
     
+    def press_d_key(self):
+        if self.velocity == (0, 1):
+            self.velocity = (1, 0)
+            return
+
+        if self.velocity == (1, 0):
+            self.velocity = (1, 0)
+            return
+
+        if self.velocity == (0, -1):
+            self.velocity = (1, 0)
+            return
+
+        if self.velocity == (-1, 0):
+            self.velocity = (1, 0)
+            return
+
+
+
+    # def press_d_key(self, x = velocity[0], y = velocity[1]):
+    #     print ("d")
+    #     if self.velocity[0] == 1 and self.veloctiy[1] == 0:
+    #         pass
+    #         # self.velocity = (0, -1)
+    #     if self.velocity[0] == 0 and self.veloctiy[1] == 1:
+    #         pass
+    #         # self.velocity = (1, 0)
+    #     if self.velocity[0] == -1 and self.veloctiy[1] == 0:
+    #         pass
+    #         # self.velocity = (0, 1)
+    #     if self.velocity[0] == 0 and self.veloctiy[1] == -1:
+    #         pass
+    #         # self.velocity = (-1, 0)
+    #     # return self.velocity
+
+
+    def updatespeed_factor(self):
+        self.speed_factor = self.speed_factor + self.speed_constant
+    
+    # def createStartPoint(self):
+    #     allPoints = []
+    #     velocity = [1, 0]
+    #     pointx = velocity[0] + p1.getPosition()[0]
+    #     pointy = velocity[1] + p1.getPosition()[0]
+    #     allPoints.append(Vect2D(pointx, pointy))
+    #     print (allPoints)
+    #     pass
+
+
+
 
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
 
-    def __init__(self, TrackWidget, **kwargs):
+    def __init__(self, game, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
 
-
-        self._TrackWidget = TrackWidget
+        self._game = game
+        self._track = game.ids.trackWidget
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use
@@ -179,7 +219,7 @@ class MyKeyboardListener(Widget):
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
 
-    velocity = ListProperty([])
+    
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
@@ -197,10 +237,11 @@ class MyKeyboardListener(Widget):
             keyboard.release()
 
         if keycode[1] == 'a':
-            TrackWidget.LineCreator(self)
+            self._track.LineCreator2(self)
+            self._track.createStartPoint(self)
 
         if keycode[1] == 'd':
-            TrackWidget.press_d_key(self, [1,0])
+            self._track.press_d_key()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True

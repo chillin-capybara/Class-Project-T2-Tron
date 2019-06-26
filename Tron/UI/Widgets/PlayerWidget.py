@@ -15,7 +15,7 @@ from Backend.Classes.Player import Player
 
 Builder.load_string("""
 <PlayerWidget>:
-    ## BoxLayout used for increasing 
+    ## BoxLayout used for increasing playercount
     BoxLayout:
         id: boxLayout1
         orientation: "vertical"
@@ -25,9 +25,8 @@ class PlayerWidget(Widget):
     playerList = ListProperty()
 
     def on_playerList(self, instance, value):
+        ## function for creating the input for the BoxLayout, capable of printing the text + the color of the player
         self.ids.boxLayout1.clear_widgets()
-
-        
         for player in value:
             self.ids.boxLayout1.add_widget(Label(
                 text = player["name"],
