@@ -153,22 +153,42 @@ class TrackWidget(Widget):
      # (x, y)
     
     def press_d_key(self):
+        if self.velocity == (1, 0):
+            self.velocity = (0, -1)
+            return
+
         if self.velocity == (0, 1):
             self.velocity = (1, 0)
             return
 
+        if self.velocity == (-1, 0):
+            self.velocity = (0, 1)
+            return
+
+
+        if self.velocity == (0, -1):
+            self.velocity = (-1, 0)
+            return
+    
+
+    def press_a_key(self):
         if self.velocity == (1, 0):
-            self.velocity = (1, 0)
+            self.velocity = (0, 1)
+            return
+
+        if self.velocity == (0, 1):
+            self.velocity = (-1, 0)
+            return
+            
+        if self.velocity == (-1, 0):
+            self.velocity = (0, -1)
             return
 
         if self.velocity == (0, -1):
             self.velocity = (1, 0)
             return
 
-        if self.velocity == (-1, 0):
-            self.velocity = (1, 0)
-            return
-
+        
 
 
     # def press_d_key(self, x = velocity[0], y = velocity[1]):
@@ -237,8 +257,7 @@ class MyKeyboardListener(Widget):
             keyboard.release()
 
         if keycode[1] == 'a':
-            self._track.LineCreator2(self)
-            self._track.createStartPoint(self)
+            self._track.press_a_key()
 
         if keycode[1] == 'd':
             self._track.press_d_key()
