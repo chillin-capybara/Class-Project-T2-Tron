@@ -66,15 +66,6 @@ class TrackWidget(Widget):
 
                     Rectangle(pos=(xPos2, yPos2), size = ((self.size[0]/fieldsize[0]), (self.size[1]/fieldsize[1])) )
 
-        # with self.canvas:
-        #     for player in players2:
-        #         startpos = player.getPosition()
-        #         xPos = startpos[0]
-        #         yPos = startpos[1]
-        #         Triangle(size_hint=(0.5, 0.5))
-
-
-
     def getColorFromId(self, colorId):
         ## remove
         switcher = {
@@ -123,41 +114,13 @@ class TrackWidget(Widget):
         players3[0].addTrack(Vect2D(20,20), Vect2D(0, 20))
 
     
-     # (x, y)
+    velocity = [] # (x, y)
     speed_constant = 0.01
     speed_factor = 1
 
-    def press_a_key(self, velocity):
-        print("a")
-        if self.velocity[0] == 1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == 1:
-            pass
-        if self.velocity[0] == -1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == -1:
-            pass
-
-
-
-    def press_d_key(self,velocity):
-        print ("d")
-        if self.velocity[0] == 1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == 1:
-            pass
-        if self.velocity[0] == -1 and self.veloctiy[1] == 0:
-            pass
-        if self.velocity[0] == 0 and self.veloctiy[1] == -1:
-            pass
-
-
-
-    def set_velocity(self, x, y):
-        if  x == 1 and y == 0:
-            self.self.velocity[0] = x
-            self.self.velocity[1] = y
-            print (self.self.velocity)
+    def set_velocity(self, x , y):
+        velocity = [x, y]
+        print(velocity)
     def updateVelocity(self):
         pass
 
@@ -166,20 +129,16 @@ class TrackWidget(Widget):
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
 
-    def __init__(self, TrackWidget, **kwargs):
+    def __init__(self, game, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
 
-
-        self._TrackWidget = TrackWidget
+        self._game = game
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use
             # to change the keyboard layout.
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
-
-
-    velocity = ListProperty([])
 
     def _keyboard_closed(self):
         print('My keyboard have been closed!')
@@ -198,10 +157,17 @@ class MyKeyboardListener(Widget):
 
         if keycode[1] == 'a':
             TrackWidget.LineCreator(self)
+            
+
+        if keycode[1] == 'w':
+            # TrackWidget.set_velocity(0, 1)
+            pass
 
         if keycode[1] == 'd':
-            TrackWidget.press_d_key(self, [1,0])
+            self._game.set_velocity(1, 0)
+
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
     
+  

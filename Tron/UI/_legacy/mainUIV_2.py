@@ -15,7 +15,6 @@ from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
 from UI.Widgets.TrackWidget import MyKeyboardListener
 from UI.Widgets.PlayerWidget import PlayerWidget
-from UI.Widgets.HeadWidget import HeadWidget
 
 
 
@@ -85,17 +84,6 @@ Builder.load_string("""
             size: root.getPlayerWidgetSize()
             size_hint: None, None
             playerList: root.playerList
-    
-
-    AnchorLayout:
-        size: root.size
-        anchor_x: "center"
-        anchor_y: "center"
-        HeadWidget:
-            id: HeadWidget
-            size: root.size
-            opacity:  root.slowStartopacity() if root.countdown_is_running else 1
-    
 """)
 
 
@@ -140,7 +128,6 @@ class GameUI(Widget):
     def update(self, *args):
         ## final update function, where I trigger different functuions
         self.ids.trackWidget.update()
-        self.ids.HeadWidget.update()
         TrackWidget.updateVelocity(self)
         # self.slowStartopacity()
 
@@ -183,7 +170,7 @@ class GameApp(App):
     # creates the Application
     def build(self):
         game = GameUI()
-        MyKeyboardListener(TrackWidget)
+        MyKeyboardListener(game)
         return game
 
 if __name__ == "__main__":
