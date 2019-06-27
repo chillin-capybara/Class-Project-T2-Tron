@@ -19,22 +19,25 @@ class CommProt:
 	REVENGE_ACK            = 11
 	SERVER_NOTIFICAITON    = 12
 	CLIENT_CHAT            = 13
+	LEAVING_GAME           = 14
+	GAME_ENDED             = 15
 
 	# Create events for processing responsees
-	EClientError           = None # (sender=, msg=)
-	EServerError           = None # (sender=, msg=)
-	EClientReady           = None # (sender=, player=)
-	EClientReadyAck        = None # (sender=, player_id=)
-	EServerReady           = None # (sender=)
-	ECountdown             = None
-	EIngame                = None
-	EClientIngame          = None # (sender=, player=)
-	EPause                 = None # (sender=)
-	ERevenge               = None # (sender=)
-	ERevengeAck            = None # (sender=)
-	EExitGame              = None # (sender=)
-	EServerNotification    = None
-	EClientChat            = None
+	EClientError       : Event    = None # (sender=, msg=)
+	EServerError       : Event    = None # (sender=, msg=)
+	EClientReady       : Event    = None # (sender=, player=)
+	EClientReadyAck    : Event    = None # (sender=, player_id=)
+	EServerReady       : Event    = None # (sender=)
+	ECountdown         : Event    = None
+	EIngame            : Event    = None
+	EClientIngame      : Event    = None # (sender=, player=)
+	EPause             : Event    = None # (sender=)
+	ERevenge           : Event    = None # (sender=)
+	ERevengeAck        : Event    = None # (sender=)
+	EExitGame          : Event    = None # (sender=)
+	EServerNotification: Event    = None
+	EClientChat        : Event    = None
+	EGameEnded         : Event    = None # (sender=, msg=)
 
 	def __init__(self):
 		"""
@@ -56,6 +59,7 @@ class CommProt:
 		self.EExitGame              = Event() # (sender=)
 		self.EServerNotification    = Event('msg') # (sender=, msg=
 		self.EClientChat            = Event('player_id', 'msg') # (sender=, player_id=, msg=)
+		self.EGameEnded             = Event('msg') # (sender=, msg=)
 
 	def client_ready(self, player):
 		"""

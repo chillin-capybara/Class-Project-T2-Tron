@@ -30,8 +30,15 @@ class BasicComm(CommProt):
 			'JOIN_MATCH': self.__process_client_ready,
 			'MATCH_JOINED' : self.__process_client_ready_ack,
 			'ERR_CMD_NOT_UNDERSTOOD': self.__process_error_incorrect_cmd,
-			'ERR_FAILED_TO_CREATE': self.__process_failed_to_create
+			'ERR_FAILED_TO_CREATE': self.__process_failed_to_create,
+			'ERR_FAILED_TO_JOIN': self.__process_failed_to_join,
+			'ERR_GAME_NOT_EXIST': self.__process_game_not_exists,
+			'DISCONNECTING_YOU': self.__process_disconnecting_client,
+			'LEAVING_MATCH': self.__process_leaving_match,
+			'GAME_ENDED': self.__process_game_ended
 			}
+		
+		# Initialize the events, and the abstract class
 		super().__init__()
 
 	def decode_message(self, msg: bytes) -> (str, str):
@@ -42,7 +49,6 @@ class BasicComm(CommProt):
 		Returns:
 			str: Command
 			str: Parameters
-		// FIXME Check for single message commands
 		"""
 		try:
 			decoded = msg.decode("UTF-8")
@@ -188,7 +194,25 @@ class BasicComm(CommProt):
 			return "LEAVING_MATCH %s" % reason
 		else:
 			raise ValueError
+	@c2b
+	def game_ended(self, reason: str):
+		"""
+		Get a game ended message with reason
+		Args:
+			reason (str): Reason of the game end
+		Return:
+			str
+		Raises:
+			TypeError:  Invalid Argument types
+			ValueError: Invalid reason
+		"""
+		if type(reason) is not str:
+			raise TypeError
 
+		if reason is not "":
+			return "GAME_ENDED %s" % reason
+		else:
+			raise ValueError
 
 	def process_response(self, response: bytes):
 		"""
@@ -287,3 +311,101 @@ class BasicComm(CommProt):
 
 		# Return the values
 		return self.SERVER_ERROR, message
+	
+	def __process_failed_to_join(self, params: str) -> (int, str):
+		"""
+		Process an ERR_FAILED_TO_JOIN message with reason
+		Args:
+			params (str): Reason of the error
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+		if type(params) is not str:
+			raise TypeError
+		
+		message = "Failed to join the game. Reason: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
+	
+	def __process_game_not_exists(self, params: str) -> (int, str):
+		"""
+		Process a ERR_GAME_NOT_EXIST message with reason
+		Args:
+			params (str): Name of the game
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+		
+		message = "The game you want to join does not exist: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
+	
+	def __process_disconnecting_client(self, params: str) -> (int, str):
+		"""
+		Process a DISCONNECTING_YOU message with reason
+		Args:
+			params (str): Reason
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+
+		message = "You were disconnected by the server. Reason: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
+
+	def __process_leaving_match(self, params: str) -> (int, str):
+		"""
+		Process a LEAVING_MATCH message with reasong
+		Args:
+			params (str): Reason of leave
+		Returns:
+			int: CommProt.EXIT_GAME
+			str: Error message
+		Event calls:
+			EExitGame(self, msg)
+		"""
+		message = "Client is leaving the match. Reason: %s" % params
+
+		# Call the event
+		self.EExitGame(self, msg=message)
+
+		# Return the values
+		return self.EXIT_GAME, message
+	
+	def __process_game_ended(self, params: str) -> (int, str):
+		"""
+		Process a GAME_ENDED message with reason
+		Args:
+			params (str): Reason of end
+		Returns:
+			int: CommProt.GAME_ENDED
+			str: Game ended message
+		"""
+		message = "Game ended! Reason: %s" % params
+
+		# Call the event
+		self.EGameEnded(self, msg=message)
+
+		# Return the values
+		return self.GAME_ENDED, message
