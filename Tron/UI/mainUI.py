@@ -153,7 +153,7 @@ class GameUI(Widget):
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()
             self.ids.HeadWidget.setBooleanGame()
-            # self.ids.trackWidget.increaseOpacity()
+            self.ids.trackWidget.increaseOpacity()
             
             
             ## Give Values from trackWidget class to HeadWidget class

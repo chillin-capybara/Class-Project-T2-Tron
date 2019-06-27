@@ -167,6 +167,8 @@ class TrackWidget(Widget):
             startPos = player.getPosition()
             if self.counter == 0:
                 ## the function with xVal and yVal needs an initial value to start with, because of this 
+                ## I need to add an if loop who appends one value at the beginning
+                ## this counter is later on used for finding the last value
                 self.allPoints.append(startPos)
             
             xVal = round(move[0] + self.allPoints[self.counter].x)
@@ -181,15 +183,19 @@ class TrackWidget(Widget):
         return self.allPoints
 
     def setBooleanGame(self):
+        ## set Booleans for initializing events
         self.game_is_running2 = True
 
     def setBooleanCountdown(self):
+        ## set Booleans for initializing events: increaseOpacity
         self.countdown_is_running2 = True
         self.increaseOpacity()
 
         
 
     def press_d_key(self):
+        ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
+        ## with d we go clockwise
         if self.velocity == (1, 0):
             self.velocity = (0, -1)
             
@@ -210,6 +216,8 @@ class TrackWidget(Widget):
     
 
     def press_a_key(self):
+        ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
+        ## with a we go counter-clockwise
         if self.velocity == (1, 0):
             self.velocity = (0, 1)
             return
@@ -231,15 +239,20 @@ class TrackWidget(Widget):
 
 
     def updatespeed_factor(self):
+        ## function for increasing speed_factor over time, is updated by standard update function of TrackWidget class
         self.speed_factor = self.speed_factor + self.speed_constant
 
 
     def getVelocity(self):
+        ## get-function for transfering veloctiy to HeadWidget
         return self.velocity
 
     def getPos(self):
+        ## get-function for transfering resent Position to HeadWidget
         if self.game_is_running2 == True:
+            ## should only be started after game ist started
             if self.countergetPos == True:
+                ## Problems with None-Values if the if loop is missing, loops one time through the pointCreator()
                 self.pointCreator()
                 self.countergetPos = False
 

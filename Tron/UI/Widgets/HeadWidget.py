@@ -69,12 +69,8 @@ class HeadWidget(Widget):
                 Color(rgb = colorID2)
                 # Color(rgb = self.getColorFromId(colorId))
                 
-                
-                
-                
                 Points = self.calculatePoints(self.velocity, self.nowpoint)
                 
-            
                 Triangle(points = Points, color = colorId)
 
     
@@ -164,7 +160,7 @@ class HeadWidget(Widget):
         return x
 
     def setPosition(self, x):
-
+        
 
         ## getting positition from TrackWidget
         if self.game_is_running3 == True:
