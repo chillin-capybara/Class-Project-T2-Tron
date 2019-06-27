@@ -29,10 +29,11 @@ class InteropComm(object):
 		for currentSplittedMatrixRow in range (0, splittedMatrixRowCount):
 			for currentSplittedMatrixColumn in range (0, splittedMatrixColumnCount):
 				# process each "Child" of the Mother matrix
-				matrixString = self.processChildMatrix(currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix)
+				matrixString = self.processChildMatrix(currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount)
 				newDictElement = {(currentSplittedMatrixRow,currentSplittedMatrixColumn) : matrixString}
 				dictionary.update(newDictElement)
 				matrixString = ""
+
 		
 		return dictionary
 
@@ -42,13 +43,15 @@ class InteropComm(object):
 		"""
 
 		pass 
-	def processChildMatrix (self, currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix):
+	def processChildMatrix (self, currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount):
 		"""
 		wright down all the Elements of the "Child" Matrix
 		"""
 		matrixString = ""
 		for currentRow in range (currentSplittedMatrixRow * max_size[0] , (currentSplittedMatrixRow+1) * max_size[0]):
+			if currentRow > matrixRowCount: break
 			for currentColumn in range (currentSplittedMatrixColumn * max_size[1], (currentSplittedMatrixColumn + 1) * max_size[1]):
+				if currentColumn > matrixColumnCount: break
 				matrixString += str(matrix[currentRow][currentColumn]) # add to the string the matrix item
 				if (max_size[1] > 1) & (currentColumn+1 < max_size[1]) : matrixString += ","
 			if (max_size[0] > 1) & (currentRow+1 < max_size[0]) : matrixString += ";"
