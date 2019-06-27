@@ -28,7 +28,9 @@ class BasicComm(CommProt):
 	def __init__(self):
 		self.POLICY = {
 			'JOIN_MATCH': self.__process_client_ready,
-			'MATCH_JOINED' : self.__process_client_ready_ack
+			'MATCH_JOINED' : self.__process_client_ready_ack,
+			'ERR_CMD_NOT_UNDERSTOOD': self.__process_error_incorrect_cmd,
+			'ERR_FAILED_TO_CREATE': self.__process_failed_to_create
 			}
 		super().__init__()
 
@@ -40,25 +42,18 @@ class BasicComm(CommProt):
 		Returns:
 			str: Command
 			str: Parameters
+		// FIXME Check for single message commands
 		"""
 		try:
 			decoded = msg.decode("UTF-8")
 			splitted = decoded.split(' ', 1) # Split it into 2 parts
-			return splitted[0], splitted[1][:-1] # Strip the last 'x00'
+			if(len(splitted) == 1):
+				return splitted[0][:-1], None
+			else:
+				return splitted[0], splitted[1][:-1] # Strip the last 'x00'
 		except Exception as e:
+			raise e
 			raise MessageError(str(e)) # Failed to convert into message and params
-
-	def __color_to_rgb(self, color: int):
-		"""
-		Convert color to an RGB Value
-		Args:
-			color (int): Player color
-		"""
-		r: int = (color * 25) % 255
-		g: int = (color * 25) % 255
-		b: int = (color * 25) % 255
-
-		return r,g,b
 
 	@c2b
 	def client_ready(self, player: Player):
@@ -70,7 +65,7 @@ class BasicComm(CommProt):
 			JOIN_MATCH [player] [color]
 		"""
 		name = player.getName()
-		r,g,b = self.__color_to_rgb(player.getColor())
+		r,g,b = player.getColor()
 
 		return "JOIN_MATCH %s %d,%d,%d" % (name, r, g, b)
 
@@ -87,6 +82,113 @@ class BasicComm(CommProt):
 			raise TypeError
 
 		return "MATCH_JOINED %d" % player_id
+	
+	@c2b
+	def error_incorrect_cmd(self):
+		"""
+		Get a server error message, when a client's command is not understood
+		Return:
+			str
+		"""
+		return "ERR_CMD_NOT_UNDERSTOOD"
+	
+	@c2b
+	def failed_to_create(self, reason: str) -> str:
+		"""
+		Get a failed to create message containing a reason.
+		Args:
+			reason (str): Reason of the errror
+		Returns:
+			str
+		"""
+		if type(reason) is not str:
+			raise TypeError
+
+		if reason is not "":
+			return "ERR_FAILED_TO_CREATE %s" % reason
+		else:
+			raise ValueError
+	
+	@c2b
+	def failed_to_join(self, reason: str) -> str:
+		"""
+		Get a failed to join message containing the reason.
+		Args:
+			reason (str): Resaon of the error
+		Returns:
+			str
+		Raises:
+			TypeError: Invalid argument types
+			ValueError: reason is empty
+		"""
+		if type(reason) is not str:
+			raise TypeError
+
+		if reason is not "":
+			return "ERR_FAILED_TO_JOIN %s" % reason
+		else:
+			raise ValueError
+	
+	@c2b
+	def game_not_exists(self, name: str) -> str:
+		"""
+		Get a game not exists message from the server with the name of the game
+		Args:
+			name (str): Name of the game
+		Returns:
+			str
+		Raises:
+			TypeError:  Invalid argument types
+			ValueError: Invalid name
+		"""
+		if type(name) is not str:
+			raise TypeError
+		
+		if name is "":
+			raise ValueError
+		
+		return "ERR_GAME_NOT_EXIST %s" % name
+	
+	@c2b
+	def disconnect_client(self, reason: str) -> str:
+		"""
+		Get a disconnect client message with the reason of disconnect
+		Args:
+			reason (str): Reason of the disconnect
+		Returns:
+			str
+		Raises:
+			TypeError:  Invalid argument types
+			ValueError: Invalid reason
+		"""
+		if type(reason) is not str:
+			raise TypeError
+
+		if reason is not "":
+			return "DISCONNECTING_YOU %s" % reason
+		else:
+			raise ValueError
+	
+	@c2b
+	def leaving_match(self, reason: str) -> str:
+		"""
+		Get a leaving match message with reason to be sent from the client.
+		Args:
+			reason (str): Reason of the leave
+		Return:
+			str
+		Raises:
+			TypeError:  Invalid argument types
+			ValueError: Invalid reason
+		"""
+		if type(reason) is not str:
+			raise TypeError
+
+		if reason is not "":
+			return "LEAVING_MATCH %s" % reason
+		else:
+			raise ValueError
+
 
 	def process_response(self, response: bytes):
 		"""
@@ -103,7 +205,7 @@ class BasicComm(CommProt):
 				raise MessageError("Policy cannot be called")
 		except Exception as e:
 			raise e
-	
+
 	def __process_client_ready(self, params: str) -> (str, int, int, int):
 		"""
 		Process JOIN_MATCH requests
@@ -119,11 +221,10 @@ class BasicComm(CommProt):
 			r = int(spl2[0])
 			g = int(spl2[1])
 			b = int(spl2[2])
-			# TODO Color handling has to be changed
 
 			player = HumanPlayer()
 			player.setName(playername)
-			player.setColor(int(r/25))
+			player.setColor((r,g,b))
 
 			# Trigger Event
 			self.EClientReady(self, player=player)
@@ -151,3 +252,38 @@ class BasicComm(CommProt):
 			return self.CLIENT_READY_ACK, player_id
 		except:
 			raise MessageError("Invalid MATCH_JOINED received.")
+
+	def __process_error_incorrect_cmd(self, params: None):
+		"""
+		Process an ERR_CMD_NOT_UNDERSTOOD command
+		Args:
+			params (None): ignored parameter
+		Event:
+			EServerError(self, msg="Command not understood!")
+		Returns
+			int: SERVER_ERROR
+		"""
+		self.EServerError(self, msg="Command not understood!")
+		return self.SERVER_ERROR, "ERR_CMD_NOT_UNDERSTOOD"
+	
+	def __process_failed_to_create(self, params: str) -> (int, str):
+		"""
+		Process an ERR_FAILED_TO_CREATE message with reason
+		Args:
+			params (str): Reason of the error
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+		if type(params) is not str:
+			raise TypeError
+		
+		message = "Failed to create match. Reason: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
