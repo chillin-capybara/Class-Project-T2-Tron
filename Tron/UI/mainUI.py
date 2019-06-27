@@ -39,7 +39,7 @@ Builder.load_string("""
         on_press:
             root.countdown_is_running = True
             countdown.start()
-
+            
     Button:
         id: Pause Button
         text: "Pause"
@@ -99,10 +99,10 @@ Builder.load_string("""
 
 
 
-UPDATES_PER_SECOND = 50
-
+UPDATES_PER_SECOND = 20
+FIELDSIZE = (100, 100)
 class GameUI(Widget):
-    updatesperSecond = 50
+    
     playerList = ListProperty([
         {
             "name": "Simon",
@@ -138,7 +138,11 @@ class GameUI(Widget):
         ## final update function, where I trigger different functuions
         self.ids.trackWidget.update()
         self.ids.HeadWidget.update()
-   
+        if self.game_is_running == True:
+            self.ids.trackWidget.setBoolean()
+            self.ids.trackWidget.increaseOpacity()
+            
+
 
     def getPlayerWidgetSize(self):
         ## creates the hight for the widget in duty of displaying all players online

@@ -2,7 +2,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.uix.button import Button
-from kivy.properties import NumericProperty, ObjectProperty, ListProperty
+from kivy.properties import NumericProperty, ObjectProperty, ListProperty, BooleanProperty
 from kivy.animation import Animation
 from kivy.graphics import *
 from kivy.vector import Vector
@@ -31,23 +31,27 @@ p1.setName("Simon")
 p1.setColor((1, 1, 1))
 p1.setPosition(20, 20)
 p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
-p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+# p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
 p2 = HumanPlayer()
 p2.setName("Ludi")
 p2.setColor((1, 1, 1))
 p2.setPosition(50, 50)
 p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
-p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
-p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+# p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+# p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
 
 
-players = [ p1, p2 ]
+players = [ p1]
 
 class TrackWidget(Widget):
     opacityValue = NumericProperty(0)
-    speed_constant = NumericProperty(0.01)
+    speed_constant = NumericProperty(0.001)
     speed_factor = NumericProperty(1)
+    game_is_running2 = BooleanProperty(False)
+    allPoints = []
+    counter = NumericProperty(0)
+    
 
     def __init__(self, **kwargs):
         super(TrackWidget, self).__init__(**kwargs)
@@ -56,32 +60,38 @@ class TrackWidget(Widget):
 
     def update(self):
         ## function for updating the track
-        fieldsize = (100, 100)
+        fieldsize = UI.mainUI.FIELDSIZE
         self.canvas.clear()
-        self.increaseOpacity()
-        self.updatespeed_factor()
+        
+        
+        # self.updatespeed_factor()
+        
+        # self.pointCreator()
 
         with self.canvas:
             self.opacity = self.opacityValue
 
             for player in players:
-                track = player.getLine()
-                allPoints2 = self.constructMissingPoints(track)
+                # track = player.getLine()
+                if self.game_is_running2 == True:
+                    allPoints2 = self.pointCreator()
+                    # print (allPoints2)
+                    #allPoints2 = self.constructMissingPoints(track)
+                    # print (allPoints2)
+                    colorId = player.getColor()
+                    Color(rgba = self.getColorFromId(colorId))
 
-                colorId = player.getColor()
-                Color(rgba = self.getColorFromId(colorId))
+                    for point in allPoints2:
+                        # xPos = point.x
+                        # yPos = point.y
 
-                for point in allPoints2:
-                    xPos = point.x
-                    yPos = point.y
+                        xPos2 = (self.size[0]/fieldsize[0]) * point.x
+                        yPos2 = (self.size[1]/fieldsize[1]) * point.y
 
-                    xPos2 = (self.size[0]/fieldsize[0]) * xPos
-                    yPos2 = (self.size[1]/fieldsize[1]) * yPos
+                        xSize = self.size[0]/fieldsize[0]
+                        ySize = self.size[1]/fieldsize[1]
 
-                    xSize = self.size[0]/fieldsize[0]
-                    ySize = self.size[1]/fieldsize[1]
-
-                    Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
+                        Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
         # with self.canvas:
         #     for player in players2:
@@ -111,7 +121,7 @@ class TrackWidget(Widget):
         ## Fr. S.
         if self.parent.parent.countdown_is_running or self.parent.parent.game_is_running:
             if self.opacityValue < 1:
-                self.opacityValue += 0.01 / UI.mainUI.UPDATES_PER_SECOND
+                self.opacityValue += 0.1 / UI.mainUI.UPDATES_PER_SECOND
                 print (self.opacityValue)
                 return self.opacityValue
 
@@ -152,13 +162,46 @@ class TrackWidget(Widget):
     
      # (x, y)
     
+    def pointCreator(self):
+        
+        move = (self.velocity[0] * self.speed_factor, self.velocity[1]*self.speed_factor)
+        
+
+
+
+        for player in players:
+            startPos = player.getPosition()
+            if self.counter == 0:
+                self.allPoints.append(startPos)
+            print (self.counter)
+            print(self.allPoints[self.counter])
+            
+            xVal = round(move[0] + self.allPoints[self.counter].x)
+            yVal = round(move[1] + self.allPoints[self.counter].y)
+            
+            self.allPoints.append(Vect2D(xVal, yVal))
+            print (self.counter)
+        self.counter += 1
+              
+        
+
+
+        return self.allPoints
+
+    def setBoolean(self):
+        self.game_is_running2 = True
+
+        
+
     def press_d_key(self):
         if self.velocity == (1, 0):
             self.velocity = (0, -1)
+            print(self.velocity)
             return
 
         if self.velocity == (0, 1):
             self.velocity = (1, 0)
+            print(self.velocity)
             return
 
         if self.velocity == (-1, 0):
@@ -174,10 +217,12 @@ class TrackWidget(Widget):
     def press_a_key(self):
         if self.velocity == (1, 0):
             self.velocity = (0, 1)
+            print(self.velocity)
             return
 
         if self.velocity == (0, 1):
             self.velocity = (-1, 0)
+            print(self.velocity)
             return
             
         if self.velocity == (-1, 0):
@@ -191,36 +236,11 @@ class TrackWidget(Widget):
         
 
 
-    # def press_d_key(self, x = velocity[0], y = velocity[1]):
-    #     print ("d")
-    #     if self.velocity[0] == 1 and self.veloctiy[1] == 0:
-    #         pass
-    #         # self.velocity = (0, -1)
-    #     if self.velocity[0] == 0 and self.veloctiy[1] == 1:
-    #         pass
-    #         # self.velocity = (1, 0)
-    #     if self.velocity[0] == -1 and self.veloctiy[1] == 0:
-    #         pass
-    #         # self.velocity = (0, 1)
-    #     if self.velocity[0] == 0 and self.veloctiy[1] == -1:
-    #         pass
-    #         # self.velocity = (-1, 0)
-    #     # return self.velocity
-
 
     def updatespeed_factor(self):
         self.speed_factor = self.speed_factor + self.speed_constant
     
-    # def createStartPoint(self):
-    #     allPoints = []
-    #     velocity = [1, 0]
-    #     pointx = velocity[0] + p1.getPosition()[0]
-    #     pointy = velocity[1] + p1.getPosition()[0]
-    #     allPoints.append(Vect2D(pointx, pointy))
-    #     print (allPoints)
-    #     pass
-
-
+  
 
 
 class MyKeyboardListener(Widget):

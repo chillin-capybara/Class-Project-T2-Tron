@@ -3,41 +3,39 @@
 # Display Time Lived
 # Reset Statistics
 <StatisticsMenu>:
+    on_enter: (root.refreshstats(""))
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
         padding: 10
-        BoxLayout:
-            orientation: 'horizontal'
+        Label:
+            id: menunameLabel
+            text: 'Statistics Menu'
             size_hint: (1, 0.1)
-            Label:
-                id: menunameLabel
-                text: 'Statistics Menu'
-                size_hint: (0.95, 1)
-                color: 1, 0, 0, 1
-            Button:
-                id: refreshButton
-                text: "refresh"
-                size_hint: (0.05,1)
-                #on_release: root.refresh
+            color: 1, 0, 0, 1
         Label:
             id: nameLabel
             text: "Name: "
-            size_hint: (1, 1.25)
+            size_hint: (1, 1)
+            color: 1, 0, 0, 1
+        Label:
+            id: colorLabel
+            text: "Color: "
+            size_hint: (1, 1)
             color: 1, 0, 0, 1
         Label:
             id: wincountLabel
-            text: 'Wincount:'
-            size_hint: (1, 1.25)
+            text: 'Wincount: (not yet implemented)'
+            size_hint: (1, 1)
             color: 1, 0, 0, 1
         Label:
             id: timelivedLabel
-            text: 'Time lived:'
-            size_hint: (1, 1.25)
+            text: 'Time lived: (not yet implemented)'
+            size_hint: (1, 1)
             color: 1, 0, 0, 1
         Button:
             id: resetButton
-            text: 'Reset Statistics'
+            text: 'Reset Statistics (not yet implemented)'
             background_color: (0.1,0.3,0.7,1)
             size_hint: (1, 1.25)
             #on_release: root.reset_statistics()

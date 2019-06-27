@@ -12,6 +12,8 @@
             text: 'Settings Menu'
             size_hint: (1, 0.1)
             color: 1, 0, 0, 1
+        Label:
+            size_hint: (1,1)
         BoxLayout:
             orientation: 'horizontal'
             size_hint: (1,1)
@@ -29,17 +31,20 @@
             size_hint: (1,1)
             Label:
                 id: changecolorLabel
-                text: 'Change Color:'
+                text: 'Change Color:' +  str(int(colorSlider.value))
                 size_hint: (0.5, 1)
                 color: 1, 0, 0, 1
-            TextInput:
-                id: colorTextInput
-                hint_text: 'Color in Int'
-        
+            Slider:
+                id: colorSlider
+                min: 1
+                max: 10
+                step: 1
+        Label:
+            size_hint: (1,2)
         Button:
             id: backtomenuButton
             text: 'Back to Main Menu (Save)'
             background_color: (1,0,0,1)
             size_hint: (1, 0.5)
-            on_press: root.savechanges(nameTextInput.text, colorTextInput.text)
+            on_press: root.savechanges(nameTextInput.text, colorSlider.value)
             on_release: root.manager.current = 'mainmenu'
