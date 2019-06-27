@@ -12,6 +12,18 @@ class InteropComm(object):
 			Returns:
 			Raises:
 		"""
+		# check if the matrix just consist of int 
+		# if not all(isinstance(item, int) for item in list):
+		# 	raise TypeError
+
+		if  (type(max_size[0]) != int) | (type(max_size[1]) != int):
+			raise TypeError
+		else:
+			if (max_size[0] > len(matrix)) | (max_size[1] > len(matrix[0])):
+				raise ValueError
+
+
+
 		matrixString = "" # string where the splits will be parsed
 		dictionary = {(0,0):matrixString}
 		matrixRowCount            = len(matrix)
@@ -42,12 +54,6 @@ class InteropComm(object):
 		
 		return dictionary
 
-	def matrix_collapse(self, splitted_matrix: dict) -> list:
-		"""
-		Build the splitted matrix together
-		"""
-
-		pass 
 	def processChildMatrix (self, currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount):
 		"""
 		wright down all the Elements of the "Child" Matrix
@@ -62,6 +68,26 @@ class InteropComm(object):
 			if (max_size[0] > 1) & ((currentRow+1)//(currentSplittedMatrixRow+1) < max_size[0]) : matrixString += ";"
 					
 		return matrixString
+
+	def matrix_collapse(self, splitted_matrix: dict) -> list:
+		"""
+		Build the splitted matrix together
+		"""
+		motherMatrix: list
+
+		#calculate the dimension of the future new mother matrix
+		lastTuple = splitted_matrix.keys()[-1]
+		splittedMatrixRowCount, splittedMatrixColumnCount = lastTuple
+		
+		for currentSplit in range (0,len(splitted_matrix)):
+			
+			matrixString = splitted_matrix.values[currentSplit]
+			for currentCharacterCounter in range (0, len(matrixString - 1)):
+				currentCharacter = matrixString [currentCharacterCounter]
+				if (currentCharacter != ",") & (currentCharacter != ";"): 
+					motherMatrix[motherRow][motherColumn] = int(currentCharacter)
+
+		return motherMatrix
 
 
 
