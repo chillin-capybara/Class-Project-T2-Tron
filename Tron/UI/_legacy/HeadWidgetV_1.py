@@ -28,7 +28,6 @@ class HeadWidget(Widget):
     p1.setPosition(20, 20)
     p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
     p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
-    p1.setVelocity(Vect2D(1, 0), Vect2D(1, 1))
 
     p2 = HumanPlayer()
     p2.setName("Ludi")
@@ -37,7 +36,7 @@ class HeadWidget(Widget):
     p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
     p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
     p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
-    p2.setVelocity(Vect2D(1, 0))
+
 
     players = [ p1, p2 ]
 
@@ -54,7 +53,6 @@ class HeadWidget(Widget):
 
             for player in players2:
                 track = player.getPosition()
-                veloctiy = player.getVelocity()
 
                 colorId = player.getColor()
                 Color(rgb = self.getColorFromId(colorId))
