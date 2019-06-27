@@ -7,8 +7,10 @@ class Event(object):
 
 	__callables = None
 	__args:list = None
+	__called    = False
 
 	def __init__(self, *args):
+		self.__called =  False
 		self.__args = []
 		self.__callables = []
 
@@ -25,6 +27,25 @@ class Event(object):
 			# Add the prototype arguments to the arg list
 			for carg in args:
 				self.__args.append(carg)
+	
+	def reset_called(self):
+		"""
+		Reset the called status of the event.
+		"""
+		self.__called = False
+
+	def was_called(self):
+		"""
+		Get if the event was called since the call-flag was reset.
+		Returns:
+			bool
+		"""
+		return self.__called
+
+	def __set_called(self):
+		"""
+		"""
+		self.__called = True
 
 	def attach(self, callback):
 		"""
@@ -155,6 +176,8 @@ class Event(object):
 
 		for cb in self.__callables:
 			cb(**kwargs)          # Call with values
+		
+		self.__set_called()
 	
 	def __call__(self, sender, *args, **kwargs):
 		"""
