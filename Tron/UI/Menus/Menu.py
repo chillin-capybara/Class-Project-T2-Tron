@@ -279,9 +279,6 @@ class MainMenu(Screen):
 class SettingsMenu(Screen):
 
 	nameplayer, colorplayer = 'Seppl', 1
-
-	def changedifficulty(self,choice):
-		self.ids.difficultyendLabel.text=choice
 	
 	def savechanges(self, playername, color):
 		"""
@@ -296,37 +293,26 @@ class SettingsMenu(Screen):
 		"""
 		# Save the name and the color
 		GAME.setPlayerName(playername)
+		#GAME.setColor(int(color))
 		# TODO IMPLEMENT RGB Color picker
 
 		print("Playername changed to: %s" % playername)
 		print("Color changed to %d" % int(color))
-		#output = "Name: "+playername+""
-		#StatisticsMenu.ids.nameLabel.text=output
 
 
 class StatisticsMenu(Screen):
-	#getname = "Player 1"
-	def refresh(self):
-		#name = GAME.getPlayerName()
-		#output = "Name: "+name+""
-		#print(output)
-		#self.ids.nameLabel.text=output
-		print("Updating screen...")
+	def refreshstats(self,test):
+		print("Updating screen... %s" % test)
 		print("PLAYERNAME: %s" % GAME.getPlayerName())
-		print("Color: %d" % GAME.getColor())
 
 		outputname = 'Name: %s' % (GAME.getPlayerName())
 		print(outputname, flush= True)
 		self.ids.nameLabel.text = outputname
 
-		#color = GAME.getColor()
-		#sol = "Color: %d" % color
-		#print(sol)
-		#self.ids.colorLabel.text=sol
-
-		outputcolor = 'Name: %d' % (Game.getPlayerColor())
-		print(outputcolor, flush= True)
-		self.ids.colorLabel.text = outputcolor
+		color = GAME.getColor()
+		sol = "Color: %s" % str(color)
+		print(sol)
+		self.ids.colorLabel.text=sol
 
 class AboutMenu(Screen):
     pass
