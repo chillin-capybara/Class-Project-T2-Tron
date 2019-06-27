@@ -3,7 +3,8 @@ class InteropComm(object):
 	Implements Communication methods and functions for 
 	the Interoperability tests
 	"""
-	def matrix_split(matrix: list, max_size: tuple) -> dict:
+
+	def matrix_split(self, matrix: list, max_size: tuple) -> dict:
 		"""
 		Split the given matrix into the parts, 
 		which have maximum size max_size
@@ -27,25 +28,33 @@ class InteropComm(object):
 		
 		for currentSplittedMatrixRow in range (0, splittedMatrixRowCount):
 			for currentSplittedMatrixColumn in range (0, splittedMatrixColumnCount):
-				
-				for currentRow in range (currentSplittedMatrixRow * max_size[0] , (currentSplittedMatrixRow+1) * max_size[0]):
-					for currentColumn in range (currentSplittedMatrixColumn* max_size[1], (currentSplittedMatrixColumn+1)* max_size[1]):
-						if currentColumn > 0 : matrixString += ","
-						matrixString += str(matrix[currentRow][currentColumn]) # add to the string the matrix item
-					matrixString += ";"
-				
+				# process each "Child" of the Mother matrix
+				matrixString = self.processChildMatrix(currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix)
 				newDictElement = {(currentSplittedMatrixRow,currentSplittedMatrixColumn) : matrixString}
 				dictionary.update(newDictElement)
 				matrixString = ""
 		
 		return dictionary
 
-	def matrix_collapse(splitted_matrix: dict) -> list:
+	def matrix_collapse(self, splitted_matrix: dict) -> list:
 		"""
 		Build the splitted matrix together
 		"""
 
 		pass 
-	matrix = [[1,2,3],[4,5,6],[7,8,9]]
-	dictionary = matrix_split(matrix, (3,1))
-	print (dictionary)
+	def processChildMatrix (self, currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix):
+		"""
+		wright down all the Elements of the "Child" Matrix
+		"""
+		matrixString = ""
+		for currentRow in range (currentSplittedMatrixRow * max_size[0] , (currentSplittedMatrixRow+1) * max_size[0]):
+			for currentColumn in range (currentSplittedMatrixColumn * max_size[1], (currentSplittedMatrixColumn + 1) * max_size[1]):
+				matrixString += str(matrix[currentRow][currentColumn]) # add to the string the matrix item
+				if (max_size[1] > 1) & (currentColumn+1 < max_size[1]) : matrixString += ","
+			if (max_size[0] > 1) & (currentRow+1 < max_size[0]) : matrixString += ";"
+					
+		return matrixString
+
+
+
+
