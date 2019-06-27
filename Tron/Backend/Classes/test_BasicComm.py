@@ -3,6 +3,7 @@ sys.path.append('/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron'
 
 from Tron.Backend.Classes.BasicComm import BasicComm
 from Tron.Backend.Classes.HumanPlayer import HumanPlayer
+from Tron.Backend.Core.Event import Event
 import unittest
 
 COMM = BasicComm()
@@ -24,7 +25,7 @@ class test_BasicComm(unittest.TestCase):
 
 		# Test Random player data 1
 		PLAYER.setName('Joe')
-		PLAYER.setColor(1)
+		PLAYER.setColor((25,25,25))
 		packet = COMM.client_ready(PLAYER)
 		original = utf8("JOIN_MATCH Joe 25,25,25")
 		self.assertEqual(
@@ -34,13 +35,14 @@ class test_BasicComm(unittest.TestCase):
 
 		# Test Random player data 1
 		PLAYER.setName('Jesus')
-		PLAYER.setColor(2)
+		PLAYER.setColor((2,2,2))
 		packet = COMM.client_ready(PLAYER)
-		original = utf8("JOIN_MATCH Jesus 50,50,50")
+		original = utf8("JOIN_MATCH Jesus 2,2,2")
 		self.assertEqual(
 			packet,
 			original
 		)
+
 	def test_process_client_ready(self):
 		"""
 		Test the processing of the client_ready messages
@@ -48,7 +50,7 @@ class test_BasicComm(unittest.TestCase):
 
 		# Sampel DATA
 		PLAYER.setName('Jesus')
-		PLAYER.setColor(2)
+		PLAYER.setColor((2,2,2))
 		packet = COMM.client_ready(PLAYER)
 		ptype, player = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY)
@@ -56,13 +58,11 @@ class test_BasicComm(unittest.TestCase):
 
 		# Test with sample data 2
 		PLAYER.setName('EverydayJoe')
-		PLAYER.setColor(10)
+		PLAYER.setColor((1,1,1))
 		packet = COMM.client_ready(PLAYER)
 		ptype, player = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY)
 		self.assertTrue(player == PLAYER)
-
-
 
 	def test_client_ready_ack(self):
 		"""
@@ -98,6 +98,293 @@ class test_BasicComm(unittest.TestCase):
 		ptype, player_id = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY_ACK)
 		self.assertEqual(player_id, 100)
+	
+	def test_err_incorrect_cmd(self):
+		"""
+		Test the incorrect command message
+		"""
+
+		# Test if the message is correct
+		msg = COMM.error_incorrect_cmd()
+		self.assertEqual(msg, utf8("ERR_CMD_NOT_UNDERSTOOD"))
+	
+	def test_process_err_incorrect_cmd(self):
+		"""
+		Test the processing of incorrect command messaged
+		"""
+
+		COMM.EServerError: Event
+		COMM.EServerError.reset_called()
+
+		msg = COMM.error_incorrect_cmd()
+		mtype, res = COMM.process_response(msg)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(res, "ERR_CMD_NOT_UNDERSTOOD")
+		self.assertEqual(COMM.EServerError.was_called(), True)
+
+	def test_failed_to_create(self):
+		"""
+		Test the failed to create message
+		"""
+		# Sample data 1
+		reason = "Name already taken"
+		packet = COMM.failed_to_create(reason)
+		original = utf8("ERR_FAILED_TO_CREATE Name already taken")
+		self.assertEqual(packet, original)
+
+		# Sample data 2
+		reason = "Color already reserved"
+		packet = COMM.failed_to_create(reason)
+		original = utf8("ERR_FAILED_TO_CREATE Color already reserved")
+		self.assertEqual(packet, original)
+
+		# Empty reason -> ValueError
+		reason = ""
+		with self.assertRaises(ValueError):
+			packet = COMM.failed_to_create(reason)
+
+		# TypeError
+		with self.assertRaises(TypeError):
+			COMM.failed_to_create(2)
+
+		with self.assertRaises(TypeError):
+			COMM.failed_to_create([])
+
+	def test_process_failed_to_create(self):
+		"""
+		Test the processing of a failed to create message
+		"""
+		# Sample data 1
+		packet = COMM.failed_to_create("This is the reason...")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "Failed to create match. Reason: %s" % "This is the reason...")
+
+		# Sample data 2
+		packet = COMM.failed_to_create("Reason2")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "Failed to create match. Reason: %s" % "Reason2")
+	
+	def test_failed_to_join(self):
+		"""
+		Test the failed to join messages
+		"""
+		# Sample data 1
+		reason = "Name already taken"
+		packet = COMM.failed_to_join(reason)
+		original = utf8("ERR_FAILED_TO_JOIN Name already taken")
+		self.assertEqual(packet, original)
+
+		# Sample data 2
+		reason = "Color already reserved"
+		packet = COMM.failed_to_join(reason)
+		original = utf8("ERR_FAILED_TO_JOIN Color already reserved")
+		self.assertEqual(packet, original)
+
+		# Empty reason -> ValueError
+		reason = ""
+		with self.assertRaises(ValueError):
+			packet = COMM.failed_to_join(reason)
+
+		# TypeError
+		with self.assertRaises(TypeError):
+			COMM.failed_to_join(2)
+
+		with self.assertRaises(TypeError):
+			COMM.failed_to_join([])
+
+	def test_game_not_exists(self):
+		"""
+		Test the game not exists error message
+		"""
+		# Sample data 1
+		reason = "Game1"
+		packet = COMM.game_not_exists(reason)
+		original = utf8("ERR_GAME_NOT_EXIST Game1")
+		self.assertEqual(packet, original)
+
+		# Sample data 2
+		reason = "TestGame"
+		packet = COMM.game_not_exists(reason)
+		original = utf8("ERR_GAME_NOT_EXIST TestGame")
+		self.assertEqual(packet, original)
+
+		# Empty reason -> ValueError
+		reason = ""
+		with self.assertRaises(ValueError):
+			packet = COMM.game_not_exists(reason)
+
+		# TypeError
+		with self.assertRaises(TypeError):
+			COMM.game_not_exists(2)
+
+		with self.assertRaises(TypeError):
+			COMM.game_not_exists([])
+	
+	def test_disconnecting_you(self):
+		"""
+		Test the disconnecting you message
+		"""
+		# Sample data 1
+		reason = "Just because"
+		packet = COMM.disconnect_client(reason)
+		original = utf8("DISCONNECTING_YOU Just because")
+		self.assertEqual(packet, original)
+
+		# Sample data 2
+		reason = "This is the reason 2"
+		packet = COMM.disconnect_client(reason)
+		original = utf8("DISCONNECTING_YOU This is the reason 2")
+		self.assertEqual(packet, original)
+
+		# Empty reason -> ValueError
+		reason = ""
+		with self.assertRaises(ValueError):
+			packet = COMM.disconnect_client(reason)
+
+		# TypeError
+		with self.assertRaises(TypeError):
+			COMM.disconnect_client(2)
+
+		with self.assertRaises(TypeError):
+			COMM.disconnect_client([])
+	
+	def test_leaving_match(self):
+		"""
+		Test a leaving match message generation
+		"""
+		# Sample data 1
+		reason = "Just because"
+		packet = COMM.leaving_match(reason)
+		original = utf8("LEAVING_MATCH Just because")
+		self.assertEqual(packet, original)
+
+		# Sample data 2
+		reason = "This is the reason 2"
+		packet = COMM.leaving_match(reason)
+		original = utf8("LEAVING_MATCH This is the reason 2")
+		self.assertEqual(packet, original)
+
+		# Empty reason -> ValueError
+		reason = ""
+		with self.assertRaises(ValueError):
+			packet = COMM.leaving_match(reason)
+
+		# TypeError
+		with self.assertRaises(TypeError):
+			COMM.leaving_match(2)
+
+		with self.assertRaises(TypeError):
+			COMM.leaving_match([])
+
+	def test_process_failed_to_join(self):
+		"""
+		Test the processing of a failed to join message
+		"""
+		# Sample data 1
+		packet = COMM.failed_to_join("This is the reason...")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "Failed to join the game. Reason: %s" % "This is the reason...")
+
+		# Sample data 2
+		packet = COMM.failed_to_join("Reason2")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "Failed to join the game. Reason: %s" % "Reason2")
+
+	def test_process_game_not_exists(self):
+		"""
+		Test the processing of a game not exists error message
+		"""
+		# Sample data 1
+		packet = COMM.game_not_exists("Mygame 1")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "The game you want to join does not exist: Mygame 1")
+
+		# Sample data 2
+		packet = COMM.game_not_exists("GameofGames")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "The game you want to join does not exist: GameofGames")
+	
+	def test_process_disconnecting_client(self):
+		"""
+		Test the processing of a disconnecting you message
+		"""
+		# Sample data 1
+		packet = COMM.disconnect_client("This is the reason...")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "You were disconnected by the server. Reason: %s" % "This is the reason...")
+
+		# Sample data 2
+		packet = COMM.disconnect_client("Reason2")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.SERVER_ERROR)
+		self.assertEqual(message, "You were disconnected by the server. Reason: %s" % "Reason2")
+	
+	def test_process_leaving_match(self):
+		"""
+		Test the processing of a leaving match message
+		"""
+		# Sample data 1
+		packet = COMM.leaving_match("This is the reason...")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.EXIT_GAME)
+		self.assertEqual(message, "Client is leaving the match. Reason: %s" % "This is the reason...")
+
+		# Sample data 2
+		packet = COMM.leaving_match("Reason2")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.EXIT_GAME)
+		self.assertEqual(message, "Client is leaving the match. Reason: %s" % "Reason2")
+	
+	def test_game_ended(self):
+		"""
+		Test the message generation of game ended message
+		"""
+		# Sample data 1
+		reason = "Just because"
+		packet = COMM.game_ended(reason)
+		original = utf8("GAME_ENDED Just because")
+		self.assertEqual(packet, original)
+
+		# Sample data 2
+		reason = "This is the reason 2"
+		packet = COMM.game_ended(reason)
+		original = utf8("GAME_ENDED This is the reason 2")
+		self.assertEqual(packet, original)
+
+		# Empty reason -> ValueError
+		reason = ""
+		with self.assertRaises(ValueError):
+			packet = COMM.leaving_match(reason)
+
+		# TypeError
+		with self.assertRaises(TypeError):
+			COMM.leaving_match(2)
+
+		with self.assertRaises(TypeError):
+			COMM.leaving_match([])
+	
+	def test_process_game_ended(self):
+		"""
+		Test the game ended message processor
+		"""
+		# Sample data 1
+		packet = COMM.game_ended("This is the reason...")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.GAME_ENDED)
+		self.assertEqual(message, "Game ended! Reason: %s" % "This is the reason...")
+
+		# Sample data 2
+		packet = COMM.game_ended("Reason2")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.GAME_ENDED)
+		self.assertEqual(message, "Game ended! Reason: %s" % "Reason2")
 
 if __name__ == '__main__':
 	unittest.main()
