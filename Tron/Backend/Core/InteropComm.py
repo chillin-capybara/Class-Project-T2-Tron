@@ -20,11 +20,16 @@ class InteropComm(object):
 		splittedMatrixRowCount    = matrixRowCount // max_size[0] # how much Rows has the matrix, that consist of splitted parts
 		splittedMatrixColumnCount = matrixColumnCount // max_size[1] # how much Columns has the matrix, that consist of splitted parts
 
+		#check if one extra iteration for "smaller" child matrices needed
+		if (matrixRowCount - splittedMatrixRowCount * max_size[0]) > 0: splittedMatrixRowCount += 1
+		if (matrixColumnCount - splittedMatrixColumnCount * max_size[0]) > 0: splittedMatrixColumnCount += 1
+
 		currentRow                = 0 # Row Counter for the loop
 		currentColumn             = 0 # Cloumn Counter for the loop
 
 		currentSplittedMatrixRow = 0
 		currentSplittedMatrixColumn = 0
+
 		
 		for currentSplittedMatrixRow in range (0, splittedMatrixRowCount):
 			for currentSplittedMatrixColumn in range (0, splittedMatrixColumnCount):
@@ -49,12 +54,12 @@ class InteropComm(object):
 		"""
 		matrixString = ""
 		for currentRow in range (currentSplittedMatrixRow * max_size[0] , (currentSplittedMatrixRow+1) * max_size[0]):
-			if currentRow > matrixRowCount: break
 			for currentColumn in range (currentSplittedMatrixColumn * max_size[1], (currentSplittedMatrixColumn + 1) * max_size[1]):
-				if currentColumn > matrixColumnCount: break
 				matrixString += str(matrix[currentRow][currentColumn]) # add to the string the matrix item
-				if (max_size[1] > 1) & (currentColumn+1 < max_size[1]) : matrixString += ","
-			if (max_size[0] > 1) & (currentRow+1 < max_size[0]) : matrixString += ";"
+				if currentColumn + 2 > matrixColumnCount: break
+				if (max_size[1] > 1) & (((currentColumn+1)//(currentSplittedMatrixColumn+1)) < max_size[1]) : matrixString += ","
+			if currentRow + 2 > matrixRowCount: break
+			if (max_size[0] > 1) & ((currentRow+1)//(currentSplittedMatrixRow+1) < max_size[0]) : matrixString += ";"
 					
 		return matrixString
 
