@@ -136,12 +136,37 @@ class GameUI(Widget):
 
     def update(self, *args):
         ## final update function, where I trigger different functuions
-        self.ids.trackWidget.update()
+        # self.ids.trackWidget.update()
         self.ids.HeadWidget.update()
+        self.ids.trackWidget.update()
+
+        ## functions should only be started after special event is triggered
+        if self.countdown_is_running == True:
+            ## Despite trying to handle the information down, I was forced to create new function,
+            ## which triggers certain event in subclass
+            self.ids.trackWidget.setBooleanCountdown()
+            self.ids.HeadWidget.setBooleanCountdown()
+        
+        ## functions should only be started after special event is triggered
         if self.game_is_running == True:
-            self.ids.trackWidget.setBoolean()
-            self.ids.trackWidget.increaseOpacity()
+            ## Despite trying to handle the information down, I was forced to create new function,
+            ## which triggers certain event in subclass
+            self.ids.trackWidget.setBooleanGame()
+            self.ids.HeadWidget.setBooleanGame()
+            # self.ids.trackWidget.increaseOpacity()
             
+            
+            ## Give Values from trackWidget class to HeadWidget class
+            aktPos = self.ids.trackWidget.getPos()
+            self.ids.HeadWidget.setPosition(aktPos)
+
+        ## Give Values from trackWidget class to HeadWidget class
+        richtung = self.ids.trackWidget.getVelocity()
+        self.ids.HeadWidget.setVelocity(richtung)
+
+
+        
+
 
 
     def getPlayerWidgetSize(self):

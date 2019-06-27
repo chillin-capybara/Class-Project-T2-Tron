@@ -49,11 +49,16 @@ class TrackWidget(Widget):
     speed_constant = NumericProperty(0.001)
     speed_factor = NumericProperty(1)
     game_is_running2 = BooleanProperty(False)
+    countdown_is_running2 = BooleanProperty(False)
+
+
     allPoints = []
     counter = NumericProperty(0)
+    countergetPos = BooleanProperty(True)
     
 
     def __init__(self, **kwargs):
+        ## Fr. S. was das genau bewirkt
         super(TrackWidget, self).__init__(**kwargs)
 
         self.velocity = (0, 1)
@@ -62,11 +67,8 @@ class TrackWidget(Widget):
         ## function for updating the track
         fieldsize = UI.mainUI.FIELDSIZE
         self.canvas.clear()
+        self.updatespeed_factor()
         
-        
-        # self.updatespeed_factor()
-        
-        # self.pointCreator()
 
         with self.canvas:
             self.opacity = self.opacityValue
@@ -74,16 +76,14 @@ class TrackWidget(Widget):
             for player in players:
                 # track = player.getLine()
                 if self.game_is_running2 == True:
-                    allPoints2 = self.pointCreator()
-                    # print (allPoints2)
+                    allPoints = self.pointCreator()
                     #allPoints2 = self.constructMissingPoints(track)
-                    # print (allPoints2)
                     colorId = player.getColor()
                     Color(rgba = self.getColorFromId(colorId))
-
-                    for point in allPoints2:
-                        # xPos = point.x
-                        # yPos = point.y
+                    
+                    
+                    for point in allPoints:
+                    
 
                         xPos2 = (self.size[0]/fieldsize[0]) * point.x
                         yPos2 = (self.size[1]/fieldsize[1]) * point.y
@@ -118,19 +118,19 @@ class TrackWidget(Widget):
 
     def increaseOpacity(self):
         ## function for creating an increasing opacity with increasing time
-        ## Fr. S.
-        if self.parent.parent.countdown_is_running or self.parent.parent.game_is_running:
+        if self.countdown_is_running2 == True:
             if self.opacityValue < 1:
                 self.opacityValue += 0.1 / UI.mainUI.UPDATES_PER_SECOND
-                print (self.opacityValue)
+                print(self.opacityValue)
                 return self.opacityValue
+
+
 
     def constructMissingPoints(self, track):
         ## function who creates all missing points in between
-        allPoints2 = []
+        allPoints3 = [Player.getPosition()]
 
         pointCount = len(track)
-
         for i in range(0, pointCount - 1):
             startPoint = track[i]
             endPoint = track[i + 1]
@@ -147,40 +147,32 @@ class TrackWidget(Widget):
             for j in range(0, lineLength):
                 xVal = round(startPoint.x + deltaX * j)
                 yVal = round(startPoint.y + deltaY * j)
-                allPoints2.append(Vect2D(xVal, yVal))
+                allPoints3.append(Vect2D(xVal, yVal))
 
-        allPoints2.append(track[-1])
+        allPoints3.append(track[-1])
 
-        return allPoints2
+        return allPoints3
 
-    def LineCreator2(self):
-        ## test function
-        players3 = TrackWidget.players
-        print('Hi')
-        players3[0].addTrack(Vect2D(20,20), Vect2D(0, 20))
 
     
-     # (x, y)
+    
     
     def pointCreator(self):
+        ## function for creating points in combination with the speed factor
+        ## PS: Speed factor is increasing with time
         
         move = (self.velocity[0] * self.speed_factor, self.velocity[1]*self.speed_factor)
-        
-
-
 
         for player in players:
             startPos = player.getPosition()
             if self.counter == 0:
+                ## the function with xVal and yVal needs an initial value to start with, because of this 
                 self.allPoints.append(startPos)
-            print (self.counter)
-            print(self.allPoints[self.counter])
             
             xVal = round(move[0] + self.allPoints[self.counter].x)
             yVal = round(move[1] + self.allPoints[self.counter].y)
             
             self.allPoints.append(Vect2D(xVal, yVal))
-            print (self.counter)
         self.counter += 1
               
         
@@ -188,20 +180,23 @@ class TrackWidget(Widget):
 
         return self.allPoints
 
-    def setBoolean(self):
+    def setBooleanGame(self):
         self.game_is_running2 = True
+
+    def setBooleanCountdown(self):
+        self.countdown_is_running2 = True
+        self.increaseOpacity()
 
         
 
     def press_d_key(self):
         if self.velocity == (1, 0):
             self.velocity = (0, -1)
-            print(self.velocity)
+            
             return
 
         if self.velocity == (0, 1):
             self.velocity = (1, 0)
-            print(self.velocity)
             return
 
         if self.velocity == (-1, 0):
@@ -217,12 +212,10 @@ class TrackWidget(Widget):
     def press_a_key(self):
         if self.velocity == (1, 0):
             self.velocity = (0, 1)
-            print(self.velocity)
             return
 
         if self.velocity == (0, 1):
             self.velocity = (-1, 0)
-            print(self.velocity)
             return
             
         if self.velocity == (-1, 0):
@@ -239,8 +232,22 @@ class TrackWidget(Widget):
 
     def updatespeed_factor(self):
         self.speed_factor = self.speed_factor + self.speed_constant
+
+
+    def getVelocity(self):
+        return self.velocity
+
+    def getPos(self):
+        if self.game_is_running2 == True:
+            if self.countergetPos == True:
+                self.pointCreator()
+                self.countergetPos = False
+
+            print(self.allPoints[len(self.allPoints)-1])
+            return self.allPoints[len(self.allPoints)-1]
+        
     
-  
+    
 
 
 class MyKeyboardListener(Widget):
