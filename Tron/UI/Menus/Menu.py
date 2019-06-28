@@ -280,7 +280,7 @@ class SettingsMenu(Screen):
 
 	nameplayer, colorplayer = 'Seppl', 1
 	
-	def savechanges(self, playername, color):
+	def savechanges(self, playername: str, color: tuple):
 		"""
 		Set the Player Name 
 		TODO(+color needs to be implemented)
@@ -293,11 +293,11 @@ class SettingsMenu(Screen):
 		"""
 		# Save the name and the color
 		GAME.setPlayerName(playername)
-		#GAME.setColor(int(color))
+		GAME.setColor(color)
 		# TODO IMPLEMENT RGB Color picker
 
 		print("Playername changed to: %s" % playername)
-		print("Color changed to %d" % int(color))
+		print("Color changed to %s" % str(color))
 
 
 class StatisticsMenu(Screen):
@@ -313,6 +313,8 @@ class StatisticsMenu(Screen):
 		sol = "Color: %s" % str(color)
 		print(sol)
 		self.ids.colorLabel.text=sol
+		self.ids.colorButton.background_color=color
+
 
 class AboutMenu(Screen):
     pass

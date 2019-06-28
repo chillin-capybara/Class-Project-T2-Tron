@@ -95,7 +95,6 @@ class Game(object):
 			ValueError: Color is negative
 		"""
 		self.me.setColor(color)
-		logging.debug("Player color set to %d" % color)
 	
 	def getColor(self):
 		"""

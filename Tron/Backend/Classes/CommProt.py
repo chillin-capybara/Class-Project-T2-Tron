@@ -21,6 +21,12 @@ class CommProt:
 	CLIENT_CHAT            = 13
 	LEAVING_GAME           = 14
 	GAME_ENDED             = 15
+	DISCOVER_LOBBY         = 16
+	LOBBY                  = 17
+	LIST_GAMES             = 18
+	AVAILABLE_GAMES        = 19
+	HELLO                  = 20
+	WELCOME                = 21
 
 	# Create events for processing responsees
 	EClientError       : Event    = None # (sender=, msg=)
@@ -38,6 +44,12 @@ class CommProt:
 	EServerNotification: Event    = None
 	EClientChat        : Event    = None
 	EGameEnded         : Event    = None # (sender=, msg=)
+	EDiscoverLobby     : Event    = None
+	ELobby             : Event    = None # (sender=, port=)
+	EListGames         : Event    = None
+	EAvailableGames    : Event    = None
+	EHello             : Event    = None
+	EWelcome           : Event    = None
 
 	def __init__(self):
 		"""
@@ -60,6 +72,12 @@ class CommProt:
 		self.EServerNotification    = Event('msg') # (sender=, msg=
 		self.EClientChat            = Event('player_id', 'msg') # (sender=, player_id=, msg=)
 		self.EGameEnded             = Event('msg') # (sender=, msg=)
+		self.EDiscoverLobby         = Event() # (sender=)
+		self.ELobby                 = Event('port')
+		self.EListGames             = Event()
+		self.EAvailableGames        = Event('games') # (sender=, games=)
+		self.EHello                 = Event('playername', 'features')
+		self.EWelcome               = Event('features')
 
 	def client_ready(self, player):
 		"""
