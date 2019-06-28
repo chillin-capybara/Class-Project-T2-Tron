@@ -1,3 +1,6 @@
+# brief:  Unit tests for Basic Comm Protocol
+# author: Marcell Pigniczki (marcell.pigniczki@tum.de)
+
 import sys
 sys.path.append('/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron')
 
@@ -385,6 +388,221 @@ class test_BasicComm(unittest.TestCase):
 		mtype, message = COMM.process_response(packet)
 		self.assertEqual(mtype, COMM.GAME_ENDED)
 		self.assertEqual(message, "Game ended! Reason: %s" % "Reason2")
+	
+	def test_discover_lobby(self):
+		"""
+		Test the discover lobby message
+		"""
+		packet = COMM.discover_lobby()
+		self.assertEqual(packet, utf8("DISCOVER_LOBBY"))
+	
+	def test_process_discover_lobby(self):
+		"""
+		Test the discover lobby processor
+		"""
+		# Reset event call counter
+		COMM.EDiscoverLobby.reset_called()
+
+		packet = COMM.discover_lobby()
+		mtype, mess = COMM.process_response(packet)
+
+		# Check the correct type
+		self.assertEqual(
+			mtype,
+			COMM.DISCOVER_LOBBY
+		)
+
+		# Check the correct message
+		self.assertEqual(
+			mess,
+			"DISCOVER_LOBBY"
+		)
+
+		# Check if the event was called
+		self.assertTrue(COMM.EDiscoverLobby.was_called())
+	
+	def test_lobby(self):
+		"""
+		Test the lobby message
+		"""
+
+		# Test a random port
+		packet = COMM.lobby(54053)
+		self.assertEqual(
+			packet,
+			utf8("LOBBY 54053")
+		)
+
+
+		# Test the last port in range
+		packet = COMM.lobby(54100)
+		self.assertEqual(
+			packet,
+			utf8("LOBBY 54100")
+		)
+
+		# Test invalid port range
+		with self.assertRaises(ValueError):
+			COMM.lobby(54009)
+		with self.assertRaises(ValueError):
+			COMM.lobby(54101)
+
+		# Test invalid port type
+		with self.assertRaises(TypeError):
+			COMM.lobby("54101")
+		
+		with self.assertRaises(TypeError):
+			COMM.lobby(True)
+		
+		with self.assertRaises(TypeError):
+			COMM.lobby(False)
+
+		with self.assertRaises(TypeError):
+			COMM.lobby([])
+	
+	def test_process_lobby(self):
+		"""
+		Test the lobby message processing
+		"""
+		COMM.ELobby.reset_called()
+		packet = COMM.lobby(54053)
+		mtype, mport = COMM.process_response(packet)
+
+		self.assertEqual(mtype, COMM.LOBBY)
+		self.assertEqual(mport, 54053)
+		self.assertTrue(COMM.ELobby.was_called())
+
+		COMM.ELobby.reset_called()
+		packet = COMM.lobby(54100)
+		mtype, mport = COMM.process_response(packet)
+
+		self.assertEqual(mtype, COMM.LOBBY)
+		self.assertEqual(mport, 54100)
+		self.assertTrue(COMM.ELobby.was_called())
+	
+	def test_list_game(self):
+		"""
+		Test the list games command
+		"""
+		# Static text test
+		packet = COMM.list_games()
+		self.assertEqual(
+			packet,
+			utf8("LIST_GAMES")
+		)
+	
+	def test_process_list_game(self):
+		"""
+		Test the processing of a list games command
+		"""
+
+		COMM.EListGames.reset_called() # Reset event flag
+		packet = COMM.list_games()
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.LIST_GAMES)
+		self.assertEqual(message, "LIST_GAMES")
+		self.assertTrue(COMM.EListGames.was_called())
+	
+	def test_available_games(self):
+		"""
+		Test the generation of available games command message.
+		NOTE:
+			This implementation only supports Tron
+		"""
+		packet = COMM.available_games()
+		self.assertEqual(
+			packet,
+			utf8("AVAILABLE_GAMES Tron")
+		)
+	
+	def __test_process_available_games(self):
+		"""
+		Test the message processing of available games
+		"""
+		COMM.EAvailableGames.reset_called()
+		packet = COMM.available_games()
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.AVAILABLE_GAMES)
+		self.assertEqual(message, ['Tron'])
+		self.assertTrue(COMM.EAvailableGames.was_called())
+
+		COMM.EAvailableGames.reset_called()
+		packet = utf8("AVAILABLE_GAMES Tron,Pong")
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.AVAILABLE_GAMES)
+		self.assertEqual(message, ['Tron', 'Pong'])
+		self.assertTrue(COMM.EAvailableGames.was_called())
+
+	def test_hello(self):
+		"""
+		Test the hello message
+		"""
+		# Sampel Data 1
+		PLAYER.setName("WorkingJoe")
+		packet = COMM.hello(PLAYER, ['BASIC'])
+		self.assertEqual(
+			packet,
+			utf8("HELLO WorkingJoe BASIC")
+		)
+
+		# SAMPLE DATA 2
+		PLAYER.setName("Vlad")
+		packet = COMM.hello(PLAYER, ['BASIC', 'COOLStuff', 'MStuff'])
+		self.assertEqual(
+			packet,
+			utf8("HELLO Vlad BASIC,COOLStuff,MStuff")
+		)
+
+	def test_process_hello(self):
+		"""
+		Test the processing of the hello message
+		"""
+		# Sampel Data 1
+		COMM.EHello.reset_called()
+		PLAYER.setName("WorkingJoe")
+		packet = COMM.hello(PLAYER, ['BASIC'])
+		mtype, playername, features = COMM.process_response(packet)
+		self.assertEqual(
+			mtype,
+			COMM.HELLO
+		)
+		self.assertEqual(playername, "WorkingJoe")
+		self.assertEqual(features, ['BASIC'])
+		self.assertTrue(COMM.EHello.was_called())
+
+
+		# Sample data 2: 2 features
+		COMM.EHello.reset_called()
+		PLAYER.setName("WorkingJoe")
+		packet = COMM.hello(PLAYER, ['BASIC', 'DIMS', 10,10,50,50])
+		mtype, playername, features = COMM.process_response(packet)
+		self.assertEqual(
+			mtype,
+			COMM.HELLO
+		)
+		self.assertEqual(playername, "WorkingJoe")
+		self.assertEqual(features, ['BASIC', 'DIMS', '10', '10', '50', '50']) # Numbers come back as string
+		self.assertTrue(COMM.EHello.was_called())
+
+	
+	def test_welcome(self):
+		"""
+		Test the welcome message generation from the server
+		"""
+		# Only 1 feature
+		packet = COMM.welcome(['BASIC'])
+		self.assertEqual(
+			packet,
+			utf8("WELCOME BASIC")
+		)
+
+		# DIMS feature
+		packet = COMM.welcome(['BASIC', 'DIMS', 10, 10, 50, 50])
+		self.assertEqual(
+			packet,
+			utf8("WELCOME BASIC,DIMS,10,10,50,50")
+		)
+
 
 if __name__ == '__main__':
 	unittest.main()
