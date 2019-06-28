@@ -18,6 +18,53 @@ def c2b(func):
 		return (bytes(res, "UTF-8") + b'\x00') # Terminate with 0 byte
 	return wrapper
 
+def list_to_strlist(input_list: list) -> str:
+	"""
+	Converts a list object into a comma separated string list
+	
+	Args:
+		input_list (list): List object to convert
+	
+	Returns:
+		str: Comma separated string
+	"""
+	return str(input_list).strip('[]\'').replace("'", "").replace(" ", "")
+	
+def player_tostr(player_id: int, player: Player) -> str:
+	"""
+	Converts the player to a string, by it's ID and color
+	
+	Args:
+		player (Player): Player object to convert
+	
+	Returns:
+		str: player_id,r,g,b
+	"""
+	r: int = player.getColor()[0]
+	g: int = player.getColor()[1]
+	b: int = player.getColor()[2]
+
+	return "%s,%d,%d,%d" % (player_id, r, g, b)
+
+def str_toplayer(str_list: list) -> (int, Player):
+	"""
+	Converts a list of string to a player
+	
+	Args:
+		str_list (list): List of strings (player_id, r, g, b)
+	Returns:
+		int: Player ID
+		Player: New Player object of RGB
+	"""
+	pid = int(str_list[0])
+	r = int(str_list[1])
+	g = int(str_list[2])
+	b = int(str_list[3])
+	player = HumanPlayer()
+	player.setColor((r,g,b))
+
+	return pid, player
+
 
 class BasicComm(CommProt):
 	"""
@@ -291,6 +338,117 @@ class BasicComm(CommProt):
 		"""
 		str_list = str(features).strip('[]\'').replace("'", "").replace(" ", "") # Remove the format characters
 		return "WELCOME %s" % str_list
+	
+	@c2b
+	def create_match(self, game: str, name: str, features: list) -> str:
+		"""Get a create match request message
+		
+		Arguments:
+			game {str} -- Game type: Tron/Pong
+			name {str} -- Name of the match to create
+			features {list} -- Available features
+		
+		Returns:
+			str -- Request message
+		"""
+		feature_list = list_to_strlist(features)
+		return "CREATE_MATCH %s %s %s" % (game, name, feature_list)
+	
+	@c2b
+	def match_created(self)-> str:
+		"""
+		Get a match created acknowledge message
+		
+		Returns:
+			str: ACK message
+		"""
+		return "MATCH_CREATED"
+	
+	@c2b
+	def list_matches(self, game: str)->str:
+		"""
+		List the available matches on the server.
+		
+		Args:
+			game (str): Game type = Tron
+		
+		Returns:
+			str: LIST_MATCHES Tron
+		"""
+		if type(game) is not str:
+			raise TypeError
+		
+		if game == "":
+			raise ValueError
+
+		return "LIST_MATCHES %s" % game
+	
+	@c2b
+	def games(self, game: str, list_games: list) -> str:
+		"""
+		Get a list of matches running on the server for the current game.
+		
+		Args:
+			game (str): Game type = Tron
+			list_games (list): List of available matches
+		
+		Returns:
+			str: GAMES [game] [matches]
+		"""
+		str_list = list_to_strlist(list_games)
+		return "GAMES %s %s" % (game, str_list)
+	
+	@c2b
+	def match_features(self, name: str):
+		"""
+		Request for getting a list of match features on the server.
+		
+		Args:
+			name (str): Name of the match, to list features
+		"""
+		if type(name) is not str:
+			raise TypeError
+		
+		if name == "":
+			raise ValueError
+
+		return "MATCH_FEATURES %s" % name
+	
+	@c2b
+	def match(self, game: str, name: str, features: list)-> str:
+		"""
+		Response for listing the features of a match running on the server.
+		
+		Args:
+			game (str): Game type = Tron
+			name (str): Name of the match
+			features (list): List of features
+		
+		Returns:
+			str: MATCH [game] [name] [features]
+		"""
+		str_list = list_to_strlist(features)
+		return "MATCH %s %s %s" % (game, name, str_list)
+	
+	@c2b
+	def match_started(self, port: int, player_ids: list, players: list) -> str:
+		"""
+		Get a match started response from the server
+		
+		Args:
+			port (int): Port number of the match
+			players (list): List of player objects on the match
+		
+		Returns:
+			str: MATCH_STARTED [port] [playerid,r,g,b]
+		"""
+		full_list = []
+		for i in range(0, len(player_ids)):
+			strlist = player_tostr(player_ids[i], players[i])
+			full_list.append(strlist)
+		
+		str_list = list_to_strlist(full_list)
+		return "MATCH_STARTED %d %s" % (port, str_list)
 
 	def process_response(self, response: bytes):
 		"""
