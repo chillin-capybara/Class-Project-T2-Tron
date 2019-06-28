@@ -3,6 +3,7 @@ from .Player import Player
 from .HumanPlayer import HumanPlayer
 from ..Core.Exceptions import MessageError
 from ..Core.globals import *
+from typing import Tuple
 import logging
 
 def c2b(func):
@@ -89,7 +90,14 @@ class BasicComm(CommProt):
 			'LIST_GAMES'               : self.__process_list_games,
 			'AVAILABLE_GAME'           : self.__process_available_games,
 			'HELLO'                    : self.__process_hello,
-			'WELCOME'                  : self.__process_welcome
+			'WELCOME'                  : self.__process_welcome,
+			'CREATE_MATCH'             : self.__process_create_match,
+			'MATCH_CREATED'            : self.__process_match_created,
+			'LIST_MATCHES'             : self.__process_list_matches,
+			'GAMES'                    : self.__process_games,
+			'MATCH'                    : self.__process_match,
+			'MATCH_STARTED'            : self.__process_match_started,
+			'MATCH_FEATURES'           : self.__process_match_features
 			}
 		
 		# Initialize the events, and the abstract class
@@ -755,3 +763,138 @@ class BasicComm(CommProt):
 			return self.WELCOME, list_features
 		except:
 			MessageError("Invalid message syntax")
+	
+	def __process_create_match(self, params: str) -> Tuple[int, str, str, list]:
+		"""
+		Process a create match request
+		
+		Args:
+			params (str): Parameters of the command
+		
+		Returns:
+			Tuple[int, str, str, list]: (CommProt.CREATE_MATCH, game, name, features)
+		"""
+		try:
+			spl = params.split(' ', 2)
+			game = spl[0]
+			name = spl[1]
+			features = spl[2].split(',')
+
+			# Make the event call
+			self.ECreateMatch(self, game=game, name=name, features=features)
+
+			# Return the value
+			return self.CREATE_MATCH, game, name, features
+		except:
+			raise MessageError("Invalid message syntax for create_match")
+	
+	def __process_match_created(self, params: None) -> Tuple[int, str]:
+		"""
+		Process a match created acknowledgement
+		
+		Args:
+			params (None): Ignored args
+		
+		Returns:
+			Tuple[int, str]: CommProt.MATCH_CREATED, "MATCH_CREATED"
+		"""
+		# Event call
+		self.EMatchCreated(self)
+		
+		return self.MATCH_CREATED, "MATCH_CREATED"
+	
+	def __process_list_matches(self, params: str) -> Tuple[int, str]:
+		"""
+		Process a list matches command
+		
+		Args:
+			params (str): Game Type : Tron
+		
+		Returns:
+			Tuple[int, str]: CommProt.LIST_MATCHES, game_type
+		"""
+		self.EListMatches(self, game=params)
+
+		return self.LIST_MATCHES, params
+	
+	def __process_games(self, params: str) -> Tuple[int, str, list]:
+		"""
+		Process a GAMES response
+		
+		Args:
+			params (str): [game] [matches]
+		
+		Returns:
+			Tuple[int, str, list]: (CommProt.GAMES, game, list)
+		"""
+		try:
+			game, str_matches = params.split(' ', 1)
+			matches = str_matches.split(',')
+
+			self.EGames(self, game=game, matches=matches)
+
+			return self.GAMES, game, matches
+		except:
+			raise MessageError("Syntax error in GAMES [...]")
+
+	def __process_match_features(self, params: str) -> Tuple[int, list]:
+		"""
+		Process a match_features response from the server
+		
+		Args:
+			params (str): List of match features
+		
+		Returns:
+			Tuple[int, list]: CommProt.MATCH_FEATURES, features
+		"""
+		try:
+			name = params
+			
+			self.EMatchFeatures(self, name=name)
+			return self.MATCH_FEATURES, name
+		except:
+			raise MessageError("Invalid message syntax at MATCH_FEATURES")
+	
+	def __process_match(self, params: str) -> Tuple[int, str, str, list]:
+		"""
+		Process the match response from the server
+		
+		Args:
+			params (str): Response parameters
+		
+		Returns:
+			Tuple[int, str, str, list]: CommProt.MATCH, game, name, features
+		"""
+		try:
+			game, name, str_features = params.split(' ', 2)
+			features = str_features.split(',')
+
+			self.EMatch(self, game=game, name=name, features=features)
+			return self.MATCH, game, name, features
+		except:
+			raise MessageError("Invalid syntax for: MATCH ...")
+	
+	def __process_match_started(self, params: str) -> Tuple[int, int, tuple]:
+		"""
+		Process a match started message from the server
+		
+		Args:
+			params (str): message parameters
+		
+		Returns:
+			Tuple[int, tuple]: CommProt.MATCH_STARTED, port, tuple
+		"""
+		try:
+			str_port, str_list = params.split(' ', 1)
+			mylist = str_list.split(',')
+			pre = []
+			if len(mylist) % 4 == 0:
+				for i in range(0, int(len(mylist) / 4)):
+					pre.append((int(mylist[4*i]), int(mylist[4*i+1]), int(mylist[4*i+2]), int(mylist[4*i+3])))
+
+				self.EMatchStarted(self, port=int(str_port), list=pre)
+				return self.MATCH_STARTED, int(str_port), pre
+			else:
+				raise MessageError("Invalid syntax for MATCH_STARTED")
+		except:
+			MessageError("Invalid Syntax for MATCH_STARTED!")

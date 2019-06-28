@@ -27,6 +27,14 @@ class CommProt:
 	AVAILABLE_GAMES        = 19
 	HELLO                  = 20
 	WELCOME                = 21
+	CREATE_MATCH           = 22
+	MATCH_CREATED          = 23
+	LIST_MATCHES           = 24
+	GAMES                  = 25
+	MATCH_FEATURES         = 26
+	MATCH                  = 27
+	MATCH_STARTED          = 28
+
 
 	# Create events for processing responsees
 	EClientError       : Event    = None # (sender=, msg=)
@@ -50,6 +58,14 @@ class CommProt:
 	EAvailableGames    : Event    = None
 	EHello             : Event    = None
 	EWelcome           : Event    = None
+	ECreateMatch       : Event    = None
+	EMatchCreated      : Event    = None
+	EListMatches       : Event    = None
+	EGames : Event = None
+	EMatchFeatures: Event = None
+	EMatch : Event = None
+	EMatchStarted : Event = None
+
 
 	def __init__(self):
 		"""
@@ -78,6 +94,13 @@ class CommProt:
 		self.EAvailableGames        = Event('games') # (sender=, games=)
 		self.EHello                 = Event('playername', 'features')
 		self.EWelcome               = Event('features')
+		self.ECreateMatch           = Event('game', 'name', 'features')
+		self.EMatchCreated          = Event()
+		self.EListMatches           = Event('game')
+		self.EGames                 = Event('game', 'matches')
+		self.EMatchFeatures         = Event('name')
+		self.EMatch                 = Event('game', 'name', 'features')
+		self.EMatchStarted          = Event('port', 'list') # the list is formatted as (id, r, g, b)
 
 	def client_ready(self, player):
 		"""

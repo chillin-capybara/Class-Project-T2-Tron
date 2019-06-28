@@ -748,6 +748,139 @@ class test_BasicComm(unittest.TestCase):
 			packet,
 			utf8("MATCH_STARTED 50400 0,1,1,1,1,2,2,2,2,3,3,3")
 		)
+	
+	def test_process_create_match(self):
+		"""
+		Test the process create match function
+		"""
+		# Test with 2 features
+		COMM.ECreateMatch.reset_called()
+		packet = COMM.create_match('Tron', 'game1', ['Players',4,'Lifes',3])
+		mtype, mgame, mname, mfeatures = COMM.process_response(packet)
 
+		self.assertEqual(mtype, COMM.CREATE_MATCH)
+		self.assertEqual(mgame, 'Tron')
+		self.assertEqual(mname, 'game1')
+		self.assertEqual(mfeatures, ['Players','4','Lifes','3'])
+		self.assertTrue(COMM.ECreateMatch.was_called())
+
+		# Test with 1 feature
+		COMM.ECreateMatch.reset_called()
+		packet = COMM.create_match('Pong', 'gamep', ['Players',2])
+		mtype, mgame, mname, mfeatures = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.CREATE_MATCH)
+		self.assertEqual(mgame, 'Pong')
+		self.assertEqual(mname, 'gamep')
+		self.assertEqual(mfeatures, ['Players','2'])
+		self.assertTrue(COMM.ECreateMatch.was_called())
+
+	def test_process_match_created(self):
+		"""
+		Test the match_created ack processing
+		"""
+		COMM.EMatchCreated.reset_called()
+		packet = COMM.match_created()
+		mtype, message = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.MATCH_CREATED)
+		self.assertEqual(message, "MATCH_CREATED")
+		self.assertTrue(COMM.EMatchCreated.was_called())
+	
+	def test_process_list_matches(self):
+		"""
+		Test the processing of a list matches request
+		"""
+
+		COMM.EListMatches.reset_called()
+		packet = COMM.list_matches('Tron')
+		mtype, mgame = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.LIST_MATCHES)
+		self.assertEqual(mgame, 'Tron')
+		self.assertTrue(COMM.EListGames.was_called())
+
+		COMM.EListMatches.reset_called()
+		packet = COMM.list_matches('LongerTestgamename')
+		mtype, mgame = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.LIST_MATCHES)
+		self.assertEqual(mgame, 'LongerTestgamename')
+		self.assertTrue(COMM.EListGames.was_called())
+	
+	def test_process_games(self):
+		"""
+		Test the games message processor
+		"""
+		# Sample data 1
+		COMM.EGames.reset_called()
+		packet = COMM.games('Tron', ['New', 'Old', 'Three'])
+		mtype, mgame, mlist = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.GAMES)
+		self.assertEqual(mgame, 'Tron')
+		self.assertEqual(mlist, ['New', 'Old', 'Three'])
+		self.assertTrue(COMM.EGames.was_called())
+
+		# Sample Data 2
+		COMM.EGames.reset_called()
+		packet = COMM.games('Pong', ['New'])
+		mtype, mgame, mlist = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.GAMES)
+		self.assertEqual(mgame, 'Pong')
+		self.assertEqual(mlist, ['New'])
+		self.assertTrue(COMM.EGames.was_called())
+	
+	def test_process_match_features(self):
+		"""
+		Test the match features message processor
+		"""
+		COMM.EMatchFeatures.reset_called()
+		packet = COMM.match_features('game1')
+		mtype, game = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.MATCH_FEATURES)
+		self.assertEqual(game, 'game1')
+		self.assertTrue(COMM.EMatchFeatures.was_called())
+
+		COMM.EMatchFeatures.reset_called()
+		packet = COMM.match_features('RandomGame')
+		mtype, game = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.MATCH_FEATURES)
+		self.assertEqual(game, 'RandomGame')
+		self.assertTrue(COMM.EMatchFeatures.was_called())
+	
+	def test_process_match(self):
+		"""
+		Test process MATCH messages
+		"""
+		COMM.EMatch.reset_called()
+		packet = COMM.match('Tron', 'game1', ['Players',3,'Lifes',5])
+		mtype, mgame, mname, mfeatures = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.MATCH)
+		self.assertEqual(mgame, 'Tron')
+		self.assertEqual(mname, 'game1')
+		self.assertEqual(mfeatures, ['Players','3','Lifes','5'])
+		self.assertTrue(COMM.EMatch.was_called())
+
+		COMM.EMatch.reset_called()
+		packet = COMM.match('Pong', 'gp', ['Players',2])
+		mtype, mgame, mname, mfeatures = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.MATCH)
+		self.assertEqual(mgame, 'Pong')
+		self.assertEqual(mname, 'gp')
+		self.assertEqual(mfeatures, ['Players','2'])
+		self.assertTrue(COMM.EMatch.was_called())
+
+	def test_process_match_started(self):
+		"""
+		Test the processing of a match started message.
+		"""
+		p1 = HumanPlayer()
+		p1.setColor((50,50,50))
+		p2 = HumanPlayer()
+		p2.setColor((99,99,99))
+		COMM.EMatchStarted.reset_called()
+		packet = COMM.match_started(50449, [0,1], [p1,p2])
+		mtype, mport, lists = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.MATCH_STARTED)
+		self.assertEqual(mport, 50449)
+		self.assertEqual(lists, [(0,50,50,50), (1,99,99,99)])
+		self.assertTrue(COMM.EMatchStarted.was_called())
+	
 if __name__ == '__main__':
 	unittest.main()
