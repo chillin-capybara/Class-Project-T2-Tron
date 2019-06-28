@@ -68,10 +68,7 @@ Builder.load_string("""
         TrackWidget:
             id: trackWidget
             size: root.size
-            #opacity:  self.slowStartopacity() # if root.countdown_is_running else 1
-            #(root.slowStartopacity()) if root.countdown_is_running else 0 #  1 if root.game_is_running else 0
 
-        # linepoints: root.linepoints
     # kv file for displaying all ingame players with colors
 
     AnchorLayout:
@@ -137,8 +134,9 @@ class GameUI(Widget):
     def update(self, *args):
         ## final update function, where I trigger different functuions
         # self.ids.trackWidget.update()
-        self.ids.HeadWidget.update()
-        self.ids.trackWidget.update()
+        self.ids.HeadWidget.update_human_player()
+        self.ids.trackWidget.update_human_player()
+        self.ids.trackWidget.update_remote_player()
 
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:

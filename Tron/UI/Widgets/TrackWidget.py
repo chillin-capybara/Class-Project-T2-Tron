@@ -22,27 +22,37 @@ from kivy.core.window import Window
 from kivy.uix.widget import Widget
 
 
-## Fr.S
-# updatesPerSeconds = parent.updatesPerSeconds
-# updatesPerSeconds = 50
 
 p1 = HumanPlayer()
 p1.setName("Simon")
-p1.setColor((1, 1, 1))
+p1.setColor((1, 1, 0))
 p1.setPosition(20, 20)
 p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
 # p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
 p2 = HumanPlayer()
-p2.setName("Ludi")
-p2.setColor((1, 1, 1))
+p2.setName("Lorenz")
+p2.setColor((0, 1, 1))
 p2.setPosition(50, 50)
-p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
-# p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
-# p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
+p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
 
 
-players = [ p1]
+
+
+
+p3 = HumanPlayer()
+p3.setName("Marcell")
+p3.setColor((1, 0, 1))
+p3.setPosition(50, 50)
+p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
+p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
+p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
+
+players = [p1]
+remoteplayers = [p1, p2, p3]
+# remoteplayers = [Game.getPlayers()]
 
 class TrackWidget(Widget):
     opacityValue = NumericProperty(0)
@@ -50,9 +60,14 @@ class TrackWidget(Widget):
     speed_factor = NumericProperty(1)
     game_is_running2 = BooleanProperty(False)
     countdown_is_running2 = BooleanProperty(False)
+    # remoteplayers = ListProperty([Game.getPlayers()])
+
+    remoteplayers.remove(p1)
 
 
     allPoints = []
+    
+
     counter = NumericProperty(0)
     countergetPos = BooleanProperty(True)
     
@@ -63,26 +78,22 @@ class TrackWidget(Widget):
 
         self.velocity = (0, 1)
 
-    def update(self):
-        ## function for updating the track
+
+
+    def update_remote_player(self):
         fieldsize = UI.mainUI.FIELDSIZE
         self.canvas.clear()
-        self.updatespeed_factor()
-        
-
         with self.canvas:
             self.opacity = self.opacityValue
 
-            for player in players:
-                # track = player.getLine()
-                if self.game_is_running2 == True:
-                    allPoints = self.pointCreator()
-                    #allPoints2 = self.constructMissingPoints(track)
+            if self.game_is_running2 == True:
+                for player in remoteplayers:    
+                    allPoints_from_submission = player.getTrack()
                     colorId = player.getColor()
                     Color(rgba = self.getColorFromId(colorId))
                     
                     
-                    for point in allPoints:
+                    for point in allPoints_from_submission:
                     
 
                         xPos2 = (self.size[0]/fieldsize[0]) * point.x
@@ -93,12 +104,40 @@ class TrackWidget(Widget):
 
                         Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
-        # with self.canvas:
-        #     for player in players2:
-        #         startpos = player.getPosition()
-        #         xPos = startpos[0]
-        #         yPos = startpos[1]
-        #         Triangle(size_hint=(0.5, 0.5))
+    def update_human_player(self):
+        ## function for updating the track
+        fieldsize = UI.mainUI.FIELDSIZE
+        self.canvas.clear()
+        self.updatespeed_factor()
+        
+        
+
+        with self.canvas:
+            self.opacity = self.opacityValue
+
+            # for player in players:
+            # track = player.getLine()
+            if self.game_is_running2 == True:
+                allPoints = self.pointCreator()
+                allPoints2 = self.constructMissingPoints(allPoints)
+                ## I want all points to be submitted, also the intermediate points
+                self.addTrack_to_sub(allPoints2)
+                colorId = p1.getColor()
+                Color(rgba = self.getColorFromId(colorId))
+                
+                
+                for point in allPoints2:
+                
+
+                    xPos2 = (self.size[0]/fieldsize[0]) * point.x
+                    yPos2 = (self.size[1]/fieldsize[1]) * point.y
+
+                    xSize = self.size[0]/fieldsize[0]
+                    ySize = self.size[1]/fieldsize[1]
+
+                    Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
+
+
 
 
 
@@ -121,15 +160,14 @@ class TrackWidget(Widget):
         if self.countdown_is_running2 == True:
             if self.opacityValue < 1:
                 self.opacityValue += 0.1 / UI.mainUI.UPDATES_PER_SECOND
-                print(self.opacityValue)
+                
                 return self.opacityValue
 
 
 
     def constructMissingPoints(self, track):
         ## function who creates all missing points in between
-        allPoints3 = [Player.getPosition()]
-
+        allPoints3 = [p1.getPosition()]
         pointCount = len(track)
         for i in range(0, pointCount - 1):
             startPoint = track[i]
@@ -256,11 +294,20 @@ class TrackWidget(Widget):
                 self.pointCreator()
                 self.countergetPos = False
 
-            print(self.allPoints[len(self.allPoints)-1])
             return self.allPoints[len(self.allPoints)-1]
+
+    def addTrack_to_sub(self, points):
+        if self.game_is_running2 == True:
+            p1.addTrack((points[len(points)-2]),(points[len(points)-1]))
+            # print(p1.getTrack())
+
         
     
     
+
+
+
+
 
 
 class MyKeyboardListener(Widget):

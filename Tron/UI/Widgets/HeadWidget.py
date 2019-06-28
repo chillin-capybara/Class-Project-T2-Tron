@@ -27,32 +27,38 @@ from kivy.uix.widget import Widget
 class HeadWidget(Widget):
     p1 = HumanPlayer()
     p1.setName("Simon")
-    p1.setColor((1, 0, 1))
+    p1.setColor((1, 1, 0))
     p1.setPosition(20, 20)
     p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
-    p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
-
+    # p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
     p2 = HumanPlayer()
-    p2.setName("Ludi")
+    p2.setName("Lorenz")
     p2.setColor((0, 1, 1))
     p2.setPosition(50, 50)
-    p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
+    p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
     p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
     p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
 
-    players = [ p1, p2 ]
-    
-    opacityValue = NumericProperty(0)
-    game_is_running3 = BooleanProperty(False)
-    countdown_is_running3 = BooleanProperty(False)
-    velocity = (0, 1)
-    nowpoint = (50, 50)
+
+
+
+
+    p3 = HumanPlayer()
+    p3.setName("Marcell")
+    p3.setColor((1, 0, 1))
+    p3.setPosition(50, 50)
+    p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
+    p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
+    p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
+
+    players = [p1]
+    remoteplayers = [p1, p2, p3]
 
     
 
-    def update(self):
-        ## function for updating the head
+    def update_human_player(self):
+        ## function for updating the head of tje human pla
         self.canvas.clear()
         players2 = HeadWidget.players
         self.increaseOpacity()
@@ -166,7 +172,7 @@ class HeadWidget(Widget):
         if self.game_is_running3 == True:
             
             self.nowpoint = (x.x, x.y)
-            print(self.nowpoint)
+
             return x
 
 ## set Booleans for initializing events
