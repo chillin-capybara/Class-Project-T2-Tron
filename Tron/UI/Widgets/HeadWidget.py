@@ -54,14 +54,18 @@ class HeadWidget(Widget):
 
     players = [p1]
     remoteplayers = [p1, p2, p3]
-
+    game_is_running3 = BooleanProperty(False)
+    countdown_is_running3 = BooleanProperty(False)
+    velocity = (0,1)
+    nowpoint  =(50, 50)
     
-
+    opacityValue = NumericProperty(0)
     def update_human_player(self):
-        ## function for updating the head of tje human pla
+        ## function for updating the head of tje j
         self.canvas.clear()
         players2 = HeadWidget.players
         self.increaseOpacity()
+        
 
         with self.canvas:
             self.opacity = self.opacityValue

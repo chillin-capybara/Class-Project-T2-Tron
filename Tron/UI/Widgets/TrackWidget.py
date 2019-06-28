@@ -80,29 +80,29 @@ class TrackWidget(Widget):
 
 
 
-    def update_remote_player(self):
-        fieldsize = UI.mainUI.FIELDSIZE
-        self.canvas.clear()
-        with self.canvas:
-            self.opacity = self.opacityValue
+    # def update_remote_player(self):
+    #     fieldsize = UI.mainUI.FIELDSIZE
+    #     self.canvas.clear()
+    #     with self.canvas:
+    #         self.opacity = self.opacityValue
 
-            if self.game_is_running2 == True:
-                for player in remoteplayers:    
-                    allPoints_from_submission = player.getTrack()
-                    colorId = player.getColor()
-                    Color(rgba = self.getColorFromId(colorId))
+    #         if self.game_is_running2 == True:
+    #             for player in remoteplayers:    
+    #                 # allPoints_from_submission = player.getTrack()
+    #                 colorId = player.getColor()
+    #                 Color(rgba = self.getColorFromId(colorId))
                     
                     
-                    for point in allPoints_from_submission:
+    #                 for point in allPoints_from_submission:
                     
 
-                        xPos2 = (self.size[0]/fieldsize[0]) * point.x
-                        yPos2 = (self.size[1]/fieldsize[1]) * point.y
+    #                     xPos2 = (self.size[0]/fieldsize[0]) * point.x
+    #                     yPos2 = (self.size[1]/fieldsize[1]) * point.y
 
-                        xSize = self.size[0]/fieldsize[0]
-                        ySize = self.size[1]/fieldsize[1]
+    #                     xSize = self.size[0]/fieldsize[0]
+    #                     ySize = self.size[1]/fieldsize[1]
 
-                        Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
+    #                     Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
     def update_human_player(self):
         ## function for updating the track
