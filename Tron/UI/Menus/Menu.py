@@ -4,7 +4,9 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from ..mainUI import GameApp, GameUI
+from kivy.uix.behaviors.focus import FocusBehavior
+from kivy.uix.textinput import TextInput
+#from ..mainUI import GameApp, GameUI
 from Backend.Classes.Game import Game
 
 GAME = Game()
@@ -113,8 +115,22 @@ class SearchForServerMenu(Screen):
 	ip = '-'
 	port = 0
 
-	def connecttoserverbuttonPressed(self):
-		pass
+	def debug(self, inpt):
+
+		self.inpt = str(inpt)
+
+		print(self.inpt)
+
+	class MyTextInput(TextInput):
+
+		def insert_text(self, substring, from_undo=False):
+			if '.' in self.text:
+				s = re.sub(pat, '', substring)
+			else:
+				s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
+			return super(MyTextInput, self).insert_text(s, from_undo=from_undo)
+
+
 
 	def getserverOnline(self):
 		"""
@@ -143,10 +159,8 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
-		#GAME.ConnectToServer(self.inputIp, self.inputPort)
+		GAME.ConnectToServer(self.inputIp, self.inputPort)
 		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
-		start_game = GameApp()
-		start_game.run()
 
 
 	def updateconnecttoserverButton(self, inputIp, inputPort):
@@ -172,6 +186,18 @@ class SearchForServerMenu(Screen):
 		else:
 			pass
 
+	def startGame(self):
+		"""
+		Send Startsignal to server and begin countdown
+
+		Args:
+			-
+		Return:
+			-
+		"""
+		start_game = GameApp()
+		start_game.run()
+
 class CreateServerMenu(Screen):
 	arena = 1
 	difficulty = 1
@@ -196,7 +222,7 @@ class CreateServerMenu(Screen):
 		Args:
 			Arenatype (int):
 		Return:
-			-
+			arenatype
 		"""
 		self.currentarenatype = currentarenatype
 
@@ -212,7 +238,7 @@ class CreateServerMenu(Screen):
 		Args:
 			Difficulty (int):
 		Return:
-			-
+			difficulty
 		"""
 		self.currentdifficulty = currentdifficulty
 
@@ -233,6 +259,11 @@ class CreateServerMenu(Screen):
 		self.numberplayer = numberplayer
 		GAME.CreateServer('', 9876, self.numberplayer)
 		print('Arenatype: %d, Diffculty: %d and %d Players to play have been choosen.' % (self.arena, self.difficulty, self.numberplayer), flush = True)
+
+	def destroyServer(self):
+
+		print('Destroying Server...')
+		GAME.DestroyServer()
 
 
 class PauseMenu(Screen):

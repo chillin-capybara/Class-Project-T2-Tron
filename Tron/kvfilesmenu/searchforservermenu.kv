@@ -46,20 +46,26 @@
             TextInput:
                 id: ipTextInput
                 hint_text: '131.159.200.137'
+                # limit to 15 chars
+                input_filter: lambda text, from_undo: text[:15 - len(self.text)]
                 on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
 
             TextInput:
                 id: portTextInput
                 hint_text: '9877'
+                input_filter: 'int'
+                # limit to 5 chars
+                #input_filter: lambda text, from_undo: text[:5 - len(self.text)]
                 on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
 
         Button:
             id: connecttoserverButton
-            text: 'Connect to the Server and start Game (Not implemented yet)'
+            text: 'Connect to the Server and start Game(Not implemented yet)'
             on_release:
                 root.manager.current = 'gamestartmenu'
             #    root.getserverOnline()
                 root.connecttoServer(ipTextInput.text, portTextInput.text)
+            #    root.startGame()
 
         Button:
             id: backtomenuButton
