@@ -37,6 +37,7 @@ p2.setPosition(50, 50)
 p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
 p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
 p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+p2.setVelocity(1, 0)
 
 
 
@@ -49,6 +50,7 @@ p3.setPosition(50, 50)
 p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
 p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
 p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
+p3.setVelocity(0, 1)
 
 players = [p1]
 remoteplayers = [p1, p2, p3]
@@ -80,37 +82,40 @@ class TrackWidget(Widget):
 
 
 
-    # def update_remote_player(self):
-    #     fieldsize = UI.mainUI.FIELDSIZE
-    #     self.canvas.clear()
-    #     with self.canvas:
-    #         self.opacity = self.opacityValue
+    def update_remote_player(self):
+        fieldsize = UI.mainUI.FIELDSIZE
+        # self.canvas.clear()
+        with self.canvas:
+            self.opacity = self.opacityValue
 
-    #         if self.game_is_running2 == True:
-    #             for player in remoteplayers:    
-    #                 # allPoints_from_submission = player.getTrack()
-    #                 colorId = player.getColor()
-    #                 Color(rgba = self.getColorFromId(colorId))
+            if self.game_is_running2 == True:
+                for player in remoteplayers:    
+                    allPoints_from_submission = player.getLine()
+                    allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission)
+                    colorId = player.getColor()
+                    Color(rgba = self.getColorFromId(colorId))
                     
                     
-    #                 for point in allPoints_from_submission:
+                    for point in allPoints_after_calculation:
                     
 
-    #                     xPos2 = (self.size[0]/fieldsize[0]) * point.x
-    #                     yPos2 = (self.size[1]/fieldsize[1]) * point.y
+                        xPos2 = (self.size[0]/fieldsize[0]) * point.x
+                        yPos2 = (self.size[1]/fieldsize[1]) * point.y
 
-    #                     xSize = self.size[0]/fieldsize[0]
-    #                     ySize = self.size[1]/fieldsize[1]
+                        xSize = self.size[0]/fieldsize[0]
+                        ySize = self.size[1]/fieldsize[1]
 
-    #                     Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
+                        Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
+
+
+
 
     def update_human_player(self):
         ## function for updating the track
         fieldsize = UI.mainUI.FIELDSIZE
         self.canvas.clear()
         self.updatespeed_factor()
-        self.submit_velocity()
-        
+        self.submit_velocity()        
         
 
         with self.canvas:
@@ -213,6 +218,7 @@ class TrackWidget(Widget):
             xVal = round(move[0] + self.allPoints[self.counter].x)
             yVal = round(move[1] + self.allPoints[self.counter].y)
             
+            self.detect_outbound(xVal, yVal)
             self.allPoints.append(Vect2D(xVal, yVal))
         self.counter += 1
               
@@ -300,14 +306,24 @@ class TrackWidget(Widget):
     def addTrack_to_sub(self, points):
         if self.game_is_running2 == True:
             p1.addTrack((points[len(points)-2]),(points[len(points)-1]))
-            # print(p1.getTrack())
     
 
     def submit_velocity(self):
-        print (self.velocity)
         xVal = self.velocity[0]
         yVal = self.velocity[1]
-        p1.setVelocity(Vect2D(xVal,yVal))
+        p1.setVelocity(xVal, yVal)
+
+    def detect_outbound(self, xVar, yVar):
+        fieldsize = UI.mainUI.FIELDSIZE
+
+        if xVar < 0 or xVar > fieldsize[0]:
+            print ("You hit the right or left border")
+        elif yVar < 0 or yVar > fieldsize[1]:
+            print ("You hit the upper or lower border")
+
+
+
+
         
     
     

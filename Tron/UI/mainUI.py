@@ -136,7 +136,7 @@ class GameUI(Widget):
         # self.ids.trackWidget.update()
         self.ids.HeadWidget.update_human_player()
         self.ids.trackWidget.update_human_player()
-        # self.ids.trackWidget.update_remote_player()
+        self.ids.trackWidget.update_remote_player()
 
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
