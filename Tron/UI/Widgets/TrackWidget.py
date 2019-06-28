@@ -109,6 +109,7 @@ class TrackWidget(Widget):
         fieldsize = UI.mainUI.FIELDSIZE
         self.canvas.clear()
         self.updatespeed_factor()
+        self.submit_velocity()
         
         
 
@@ -300,7 +301,13 @@ class TrackWidget(Widget):
         if self.game_is_running2 == True:
             p1.addTrack((points[len(points)-2]),(points[len(points)-1]))
             # print(p1.getTrack())
+    
 
+    def submit_velocity(self):
+        print (self.velocity)
+        xVal = self.velocity[0]
+        yVal = self.velocity[1]
+        p1.setVelocity(Vect2D(xVal,yVal))
         
     
     
