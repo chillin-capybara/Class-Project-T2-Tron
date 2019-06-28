@@ -1,3 +1,5 @@
+import array
+
 class InteropComm(object):
 	"""
 	Implements Communication methods and functions for 
@@ -22,10 +24,8 @@ class InteropComm(object):
 			if (max_size[0] > len(matrix)) | (max_size[1] > len(matrix[0])):
 				raise ValueError
 
-
-
-		matrixString = "" # string where the splits will be parsed
-		dictionary = {(0,0):matrixString}
+		matrixArray = [[0 for x in range(max_size[1])] for y in range(max_size[0])] #initialize Array for splitted matrices
+		dictionary = {(0,0):matrixArray}
 		matrixRowCount            = len(matrix)
 		matrixColumnCount         = len(matrix[0])
 		#calculate new, splitted matrix dimensions
@@ -46,10 +46,10 @@ class InteropComm(object):
 		for currentSplittedMatrixRow in range (0, splittedMatrixRowCount):
 			for currentSplittedMatrixColumn in range (0, splittedMatrixColumnCount):
 				# process each "Child" of the Mother matrix
-				matrixString = self.processChildMatrix(currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount)
-				newDictElement = {(currentSplittedMatrixRow,currentSplittedMatrixColumn) : matrixString}
+				matrixArray = self.processChildMatrix(currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount)
+				newDictElement = {(currentSplittedMatrixRow,currentSplittedMatrixColumn) : matrixArray}
 				dictionary.update(newDictElement)
-				matrixString = ""
+				matrixArray = [[0 for x in range(max_size[1])] for y in range(max_size[0])] #reset Array for splitted matrices
 
 		
 		return dictionary
@@ -58,16 +58,22 @@ class InteropComm(object):
 		"""
 		wright down all the Elements of the "Child" Matrix
 		"""
-		matrixString = ""
+		matrixArray = [[0 for x in range(max_size[1])] for y in range(max_size[0])] #initialize Array for splitted matrices
+
 		for currentRow in range (currentSplittedMatrixRow * max_size[0] , (currentSplittedMatrixRow+1) * max_size[0]):
-			for currentColumn in range (currentSplittedMatrixColumn * max_size[1], (currentSplittedMatrixColumn + 1) * max_size[1]):
-				matrixString += str(matrix[currentRow][currentColumn]) # add to the string the matrix item
-				if currentColumn + 2 > matrixColumnCount: break
-				if (max_size[1] > 1) & (((currentColumn+1)//(currentSplittedMatrixColumn+1)) < max_size[1]) : matrixString += ","
 			if currentRow + 2 > matrixRowCount: break
-			if (max_size[0] > 1) & ((currentRow+1)//(currentSplittedMatrixRow+1) < max_size[0]) : matrixString += ";"
+			for currentColumn in range (currentSplittedMatrixColumn * max_size[1], (currentSplittedMatrixColumn + 1) * max_size[1]):
+				if currentColumn + 2 > matrixColumnCount: break
+
+				matrixRow = currentRow - max_size[0]*currentSplittedMatrixRow
+				matrixColumn = currentColumn - max_size[1]*currentSplittedMatrixColumn
+
+				matrixArray[matrixRow][matrixColumn] = matrix[currentRow][currentColumn]
+
+				#if (max_size[1] > 1) & (((currentColumn+1)//(currentSplittedMatrixColumn+1)) < max_size[1]) : matrixString += ","
+			#if (max_size[0] > 1) & ((currentRow+1)//(currentSplittedMatrixRow+1) < max_size[0]) : matrixString += ";"
 					
-		return matrixString
+		return matrixArray
 
 	def matrix_collapse(self, splitted_matrix: dict) -> list:
 		"""
