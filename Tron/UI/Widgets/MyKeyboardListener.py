@@ -12,7 +12,7 @@ class MyKeyboardListener(Widget):
 
         self._game = UI.mainUI.GAME
         print (UI.mainUI.GAME.me.getName)
-        self._player = self._game.me()
+        self._player = self._game.me
         print(self._player)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
         if self._keyboard.widget:
