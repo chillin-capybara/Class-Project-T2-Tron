@@ -602,7 +602,152 @@ class test_BasicComm(unittest.TestCase):
 			packet,
 			utf8("WELCOME BASIC,DIMS,10,10,50,50")
 		)
+	
+	def test_process_welcome(self):
+		"""
+		Test the welcome message processor
+		"""
+		# Test with 1 feature
+		COMM.EWelcome.reset_called()
+		packet = COMM.welcome(['BASIC'])
+		mtype, features = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.WELCOME)
+		self.assertEqual(features, ['BASIC'])
+		self.assertTrue(COMM.EWelcome.was_called())
 
+		# Test with 1 (DIMS) feature
+		COMM.EWelcome.reset_called()
+		packet = COMM.welcome(['BASIC', 'DIMS', 10, 10, 50, 50])
+		mtype, features = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.WELCOME)
+		self.assertEqual(features, ['BASIC', 'DIMS', '10', '10', '50', '50'])
+		self.assertTrue(COMM.EWelcome.was_called())
+	
+	def test_create_match(self):
+		"""
+		Test the create match command messages
+		"""
+		packet = COMM.create_match('Tron', 'game1', ['Players,4,Lifes,3'])
+		self.assertEqual(
+			packet,
+			utf8("CREATE_MATCH Tron game1 Players,4,Lifes,3")
+		)
+
+		packet = COMM.create_match('Tron', 'awsomeee', ['Players,1'])
+		self.assertEqual(
+			packet,
+			utf8("CREATE_MATCH Tron awsomeee Players,1")
+		)
+	
+	def test_match_created(self):
+		"""
+		Test the match created message
+		"""
+		packet = COMM.match_created()
+		self.assertEqual(
+			packet,
+			utf8("MATCH_CREATED")
+		)
+	
+	def test_list_matches(self):
+		"""
+		Test the list matches command
+		"""
+		packet = COMM.list_matches('Tron')
+		self.assertEqual(
+			packet,
+			utf8("LIST_MATCHES Tron")
+		)
+
+		packet = COMM.list_matches('Pong')
+		self.assertEqual(
+			packet,
+			utf8("LIST_MATCHES Pong")
+		)
+
+		with self.assertRaises(ValueError):
+			COMM.list_matches("")
+		
+		with self.assertRaises(TypeError):
+			COMM.list_matches(0)
+		
+		with self.assertRaises(TypeError):
+			COMM.list_matches([])
+	
+	def  test_games(self):
+		"""
+		Test the listing of matches
+		// TODO  add more tests, exception testing
+		"""
+
+		packet = COMM.games('Tron', ['game1', 'game2'])
+		self.assertEqual(
+			packet,
+			utf8("GAMES Tron game1,game2")
+		)
+	
+	def test_match_features(self):
+		"""
+		Test the match features query message
+		"""
+
+		packet = COMM.match_features('Tron')
+		self.assertEqual(
+			packet,
+			utf8("MATCH_FEATURES Tron")
+		)
+
+		packet = COMM.match_features('Pong')
+		self.assertEqual(
+			packet,
+			utf8("MATCH_FEATURES Pong")
+		)
+
+		# Typeerrors
+		with self.assertRaises(TypeError):
+			COMM.match_features(0)
+		with self.assertRaises(TypeError):
+			COMM.match_features([])
+		with self.assertRaises(TypeError):
+			COMM.match_features(True)
+		
+		# Value Errors
+		with self.assertRaises(ValueError):
+			COMM.match_features("")
+	
+	def test_match(self):
+		"""
+		Test the MATCH message with listing the match features
+		"""
+		packet = COMM.match('Tron', 'game1', ['Players',4])
+		self.assertEqual(
+			packet,
+			utf8("MATCH Tron game1 Players,4")
+		)
+
+		packet = COMM.match('Tron', 'game1', ['Players',4,'Lifes',2])
+		self.assertEqual(
+			packet,
+			utf8("MATCH Tron game1 Players,4,Lifes,2")
+		)
+	
+	def test_match_started(self):
+		"""
+		Test the MATCH_STARTED message generation.
+		// TODO make more test cases
+		"""
+		# Just 1 sample data
+		p1 = HumanPlayer()
+		p1.setColor((1,1,1))
+		p2 = HumanPlayer()
+		p2.setColor((2,2,2))
+		p3 = HumanPlayer()
+		p3.setColor((3,3,3))
+		packet = COMM.match_started(50400, [0,1,2], [p1, p2, p3])
+		self.assertEqual(
+			packet,
+			utf8("MATCH_STARTED 50400 0,1,1,1,1,2,2,2,2,3,3,3")
+		)
 
 if __name__ == '__main__':
 	unittest.main()
