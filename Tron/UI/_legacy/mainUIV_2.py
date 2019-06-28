@@ -13,7 +13,7 @@ from Backend.Classes.Game import Game
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
-from UI.Widgets.TrackWidget import MyKeyboardListener
+from UI.Widgets.MyKeyboardListener import MyKeyboardListener
 from UI.Widgets.PlayerWidget import PlayerWidget
 
 

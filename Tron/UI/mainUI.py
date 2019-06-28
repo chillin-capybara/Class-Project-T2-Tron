@@ -11,20 +11,17 @@ from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 
+
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
-from UI.Widgets.TrackWidget import MyKeyboardListener
+from UI.Widgets.MyKeyboardListener import MyKeyboardListener
 from UI.Widgets.PlayerWidget import PlayerWidget
-from UI.Widgets.HeadWidget import HeadWidget
-
 
 
 # setting display size to 500, 500
 Config.set('graphics', 'resizable', True)
 Config.set('graphics', 'width', '500')
 Config.set('graphics', 'height', '500')
-
-
 
 # Not using kv files for logic reasons, maybe temporary
 Builder.load_string("""
@@ -82,22 +79,32 @@ Builder.load_string("""
             size_hint: None, None
             playerList: root.playerList
 
-
-    AnchorLayout:
-        size: root.size
-        anchor_x: "center"
-        anchor_y: "center"
-        HeadWidget:
-            id: HeadWidget
-            size: root.size
-            opacity: 1 #root.slowStartopacity() # if root.countdown_is_running else 1
-
 """)
 
 
 
-UPDATES_PER_SECOND = 20
+UPDATES_PER_SECOND = 30
 FIELDSIZE = (100, 100)
+
+
+print("GAME CREATED...", flush=True)
+# Define global GAME object
+GAME = Game()
+GAME.me.setName("Peter")
+GAME.me.setColor((1, 1, 0))
+GAME.me.setVelocity(1, 0)
+GAME.me.setPosition(20, 20)
+
+
+
+print("GAME CREATED...", flush=True)
+# Define global GAME object
+GAME = Game()
+GAME.me.setName("Peter")
+GAME.me.setColor((1, 1, 0))
+GAME.me.setVelocity(1, 0)
+GAME.me.setPosition(20, 20)
+
 class GameUI(Widget):
     
     playerList = ListProperty([
@@ -134,36 +141,27 @@ class GameUI(Widget):
     def update(self, *args):
         ## final update function, where I trigger different functuions
         # self.ids.trackWidget.update()
-        self.ids.HeadWidget.update_human_player()
-        self.ids.trackWidget.update_human_player()
-        self.ids.trackWidget.update_remote_player()
+        self.ids.trackWidget.update()
 
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanCountdown()
-            self.ids.HeadWidget.setBooleanCountdown()
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()
-            self.ids.HeadWidget.setBooleanGame()
             self.ids.trackWidget.increaseOpacity()
             
             
             ## Give Values from trackWidget class to HeadWidget class
             aktPos = self.ids.trackWidget.getPos()
-            self.ids.HeadWidget.setPosition(aktPos)
 
         ## Give Values from trackWidget class to HeadWidget class
         richtung = self.ids.trackWidget.getVelocity()
-        self.ids.HeadWidget.setVelocity(richtung)
-
-
-        
 
 
 
@@ -184,15 +182,12 @@ class GameUI(Widget):
         Clock.schedule_once(callback, 0)
 
 
-
-
 # Entry Point
 class GameApp(App):
     # creates the Application
     def build(self):
-        game = GameUI()
-        MyKeyboardListener(game)
-        return game
+        MyKeyboardListener()
+        return GameUI()
 
 if __name__ == "__main__":
     GameApp().run()
