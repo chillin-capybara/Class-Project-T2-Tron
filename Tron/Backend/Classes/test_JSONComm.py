@@ -1,10 +1,14 @@
+import sys
+sys.path.append('/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron')
+
 import unittest
-from .JSONComm import JSONComm
-from .CommProt import CommProt
-from .Factory import Factory
-from .Player import Player
-from .HumanPlayer import HumanPlayer
-from ..Core.core_functions import get_timestamp
+
+from Tron.Backend.Classes.JSONComm import JSONComm
+from Tron.Backend.Classes.CommProt import CommProt
+from Tron.Backend.Classes.Factory import Factory
+from Tron.Backend.Classes.Player import Player
+from Tron.Backend.Classes.HumanPlayer import HumanPlayer
+from Tron.Backend.Core.core_functions import get_timestamp
 
 def bytec(string):
 	return bytes(string, "UTF-8")

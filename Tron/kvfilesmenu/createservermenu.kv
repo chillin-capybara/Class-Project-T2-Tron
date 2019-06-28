@@ -101,16 +101,28 @@
                 max: 10
                 step: 1
 
+        BoxLayout:
+            orientation: 'vertical'
+
+            Label:
+                id: serverstatusLabel
+                text: 'Server is running/not running(Has to be implemented)'
+
+            Button:
+                id: destroyserverButton
+                text: 'Destroy the Server'
+                on_release:
+                    root.destroyServer()
 
         Button:
             id: serverstartButton
-            text: 'Start the Server(Not implemented yet)'
+            text: 'Start the Server and Game(TODO) '
             on_release:
                 root.createServer(int(numberplayersSlider.value))
-                root.startGame
-                root.manager.current = ('gamestartmenu')
+            #    root.startGame
+                root.manager.current = 'gamestartmenu'
 
         Button:
             id: backtomenuButton
-            text: 'Return to the Main Menu (Not implemented yet)'
+            text: 'Return to the Main Menu'
             on_release: root.manager.current = 'mainmenu'

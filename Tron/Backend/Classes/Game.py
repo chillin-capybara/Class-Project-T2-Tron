@@ -95,7 +95,6 @@ class Game(object):
 			ValueError: Color is negative
 		"""
 		self.me.setColor(color)
-		logging.debug("Player color set to %d" % color)
 	
 	def getColor(self):
 		"""
@@ -104,6 +103,30 @@ class Game(object):
 			int
 		"""
 		return self.me.getColor()
+
+	def getVelocity(self):
+		"""
+		Get the velocity of the current player.
+		Returns:
+			Vect2D: Current velocity of the palyer
+		"""
+		return self.me.getVelocity()
+
+	def setVelocity(self, velocity: tuple):
+		"""
+		Set the velocity of the current player.
+		Args:
+			velocity (int, int): New velocity of the player.
+		Raises:
+			TypeError: Invalid argument types
+		NOTE:
+			Only use directions like (0,1), (1,0), (-1,0), (0,-1)
+		"""
+		try:
+			self.me.setVelocity((velocity[0], velocity[1]))
+		except IndexError:
+			# Invalid index -> velocity type error
+			raise TypeError
 	
 	def ConnectToServer(self, server: str, port: int):
 		"""

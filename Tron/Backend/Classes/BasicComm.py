@@ -2,6 +2,7 @@ from .CommProt import CommProt
 from .Player import Player
 from .HumanPlayer import HumanPlayer
 from ..Core.Exceptions import MessageError
+from ..Core.globals import *
 import logging
 
 def c2b(func):
@@ -17,6 +18,53 @@ def c2b(func):
 		return (bytes(res, "UTF-8") + b'\x00') # Terminate with 0 byte
 	return wrapper
 
+def list_to_strlist(input_list: list) -> str:
+	"""
+	Converts a list object into a comma separated string list
+	
+	Args:
+		input_list (list): List object to convert
+	
+	Returns:
+		str: Comma separated string
+	"""
+	return str(input_list).strip('[]\'').replace("'", "").replace(" ", "")
+	
+def player_tostr(player_id: int, player: Player) -> str:
+	"""
+	Converts the player to a string, by it's ID and color
+	
+	Args:
+		player (Player): Player object to convert
+	
+	Returns:
+		str: player_id,r,g,b
+	"""
+	r: int = player.getColor()[0]
+	g: int = player.getColor()[1]
+	b: int = player.getColor()[2]
+
+	return "%s,%d,%d,%d" % (player_id, r, g, b)
+
+def str_toplayer(str_list: list) -> (int, Player):
+	"""
+	Converts a list of string to a player
+	
+	Args:
+		str_list (list): List of strings (player_id, r, g, b)
+	Returns:
+		int: Player ID
+		Player: New Player object of RGB
+	"""
+	pid = int(str_list[0])
+	r = int(str_list[1])
+	g = int(str_list[2])
+	b = int(str_list[3])
+	player = HumanPlayer()
+	player.setColor((r,g,b))
+
+	return pid, player
+
 
 class BasicComm(CommProt):
 	"""
@@ -27,11 +75,24 @@ class BasicComm(CommProt):
 
 	def __init__(self):
 		self.POLICY = {
-			'JOIN_MATCH': self.__process_client_ready,
-			'MATCH_JOINED' : self.__process_client_ready_ack,
-			'ERR_CMD_NOT_UNDERSTOOD': self.__process_error_incorrect_cmd,
-			'ERR_FAILED_TO_CREATE': self.__process_failed_to_create
+			'JOIN_MATCH'               : self.__process_client_ready,
+			'MATCH_JOINED'             : self.__process_client_ready_ack,
+			'ERR_CMD_NOT_UNDERSTOOD'   : self.__process_error_incorrect_cmd,
+			'ERR_FAILED_TO_CREATE'     : self.__process_failed_to_create,
+			'ERR_FAILED_TO_JOIN'       : self.__process_failed_to_join,
+			'ERR_GAME_NOT_EXIST'       : self.__process_game_not_exists,
+			'DISCONNECTING_YOU'        : self.__process_disconnecting_client,
+			'LEAVING_MATCH'            : self.__process_leaving_match,
+			'GAME_ENDED'               : self.__process_game_ended,
+			'DISCOVER_LOBBY'           : self.__process_discover_lobby,
+			'LOBBY'                    : self.__process_lobby,
+			'LIST_GAMES'               : self.__process_list_games,
+			'AVAILABLE_GAME'           : self.__process_available_games,
+			'HELLO'                    : self.__process_hello,
+			'WELCOME'                  : self.__process_welcome
 			}
+		
+		# Initialize the events, and the abstract class
 		super().__init__()
 
 	def decode_message(self, msg: bytes) -> (str, str):
@@ -42,7 +103,6 @@ class BasicComm(CommProt):
 		Returns:
 			str: Command
 			str: Parameters
-		// FIXME Check for single message commands
 		"""
 		try:
 			decoded = msg.decode("UTF-8")
@@ -188,7 +248,207 @@ class BasicComm(CommProt):
 			return "LEAVING_MATCH %s" % reason
 		else:
 			raise ValueError
+	@c2b
+	def game_ended(self, reason: str):
+		"""
+		Get a game ended message with reason
+		Args:
+			reason (str): Reason of the game end
+		Return:
+			str
+		Raises:
+			TypeError:  Invalid Argument types
+			ValueError: Invalid reason
+		"""
+		if type(reason) is not str:
+			raise TypeError
 
+		if reason is not "":
+			return "GAME_ENDED %s" % reason
+		else:
+			raise ValueError
+	@c2b
+	def discover_lobby(self) -> str:
+		"""
+		Get a discover lobby broadcast command from the client.
+		Return:
+			str: DISCOVER_LOBBY
+		"""
+		return "DISCOVER_LOBBY"
+
+	@c2b
+	def lobby(self, port: int) -> str:
+		"""
+		Get a lobby discovery answer message with the port of the lobby.
+		Args:
+			port (int): Port of the lobby (only accepts valid ports of the protocol)
+		Returns:
+			str: LOBBY [port]
+		Raises:
+			TypeError:  Invalid argument type
+			ValueError: Invalid port number
+		"""
+		if type(port) is not int:
+			raise TypeError
+		
+		if port in LOBBY_PORT_RANGE:
+			return "LOBBY %d" % port
+		else:
+			raise ValueError
+	
+	@c2b
+	def list_games(self):
+		"""
+		Get a list games command message
+		Returns:
+			str: LIST_GAMES
+		"""
+		return "LIST_GAMES"
+	
+	@c2b
+	def available_games(self):
+		"""
+		Get a list of available games. (Only Tron)
+		Return:
+			AVAILABLE_GAMES Tron
+		"""
+		return "AVAILABLE_GAMES Tron"
+
+	@c2b
+	def hello(self, player: Player, features: list) -> str:
+		"""
+		Get a hello message to the server
+		Args:
+			player (Player): Current player on the client
+			features (list): List of features
+		Returns:
+			str: HELLO [name] [features]
+		"""
+		str_list = str(features).strip('[]\'').replace("'", "").replace(" ", "") # Remove the format characters
+		return "HELLO %s %s" %(player.getName(), str_list)
+
+	@c2b
+	def welcome(self, features: list) -> str:
+		"""
+		Get a welcome message from the server
+		Args:
+			features (list): List of server features
+		Returns:
+			str: WELCOME [features]
+		"""
+		str_list = str(features).strip('[]\'').replace("'", "").replace(" ", "") # Remove the format characters
+		return "WELCOME %s" % str_list
+	
+	@c2b
+	def create_match(self, game: str, name: str, features: list) -> str:
+		"""Get a create match request message
+		
+		Arguments:
+			game {str} -- Game type: Tron/Pong
+			name {str} -- Name of the match to create
+			features {list} -- Available features
+		
+		Returns:
+			str -- Request message
+		"""
+		feature_list = list_to_strlist(features)
+		return "CREATE_MATCH %s %s %s" % (game, name, feature_list)
+	
+	@c2b
+	def match_created(self)-> str:
+		"""
+		Get a match created acknowledge message
+		
+		Returns:
+			str: ACK message
+		"""
+		return "MATCH_CREATED"
+	
+	@c2b
+	def list_matches(self, game: str)->str:
+		"""
+		List the available matches on the server.
+		
+		Args:
+			game (str): Game type = Tron
+		
+		Returns:
+			str: LIST_MATCHES Tron
+		"""
+		if type(game) is not str:
+			raise TypeError
+		
+		if game == "":
+			raise ValueError
+
+		return "LIST_MATCHES %s" % game
+	
+	@c2b
+	def games(self, game: str, list_games: list) -> str:
+		"""
+		Get a list of matches running on the server for the current game.
+		
+		Args:
+			game (str): Game type = Tron
+			list_games (list): List of available matches
+		
+		Returns:
+			str: GAMES [game] [matches]
+		"""
+		str_list = list_to_strlist(list_games)
+		return "GAMES %s %s" % (game, str_list)
+	
+	@c2b
+	def match_features(self, name: str):
+		"""
+		Request for getting a list of match features on the server.
+		
+		Args:
+			name (str): Name of the match, to list features
+		"""
+		if type(name) is not str:
+			raise TypeError
+		
+		if name == "":
+			raise ValueError
+
+		return "MATCH_FEATURES %s" % name
+	
+	@c2b
+	def match(self, game: str, name: str, features: list)-> str:
+		"""
+		Response for listing the features of a match running on the server.
+		
+		Args:
+			game (str): Game type = Tron
+			name (str): Name of the match
+			features (list): List of features
+		
+		Returns:
+			str: MATCH [game] [name] [features]
+		"""
+		str_list = list_to_strlist(features)
+		return "MATCH %s %s %s" % (game, name, str_list)
+	
+	@c2b
+	def match_started(self, port: int, player_ids: list, players: list) -> str:
+		"""
+		Get a match started response from the server
+		
+		Args:
+			port (int): Port number of the match
+			players (list): List of player objects on the match
+		
+		Returns:
+			str: MATCH_STARTED [port] [playerid,r,g,b]
+		"""
+		full_list = []
+		for i in range(0, len(player_ids)):
+			strlist = player_tostr(player_ids[i], players[i])
+			full_list.append(strlist)
+		
+		str_list = list_to_strlist(full_list)
+		return "MATCH_STARTED %d %s" % (port, str_list)
 
 	def process_response(self, response: bytes):
 		"""
@@ -287,3 +547,211 @@ class BasicComm(CommProt):
 
 		# Return the values
 		return self.SERVER_ERROR, message
+	
+	def __process_failed_to_join(self, params: str) -> (int, str):
+		"""
+		Process an ERR_FAILED_TO_JOIN message with reason
+		Args:
+			params (str): Reason of the error
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+		if type(params) is not str:
+			raise TypeError
+		
+		message = "Failed to join the game. Reason: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
+	
+	def __process_game_not_exists(self, params: str) -> (int, str):
+		"""
+		Process a ERR_GAME_NOT_EXIST message with reason
+		Args:
+			params (str): Name of the game
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+		
+		message = "The game you want to join does not exist: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
+	
+	def __process_disconnecting_client(self, params: str) -> (int, str):
+		"""
+		Process a DISCONNECTING_YOU message with reason
+		Args:
+			params (str): Reason
+		Returns:
+			int: CommProt.SERVER_ERROR
+			str: Error message
+		Event calls:
+			EServerError(self, msg)
+		"""
+
+		message = "You were disconnected by the server. Reason: %s" % params
+
+		# Call the event
+		self.EServerError(self, msg=message)
+
+		# Return the values
+		return self.SERVER_ERROR, message
+
+	def __process_leaving_match(self, params: str) -> (int, str):
+		"""
+		Process a LEAVING_MATCH message with reasong
+		Args:
+			params (str): Reason of leave
+		Returns:
+			int: CommProt.EXIT_GAME
+			str: Error message
+		Event calls:
+			EExitGame(self, msg)
+		"""
+		message = "Client is leaving the match. Reason: %s" % params
+
+		# Call the event
+		self.EExitGame(self, msg=message)
+
+		# Return the values
+		return self.EXIT_GAME, message
+	
+	def __process_game_ended(self, params: str) -> (int, str):
+		"""
+		Process a GAME_ENDED message with reason
+		Args:
+			params (str): Reason of end
+		Returns:
+			int: CommProt.GAME_ENDED
+			str: Game ended message
+		"""
+		message = "Game ended! Reason: %s" % params
+
+		# Call the event
+		self.EGameEnded(self, msg=message)
+
+		# Return the values
+		return self.GAME_ENDED, message
+	
+	def __process_discover_lobby(self, params: None) -> (int, str):
+		"""
+		Process a DISCOVER_LOBBY request.
+		Args:
+			params (None): Ignored parameter -> for syntax
+		Returns:
+			int: CommProt.DISCOVER_LOBBY
+			str: DISCOVER_LOBBY
+		"""
+		self.EDiscoverLobby(self)
+		return self.DISCOVER_LOBBY, "DISCOVER_LOBBY"
+	
+	def __process_lobby(self, params: str) -> (int, int):
+		"""
+		Process a LOBBY message and return the port number
+		Args:
+			params (str): Port number
+		Returns:
+			int: CommProt.LOBBY
+			int: Port of the lobby
+		Raises:
+			TypeError: Invalid port type
+			ValueError Invalid port range
+		"""
+		try:
+			port = int(params)
+		except:
+			raise TypeError("Port cannot be converted to integer")
+		
+		if port not in LOBBY_PORT_RANGE:
+			raise ValueError("The port number is not in the configured range.")
+
+		self.ELobby(self, port=port)
+		return self.LOBBY, port
+	
+	def __process_list_games(self, params: None) -> (int, str):
+		"""
+		Process the message of list available games command.
+		Args:
+			params (str): Ignored argument
+		Returns:
+			int: CommProt.LIST_GAMES
+			str: "LIST_GAMES"
+		"""
+		# Call the event
+		self.EListGames(self)
+		return self.LIST_GAMES, "LIST_GAMES"
+	
+	def __process_available_games(self, params: str) -> (int, list):
+		"""
+		Process the list of available games on a server
+		Args:
+			params (str): Comma separated list of games
+		Returns:
+			int:       CommProt.AVAILABLE_GAMES
+			list[str]: available games
+		"""
+		try:
+			games = params.split(',')
+			self.EAvailableGames(games=games)
+			return self.AVAILABLE_GAMES, games
+		except:
+			raise MessageError("Invalid message parameters.")
+	
+	def __process_hello(self, params: str) -> (int, str, list):
+		"""
+		Process a hello message received from the client.
+		Args:
+			params (str): playername, features
+		Returns:
+			int:  CommProt.HELLO
+			str:  Name of the player
+			list: List of client features
+		"""
+		try:
+			spl = params.split(' ', 1)
+			playername = spl[0]
+			features: str = spl[1]
+			list_features = features.split(',')
+
+			# Call the event
+			self.EHello(self, playername=playername, features=list_features)
+
+			# Return the value
+			return self.HELLO, playername, list_features
+		except Exception as e:
+			raise MessageError("Invalid message format: %s" % str(e))
+	
+	def __process_welcome(self, params: str) -> (int, list):
+		"""
+		Process a welcome message from the server.
+		Args:
+			params (str): Comma separated list of features
+		Returns:
+			int:  CommProt.WELCOME
+			list: list of server features
+		Raises:
+			MessageError: Invalid message parameters
+		"""
+		try:
+			list_features = params.split(',')
+
+			# Call the events
+			self.EWelcome(self, features=list_features)
+			
+			# Return the results
+			return self.WELCOME, list_features
+		except:
+			MessageError("Invalid message syntax")

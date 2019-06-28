@@ -2,7 +2,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.uix.button import Button
-from kivy.properties import NumericProperty, ObjectProperty, ListProperty
+from kivy.properties import NumericProperty, ObjectProperty, ListProperty, BooleanProperty
 from kivy.animation import Animation
 from kivy.graphics import *
 from kivy.vector import Vector
@@ -15,6 +15,7 @@ from Backend.Classes.HumanPlayer import HumanPlayer
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.Player import Player
+import UI.mainUI
 
 from kivy.base import runTouchApp
 from kivy.core.window import Window
@@ -22,72 +23,84 @@ from kivy.uix.widget import Widget
 
 
 class HeadWidget(Widget):
-    p1 = HumanPlayer()
-    p1.setName("Simon")
-    p1.setColor((1, 1, 1))
-    p1.setPosition(20, 20)
-    p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
-    p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+    player = ObjectProperty(None)
+    game_is_running = BooleanProperty(False)
+    countdown_is_running = BooleanProperty(False)
+    opacityValue = NumericProperty(1)
+    size = ListProperty([500, 500])
 
-    p2 = HumanPlayer()
-    p2.setName("Ludi")
-    p2.setColor((1, 1, 1))
-    p2.setPosition(50, 50)
-    p2.addTrack(Vect2D(40, 40), Vect2D(45, 40))
-    p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
-    p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+    def on_player(self, instance, value):
+        if value == None:
+            return
 
-    players = [ p1, p2 ]
-
-    
-
-    def update(self):
-        ## function for updating the track
-        fieldsize = (100, 100)
-        self.canvas.clear()
-        players2 = HeadWidget.players
-        
-
+        self.canvas = Canvas()
         with self.canvas:
+            Color(rgba = self.getPlayerColor())
+            Triangle(points = self.calculatePoints())
 
-            for player in players2:
-                track = player.getPosition()
-                veloctiy = player.getVelocity()
+    def getPlayerColor(self):
+        colorId = self.player.getColor()
+        addOpacity = list(colorId)
+        addOpacity.append(self.opacityValue)
+        return tuple(addOpacity)
 
-                colorId = player.getColor()
-                Color(rgb = self.getColorFromId(colorId))
+    def calculatePoints(self):
+        return [50, 50, 100, 100, 150, 50]
 
-            
-                xPos = track.x
-                yPos = track.y
-                xPos2 = (self.size[0]/fieldsize[0]) * xPos
-                yPos2 = (self.size[1]/fieldsize[1]) * yPos
+        ## creating all points requiered for a triangle + detecting in which direction the triangle is heading to
+        fieldsize = UI.mainUI.FIELDSIZE
+        velocity = self.player.getVelocity()
+        playPos = self.player.getPosition()
+        nowpoint = (
+            playPos.x * (self.size[0]/fieldsize[0]), 
+            playPos.y * (self.size[1]/fieldsize[1])
+        )
+        
+        if velocity == Vect2D(1, 0):
+            xPos1 = nowpoint[0] 
+            yPos1 = nowpoint[1] - 5*(self.size[1]/fieldsize[1])
 
-                # Rectangle(pos=(xPos2, yPos2), size = ((self.size[0]/fieldsize[0])*5, (self.size[1]/fieldsize[1])*5) )
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] + 5*(self.size[1]/fieldsize[1])
 
-        # with self.canvas:
-        #     for player in players2:
-        #         startpos = player.getPosition()
-        #         xPos = startpos[0]
-        #         yPos = startpos[1]
-        #         Triangle(size_hint=(0.5, 0.5))
+            xPos3 = nowpoint[0] + 5*(self.size[0]/fieldsize[0])
+            yPos3 = nowpoint[1]
+
+            return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
+
+        if velocity == Vect2D(0, 1):
+            xPos1 = nowpoint[0] - 5*(self.size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] 
+
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] + 5*(self.size[1]/fieldsize[1])
+
+            xPos3 = nowpoint[0] + 5*(self.size[0]/fieldsize[0])
+            yPos3 = nowpoint[1]
+
+            return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
+
+        if velocity == Vect2D(-1, 0):
+            xPos1 = nowpoint[0] - 5*(self.size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] 
+
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] + 5*(self.size[1]/fieldsize[1])
+
+            xPos3 = nowpoint[0] 
+            yPos3 = nowpoint[1] - 5*(self.size[0]/fieldsize[0])
+
+            return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
 
+        if velocity == Vect2D(0, -1):
+            xPos1 = nowpoint[0] - 5*(self.size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] 
 
-    def getColorFromId(self, colorId):
-        ## remove
-        switcher = {
-            0: (1, 0, 0),
-            1: (0, 1, 0),
-            2: (0, 0, 1),
-            3: (0, 1, 1),
-            4: (1, 1, 0),
-            5: (1, 0, 1),
-        }
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] - 5*(self.size[1]/fieldsize[1])
 
-        return switcher.get(colorId, (1, 1, 1, 1))
+            xPos3 = nowpoint[0] + 5*(self.size[0]/fieldsize[0])
+            yPos3 = nowpoint[1]
 
-  
-   
-
-    
+            return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
