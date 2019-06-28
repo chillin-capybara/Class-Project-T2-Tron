@@ -313,6 +313,8 @@ class StatisticsMenu(Screen):
 		sol = "Color: %s" % str(color)
 		print(sol)
 		self.ids.colorLabel.text=sol
+		self.ids.colorButton.background_color=color
+
 
 class AboutMenu(Screen):
     pass

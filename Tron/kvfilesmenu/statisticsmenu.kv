@@ -3,7 +3,7 @@
 # Display Time Lived
 # Reset Statistics
 <StatisticsMenu>:
-    on_enter: (root.refreshstats(""))
+    on_pre_enter: (root.refreshstats(""))
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
@@ -18,11 +18,17 @@
             text: "Name: "
             size_hint: (1, 1)
             color: 1, 0, 0, 1
-        Label:
-            id: colorLabel
-            text: "Color: "
-            size_hint: (1, 1)
-            color: 1, 0, 0, 1
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                id: colorLabel
+                text: "Color: "
+                size_hint: (1.5, 1)
+                color: 1, 0, 0, 1
+            Button:
+                id: colorButton
+                size_hint:(1,1)
+                background_color: (0, 0, 0, 1)
         Label:
             id: wincountLabel
             text: 'Wincount: (not yet implemented)'
