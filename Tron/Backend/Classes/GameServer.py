@@ -70,6 +70,11 @@ class GameServer(object):
 
 		# Start the discovery
 		self.__broadcaster.Start()
+
+		# Start the lobby threads
+		for lobby in self.__lobbies:
+			lobby.start_server()
+
 		while True:
 			pass
 
