@@ -27,10 +27,10 @@ class HeadWidget(Widget):
     game_is_running = BooleanProperty(False)
     countdown_is_running = BooleanProperty(False)
     opacityValue = NumericProperty(1)
-    screensize = ListProperty([])
+    
 
     def on_player(self, instance, value):
-        print (self.screensize)
+        #print (self.parent.parent.size)
         if value == None:
             return
 
@@ -46,6 +46,8 @@ class HeadWidget(Widget):
         return tuple(addOpacity)
 
     def calculatePoints(self):
+        print (self.update_screen_size[0])
+
         ## creating all points requiered for a triangle + detecting in which direction the triangle is heading to
         fieldsize = UI.mainUI.FIELDSIZE
         velocity = self.player.getVelocity()
@@ -105,7 +107,6 @@ class HeadWidget(Widget):
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
     def update_screen_size(self, screensize_from_top):
-
         print (screensize_from_top)
         return screensize_from_top
          
