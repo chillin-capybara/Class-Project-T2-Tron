@@ -175,4 +175,37 @@ class Lobby(object):
 		"""
 		logging.info("The server welcomes you. Supported server features %s" % str(features))
 
+	def handle_available_games(self, sender, games: List[str]):
+		"""
+		Event handler for handling the list of abailable games in a lobby
+		
+		Args:
+			sender (CommProt): Caller of the evernt
+			games (list): List of available games: Tron, Pong...
+		"""
+		logging.info("The following games are available in the server: %s" % str(games))
+	
+	def handle_list_matches(self, sender, game: str, matches: list):
+		"""
+		Event handler for handling the list of matches in a lobby with a specific game
+		
+		Args:
+			sender (CommProt): Caller of the event
+			game (str): Name of the game
+			matches (list): List of matches available
+		"""
+		logging.info("The server %s:%d has the following matches for %s : %s" % (self.host, self.port, game, str(matches)))
+	
+	def handle_match_features(self, sender, game: str, name: str, features: List[str]):
+		"""
+		Handle the listing of match features for a specific match on the server
+		
+		Args:
+			sender (CommProt): Caller of the event
+			game (str): Name of the game (Tron/Pong...)
+			name (str): Name of the match
+			features (List[str]): List of features on the match
+		"""
+		logging.info("The match %s in %s has the features: %s" % (name, game, str(features)))
+
 

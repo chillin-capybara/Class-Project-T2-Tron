@@ -2,6 +2,8 @@ import threading
 import socket
 import logging
 
+from typing import List
+
 from ..Core.Hook import Hook
 from .BasicComm import BasicComm
 from ..Core.globals import *
@@ -83,4 +85,24 @@ class LobbyThread(threading.Thread):
 		self.__sock.send(packet)
 
 		logging.info("Answering with server features: %s" % str(SERVER_FEATURES))
+	
+	def handle_available_games(self, sender, games: List[str]):
+		"""
+		Event handler for handling the list of abailable games in a lobby
+		
+		Args:
+			sender (CommProt): Caller of the evernt
+			games (list): List of available games: Tron, Pong...
+		"""
+		logging.info("The following games are available in the server: %s" % str(games))
+	
+	def handle_list_matches(self, sender, game: str, matches: list):
+		"""
+		Event handler for handling the list of matches in a lobby with a specific game
+		
+		Args:
+			sender (CommProt): Caller of the event
+			game (str): Name of the game
+			matches (list): List of matches available
+		"""
 
