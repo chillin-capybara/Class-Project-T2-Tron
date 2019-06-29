@@ -1,7 +1,7 @@
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
-
+from Backend.Core.Vect2D import Vect2D
 
 
 class MyKeyboardListener(Widget):
@@ -48,41 +48,41 @@ class MyKeyboardListener(Widget):
     def press_d_key(self):
         ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
         ## with d we go clockwise
-        if self._player.getVelocity() == (1, 0):
+        if self._player.getVelocity().x == 1 and self._player.getVelocity().y == 0:
             self._player.setVelocity(0, -1)
             
             return
 
-        if self._player.getVelocity() == (0, 1):
-            self.players[0].setVelocity(1, 0)
+        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == 1:
+            self._player.setVelocity(1, 0)
             return
 
-        if self._player.getVelocity() == (-1, 0):
-            self.players[0].setVelocity(0, 1)
+        if self._player.getVelocity().x == -1 and self._player.getVelocity().y == 0:
+            self._player.setVelocity(0, 1)
             return
 
 
-        if self._player.getVelocity() == (0, -1):
-            self.players[0].setVelocity(-1, 0)
+        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == -1:
+            self._player.setVelocity(-1, 0)
             return
     
 
     def press_a_key(self):
         ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
         ## with a we go counter-clockwise
-        if self._player.getVelocity() == (1, 0):
-            self.players[0].setVelocity(0, 1)
+        if self._player.getVelocity().x == 1 and self._player.getVelocity().y == 0:
+            self._player.setVelocity(0, 1)
             return
 
-        if self._player.getVelocity() == (0, 1):
-            self.players[0].setVelocity(-1, 0)
+        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == 1:
+            self._player.setVelocity(-1, 0)
             return
             
-        if self._player.getVelocity() == (-1, 0):
-            self.players[0].setVelocity(0, -1)
+        if self._player.getVelocity().x == -1 and self._player.getVelocity().y == 0:
+            self._player.setVelocity(0, -1)
             return
 
-        if self._player.getVelocity() == (0, -1):
-            self.players[0].setVelocity(1, 0)
+        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == -1:
+            self._player.setVelocity(1, 0)
             return
 

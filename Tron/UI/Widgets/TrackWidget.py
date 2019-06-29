@@ -51,7 +51,7 @@ p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
 p3.setVelocity(0, 1)
 
 players = [p1, p2, p3]
-# remoteplayers = [Game.getPlayers()]
+
 
 
 class TrackWidget(Widget):
@@ -63,7 +63,16 @@ class TrackWidget(Widget):
     counter = NumericProperty(0)
     opacityValue = NumericProperty(0)
     countergetPos = BooleanProperty(True)
+    counter_constructMissingPoints = NumericProperty(0)
 
+    allPoints_from_pointCreator = []
+
+    def __init__(self, **kwargs):
+        ## creates update function for all uses, ensures synchronized update trigger
+        super(TrackWidget, self).__init__(**kwargs)
+        self._player = UI.mainUI.GAME.me
+        players.append(self._player)
+        
     
     def update(self):
         self.canvas.clear()
@@ -77,15 +86,17 @@ class TrackWidget(Widget):
             self.opacity = self.opacityValue
 
             if self.game_is_running == True:
-                for player in players:    
-                    allPoints_from_submission = player.getLine()
-                    allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission)
+                for player in players:   
+                    if player == self._player:
+                        allPoints_from_submission = self.pointCreator()
+                    else:
+                        allPoints_from_submission = player.getLine()
+                    
+                    
+                    allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission, player)
 
-                    colorId = player.getColor()
-                    addOpacity = list(colorId)
-                    addOpacity.append(self.opacityValue)
-                    colorID2 = tuple(addOpacity)
-                    Color(rgb = colorID2)
+                
+                    Color(rgba = self.getPlayerColor(player))
 
                     HeadWidget(player = player)
 
@@ -107,10 +118,18 @@ class TrackWidget(Widget):
                 
                 return self.opacityValue
 
+    def getPlayerColor(self, player):
+        colorId = player.getColor()
+        addOpacity = list(colorId)
+        addOpacity.append(self.opacityValue)
+        return tuple(addOpacity)
 
-    def constructMissingPoints(self, track):
+    def constructMissingPoints(self, track, player):
         ## function who creates all missing points in between
-        allPoints = [p1.getPosition()]
+        if player == self._player and  self.counter_constructMissingPoints == 0:
+            allPoints = [player.getPosition(), player.getPosition()]
+            
+        allPoints = [player.getPosition()]
         pointCount = len(track)
         for i in range(0, pointCount - 1):
             startPoint = track[i]
@@ -121,6 +140,9 @@ class TrackWidget(Widget):
 
             # (14 - 10) + (10 - 10) = 4
             lineLength = abs((endPoint.x - startPoint.x) + (endPoint.y - startPoint.y))
+            if player == self._player and  self.counter_constructMissingPoints == 0:
+                lineLength = 1
+                self.counter_constructMissingPoints += 1
 
             deltaX = (endPoint.x - startPoint.x) / lineLength
             deltaY = (endPoint.y - startPoint.y) / lineLength
@@ -136,51 +158,44 @@ class TrackWidget(Widget):
 
 
     
-    def pointCreator(self, player):
+    def pointCreator(self):
         ## function for creating points in combination with the speed factor
         ## PS: Speed factor is increasing with time
         
-        velocity = player.getVelocity()
+        velocity = self._player.getVelocity()
         move = (
-            velocity[0] * self.speed_factor, 
-            velocity[1] * self.speed_factor
+            velocity.x * self.speed_factor, 
+            velocity.y * self.speed_factor
         )
 
-        startPos = player.getPosition()
+        startPos = self._player.getPosition()
         if self.counter == 0:
             ## the function with xVal and yVal needs an initial value to start with, because of this 
             ## I need to add an if loop who appends one value at the beginning
             ## this counter is later on used for finding the last value
-            self.allPoints.append(startPos)
+            self.allPoints_from_pointCreator.append(startPos)
         
-        xVal = round(move[0] + self.allPoints[self.counter].x)
-        yVal = round(move[1] + self.allPoints[self.counter].y)
+        xVal = round(move[0] + self.allPoints_from_pointCreator[self.counter].x)
+        yVal = round(move[1] + self.allPoints_from_pointCreator[self.counter].y)
         
         self.detect_outbound(xVal, yVal)
-        self.allPoints.append(Vect2D(xVal, yVal))
+        self.allPoints_from_pointCreator.append(Vect2D(xVal, yVal))
         self.counter += 1
 
-        return self.allPoints
+        self._player.setPosition(xVal, yVal)
+
+        return self.allPoints_from_pointCreator
 
 
     def updatespeed_factor(self):
         self.speed_factor = self.speed_factor + self.speed_constant
 
 
-    def getVelocity(self):
-        ## get-function for transfering veloctiy to HeadWidget
-        return self.velocity
+    def setBooleanGame(self):
+        self.game_is_running = True
 
-    # def getPos(self):
-    #     ## get-function for transfering resent Position to HeadWidget
-    #     if self.countdown_is_running == True:
-    #         ## should only be started after game ist started
-    #         if self.countergetPos == True:
-    #             ## Problems with None-Values if the if loop is missing, loops one time through the pointCreator()
-    #             self.pointCreator()
-    #             self.countergetPos = False
-
-    #         return self.allPoints[len(self.allPoints)-1]
+    def setBooleanCountdown(self):
+        self.countdown_is_running = True
 
     def detect_outbound(self, xVar, yVar):
         fieldsize = UI.mainUI.FIELDSIZE

@@ -79,11 +79,18 @@ Builder.load_string("""
             size_hint: None, None
             playerList: root.playerList
 
+    AnchorLayout:
+        size: root.size
+        anchor_x: "center"
+        anchor_y: "center"
+        HeadWidget:
+            id: headWidget
+            size: root.size
 """)
 
 
 
-UPDATES_PER_SECOND = 30
+UPDATES_PER_SECOND = 15
 FIELDSIZE = (100, 100)
 
 
@@ -95,15 +102,6 @@ GAME.me.setColor((1, 1, 0))
 GAME.me.setVelocity(1, 0)
 GAME.me.setPosition(20, 20)
 
-
-
-print("GAME CREATED...", flush=True)
-# Define global GAME object
-GAME = Game()
-GAME.me.setName("Peter")
-GAME.me.setColor((1, 1, 0))
-GAME.me.setVelocity(1, 0)
-GAME.me.setPosition(20, 20)
 
 class GameUI(Widget):
     
@@ -142,6 +140,7 @@ class GameUI(Widget):
         ## final update function, where I trigger different functuions
         # self.ids.trackWidget.update()
         self.ids.trackWidget.update()
+        self.ids.headWidget.update_screen_size(self.size)
 
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
@@ -156,12 +155,7 @@ class GameUI(Widget):
             self.ids.trackWidget.setBooleanGame()
             self.ids.trackWidget.increaseOpacity()
             
-            
-            ## Give Values from trackWidget class to HeadWidget class
-            aktPos = self.ids.trackWidget.getPos()
 
-        ## Give Values from trackWidget class to HeadWidget class
-        richtung = self.ids.trackWidget.getVelocity()
 
 
 
