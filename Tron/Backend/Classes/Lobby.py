@@ -57,6 +57,7 @@ class Lobby(object):
 		# Intialize communication protocol
 		self.__comm = BasicComm()
 		self.__comm.EWelcome += self.handle_welcome
+		self.__comm.EAvailableGames += self.handle_available_games
 		
 		# Initialize hook : Only for clients
 		if hook_me != None:
@@ -82,10 +83,9 @@ class Lobby(object):
 		Get the list of games in the lobby
 		
 		Returns:
-			list: List of games
-			// TODO return the real list...
+			list: List of the game types ont he server
 		"""
-		return []
+		return SERVER_GAMES
 	
 	def hook_get_matches(self):
 		"""
@@ -164,6 +164,22 @@ class Lobby(object):
 			logging.info(resp)
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
+	
+	def list_games(self):
+		"""
+		Send a request to the server to list the available games
+		"""
+		try:
+			# Create and send the request
+			packet = self.__comm.list_games()
+			self.__sock.send(packet)
+
+			# Process the response
+			resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
+			logging.debug(resp)
+			self.__comm.process_response(resp)
+		except Exception as e:
+			logging.error(str(e))
 	
 	def handle_welcome(self, sender, features: list):
 		"""

@@ -88,7 +88,7 @@ class BasicComm(CommProt):
 			'DISCOVER_LOBBY'           : self.__process_discover_lobby,
 			'LOBBY'                    : self.__process_lobby,
 			'LIST_GAMES'               : self.__process_list_games,
-			'AVAILABLE_GAME'           : self.__process_available_games,
+			'AVAILABLE_GAMES'           : self.__process_available_games,
 			'HELLO'                    : self.__process_hello,
 			'WELCOME'                  : self.__process_welcome,
 			'CREATE_MATCH'             : self.__process_create_match,
@@ -314,13 +314,13 @@ class BasicComm(CommProt):
 		return "LIST_GAMES"
 	
 	@c2b
-	def available_games(self):
+	def available_games(self, games: list):
 		"""
 		Get a list of available games. (Only Tron)
 		Return:
-			AVAILABLE_GAMES Tron
+			AVAILABLE_GAMES Tron, ...
 		"""
-		return "AVAILABLE_GAMES Tron"
+		return "AVAILABLE_GAMES %s" % list_to_strlist(games)
 
 	@c2b
 	def hello(self, player: Player, features: list) -> str:
@@ -713,10 +713,10 @@ class BasicComm(CommProt):
 		"""
 		try:
 			games = params.split(',')
-			self.EAvailableGames(games=games)
+			self.EAvailableGames(self, games=games)
 			return self.AVAILABLE_GAMES, games
-		except:
-			raise MessageError("Invalid message parameters.")
+		except Exception as e:
+			raise MessageError("Invalid message parameters: %s" % str(e))
 	
 	def __process_hello(self, params: str) -> (int, str, list):
 		"""

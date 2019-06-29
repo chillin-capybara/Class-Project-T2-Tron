@@ -41,6 +41,7 @@ class LobbyThread(threading.Thread):
 
 		# Initialize event handlers
 		self.__comm.EHello += self.handle_hello
+		self.__comm.EListGames += self.handle_list_games
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
@@ -86,23 +87,14 @@ class LobbyThread(threading.Thread):
 
 		logging.info("Answering with server features: %s" % str(SERVER_FEATURES))
 	
-	def handle_available_games(self, sender, games: List[str]):
+	def handle_list_games(self, sender):
 		"""
-		Event handler for handling the list of abailable games in a lobby
-		
-		Args:
-			sender (CommProt): Caller of the evernt
-			games (list): List of available games: Tron, Pong...
-		"""
-		logging.info("The following games are available in the server: %s" % str(games))
-	
-	def handle_list_matches(self, sender, game: str, matches: list):
-		"""
-		Event handler for handling the list of matches in a lobby with a specific game
+		Handlt the EAvailableGames from the Communication protocol
 		
 		Args:
 			sender (CommProt): Caller of the event
-			game (str): Name of the game
-			matches (list): List of matches available
 		"""
-
+		logging.info("Sending the list of available games...")
+		list_game = self.__hook_get_games()
+		packet = self.__comm.available_games(SERVER_GAMES)
+		self.__sock.send(packet)

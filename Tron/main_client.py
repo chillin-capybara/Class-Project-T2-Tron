@@ -23,4 +23,11 @@ if __name__ == '__main__':
 			client.discover_lobby()
 		elif user_in == "2":
 			client.lobbies[0].say_hello()
+			while True:
+				print("(1) List available games")
+				user_in = input("Select an option:")
+
+				if user_in == "1":
+					client.lobbies[0].list_games()
+
 	
