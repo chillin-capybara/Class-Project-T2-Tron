@@ -1,5 +1,3 @@
-import logging
-
 class Event(object):
 	"""
 	Event definitions for event based programming in Python
@@ -63,8 +61,6 @@ class Event(object):
 		# If the Event handler prototype is invalid
 		if not self.matches_prototype(callback):
 			raise SyntaxError("Invalid Event Handler. Correct prototype: %s" % self.get_prototype_string())
-		
-		logging.debug("%s attached to Event" % (callback.__name__))
 
 		self.__callables.append(callback)
 	
