@@ -39,6 +39,8 @@ class GameServer(object):
 		for i in range(0, num_lobbies):
 			self.create_lobby()
 		
+		logging.info("%d lobbies created." % num_lobbies)
+		
 		# Initialize the Broadcaster
 		self.__broadcaster = Broadcaster(self.get_lobbies)
 	
@@ -47,8 +49,9 @@ class GameServer(object):
 		Create a new lobby and add it to the collection of lobbies on the server
 		"""	
 		leased_port = self.__available_ports.lease()
+		host : str = "" # On the server, lobbys have empty host
 		port: int = leased_port.getObj()
-		self.__lobbies.append(Lobby(port))
+		self.__lobbies.append(Lobby(host, port))
 	
 	def get_lobbies(self) -> List[Lobby]:
 		"""

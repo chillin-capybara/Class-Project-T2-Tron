@@ -78,6 +78,9 @@ class Broadcaster(object):
 			logging.info("Starting lobby discovery broadcaster on port %d..." % self.__port)
 			# Setup an UDP Server socket
 			self.__sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+			self.__sockfd.bind(("", self.__port))
+			self.__sockfd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			self.__sockfd.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
 			while True:
 				# Receive a discovery request
@@ -105,6 +108,7 @@ class Broadcaster(object):
 			sender ([type]): self.__comm
 		"""
 		try:
+			logging.info("Reply with the lobbies to: %s:%d" % (self.__resp_to))
 			# Send back the response: For every lobby
 			for lobby in self.__hook_lobbies():
 				lobby : Lobby

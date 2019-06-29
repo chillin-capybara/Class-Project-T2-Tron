@@ -8,8 +8,14 @@ logger = logging.getLogger()
 coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s', level='DEBUG', hostname=False)
 
 # Import dependencies
-from Backend.Classes.GameServer import GameServer
+from Backend.Classes.GameClient import GameClient
 
-if __name__ == "__main__":
-	server = GameServer(10) # With 5 lobbies
-	server.Start()
+if __name__ == '__main__':
+	client = GameClient()
+	while True:
+		print("(1) Discover lobbies")
+
+		user_in = input("Select an option: ")
+		if user_in == "1":
+			client.discover_lobby()
+	
