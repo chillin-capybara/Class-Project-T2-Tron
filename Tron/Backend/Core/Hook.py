@@ -5,11 +5,18 @@ class Hook(object):
 	
 	__hook = None
 
-	def __init__(self):
+	def __init__(self, hook = None):
 		"""
 		Intialize an empty hook.
+
+		Args:
+			hook (callable) [OPTIONAL] : Callable to delegate for the hook
 		"""
 		self.__hook = None
+
+		# When there is a callback presented, delegate it
+		if hook != None:
+			self.delegate(hook)
 	
 	def delegate(self, function):
 		"""

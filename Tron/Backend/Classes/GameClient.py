@@ -1,6 +1,7 @@
 from .BasicComm import BasicComm
 from .Lobby import Lobby
 from ..Core.globals import *
+from .HumanPlayer import HumanPlayer
 
 import logging
 import socket
@@ -15,6 +16,8 @@ class GameClient(object):
 	__last_server : str = None
 	__lobbies : List[Lobby]  = None
 
+	__me : HumanPlayer = None
+
 	def __init__(self):
 		"""
 		Initialize the game client.
@@ -25,6 +28,33 @@ class GameClient(object):
 
 		# Initialize the list of the lobbies
 		self.__lobbies = []
+
+		# Initialize the client Player
+		self.__me = HumanPlayer()
+		self.__me.setName("WorkingJoe")
+		self.__me.setColor((54,66,78))
+
+	@property
+	def me(self):
+		"""
+		Get the clien't player object
+		"""
+		return self.__me
+	@property
+	def lobbies(self) -> List[Lobby]:
+		"""
+		Get the list of lobbies discovered
+		
+		Returns:
+			List[Lobby]: Lobbies discovered
+		"""
+		return self.__lobbies
+	
+	def get_me(self):
+		"""
+		Hook, to get the client's player object
+		"""
+		return self.__me
 	
 	def discover_lobby(self):
 		"""
@@ -66,7 +96,7 @@ class GameClient(object):
 			host (str): IP adress of the lobby's server
 			port (int): Port of the lobby
 		"""
-		self.__lobbies.append(Lobby(host, port))
+		self.__lobbies.append(Lobby(host, port, self.get_me))
 
 
 	def handle_lobby(self, sender, port: int):
