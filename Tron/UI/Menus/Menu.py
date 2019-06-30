@@ -12,6 +12,8 @@ from Backend.Classes.Game import Game
 import re
 GAME = Game()
 
+from collections import namedtuple
+
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
 Builder.load_file('kvfilesmenu/searchforservermenu.kv')
@@ -29,6 +31,7 @@ Builder.load_file('kvfilesmenu/searchforlobbiesmenufloat.kv')
 Builder.load_file('kvfilesmenu/lobbymenufloat.kv')
 Builder.load_file('kvfilesmenu/creatematchmenufloat.kv')
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
+Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
 
 class GameOverMenu(Screen):
 
@@ -362,6 +365,7 @@ class MainMenuFloat(Screen):
 ####################################################################
 ##Search for Lobbies Menu Float version
 class SearchForLobbiesMenuFloat(Screen):
+
 	def getPlayerdata(self,test):
 		print("Updating screen... %s" % test)
 
@@ -376,36 +380,65 @@ class SearchForLobbiesMenuFloat(Screen):
 		playercolor = (color[0], color[1], color[2], 1)
 		self.ids.explainmenuLabel.background_color=playercolor
 
-	def getserverOnline(self):
+	def getavailableLobbies(self):
 		"""
-		Get the server which are online
+		Get the Lobbies which are available
 
 		Args:
-			server_ip (list): Time the player was in the game
+			Lobbies (list): IP & Port
 		Return:
-			String
+			-
 		"""
+		Lobby = namedtuple('Lobby', ['host', 'port'])
+		lobby1 = Lobby("192.168.1.1", 20)
+		lobby2 = Lobby("10.0.0.1", 9984)
+		lobby1.host
+		listlobbies = [lobby1, lobby2]
+		count_lobbies = listlobbies.__len__()
+		for i in range(0,count_lobbies):
+			lobby = listlobbies[i]
+			if i == 0:
+				self.ids.lobby1Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 1:
+				self.ids.lobby2Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 2:
+				self.ids.lobby3Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 3:
+				self.ids.lobby4Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 4:
+				self.ids.lobby5Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			else:
+				pass
+
+	def updatechosenLobby(self, currentlobby):
+		"""
+		Sets variable for choosen Lobby
+
+		Args:
+			Lobby (int):
+		Return:
+			Lobby (int)
+		"""
+		self.currentlobby = currentlobby
+
+		self.lobby = int(self.currentlobby)
 		
-		raise NotImplementedError
+		print('Lobby: %d has been choosen.' % (self.lobby), flush = True)
+		return self.lobby
 
-	def connecttoServer(self, inputIp, inputPort):
+	def enterLobby(self):
 		"""
-		Sends IP and Port to Server
+		Sends Lobby to Server
 
 		Args:
-			inputIp (str):
-			inputPort (str):
+			-
 		Return:
-			inputIp (str):
-			inputPort (int):
+			-
 		"""
 
-		self.inputIp = inputIp
-		self.inputPort = int(inputPort)
-
-		GAME.ConnectToServer(self.inputIp, self.inputPort)
-		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
-
+		
+		print('Enter Lobby %s' % (self.lobby))
+		
 
 	def updateconnecttoserverButton(self, inputIp, inputPort):
 		"""
@@ -463,6 +496,9 @@ class BackToMenuButton(Screen):
 	
 	def changeScreen(self):
 		screen_manager.current = 'mainmenu'
+
+class ListLabel(Screen):
+	pass
 ####################################################################
 ####################################################################
 ##Search For Server Menu Float version
