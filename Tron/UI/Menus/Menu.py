@@ -4,11 +4,12 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.textinput import TextInput
+from kivy.uix.floatlayout import FloatLayout
+from kivy.properties import BooleanProperty
 #from ..mainUI import GameApp, GameUI
 from Backend.Classes.Game import Game
-
+import re
 GAME = Game()
 
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
@@ -21,6 +22,8 @@ Builder.load_file('kvfilesmenu/statisticsmenu.kv')
 Builder.load_file('kvfilesmenu/settingsmenu.kv')
 Builder.load_file('kvfilesmenu/aboutmenu.kv')
 Builder.load_file('kvfilesmenu/gamestartmenu.kv')
+Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
+Builder.load_file('kvfilesmenu/searchforservermenufloat.kv')
 
 class GameOverMenu(Screen):
 
@@ -120,17 +123,6 @@ class SearchForServerMenu(Screen):
 		self.inpt = str(inpt)
 
 		print(self.inpt)
-
-	class MyTextInput(TextInput):
-
-		def insert_text(self, substring, from_undo=False):
-			if '.' in self.text:
-				s = re.sub(pat, '', substring)
-			else:
-				s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
-			return super(MyTextInput, self).insert_text(s, from_undo=from_undo)
-
-
 
 	def getserverOnline(self):
 		"""
@@ -343,8 +335,9 @@ class StatisticsMenu(Screen):
 		color = GAME.getColor()
 		sol = "Color: %s" % str(color)
 		print(sol)
+		playercolor = (color[0], color[1], color[2], 1)
 		self.ids.colorLabel.text=sol
-		self.ids.colorButton.background_color=color
+		self.ids.showcolorLabel.background_color=playercolor
 
 
 class AboutMenu(Screen):
@@ -355,8 +348,112 @@ class GameStartMenu(Screen):
 	def destroyserver(self):
 
 		GAME.DestroyServer()
+####################################################################
+##Connection Lost Manu Float version
+class ConnectionLostMenuFloat(Screen):
+	pass
 
-screen_manager = ScreenManager()
+class BackToMenuButton(Screen):
+	
+	def changeScreen(self):
+		screen_manager.current = 'mainmenu'
+####################################################################
+####################################################################
+##Search For Server Menu Float version
+class SearchForServerMenuFloat(Screen):
+
+	ip = '-'
+	port = 0
+
+	def getPlayerdata(self,test):
+		print("Updating screen... %s" % test)
+		print("PLAYERNAME: %s" % GAME.getPlayerName())
+
+		outputname = GAME.getPlayerName()
+		print(outputname, flush= True)
+		self.ids.explainmenuLabel.text = ('Here you can connect to the Server as %s' % outputname)
+
+		color = GAME.getColor()
+		playercolor = (color[0], color[1], color[2], 1)
+		self.ids.explainmenuLabel.background_color=playercolor
+
+	def debug(self, inpt):
+
+		self.inpt = str(inpt)
+
+		print(self.inpt)
+
+	def getserverOnline(self):
+		"""
+		Get the server which are online
+
+		Args:
+			server_ip (list): Time the player was in the game
+		Return:
+			String
+		"""
+		
+		raise NotImplementedError
+
+	def connecttoServer(self, inputIp, inputPort):
+		"""
+		Sends IP and Port to Server
+
+		Args:
+			inputIp (str):
+			inputPort (str):
+		Return:
+			inputIp (str):
+			inputPort (int):
+		"""
+
+		self.inputIp = inputIp
+		self.inputPort = int(inputPort)
+
+		GAME.ConnectToServer(self.inputIp, self.inputPort)
+		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
+
+
+	def updateconnecttoserverButton(self, inputIp, inputPort):
+		"""
+		Takes IP from Input at Search for Server Menu
+
+		Args:
+			inputIp (str):
+			inputPort (str):
+		Return:
+			change String in connectinotoserverButton
+		"""
+		self.inputIp = inputIp
+		self.inputPort = inputPort
+		if inputIp:
+			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
+			self.ids.connecttoserverButton.text = output
+		
+		elif inputPort:
+			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
+			self.ids.connecttoserverButton.text = output
+
+		else:
+			pass
+
+	def startGame(self):
+		"""
+		Send Startsignal to server and begin countdown
+
+		Args:
+			-
+		Return:
+			-
+		"""
+		start_game = GameApp()
+		start_game.run()
+
+####################################################################
+class WindowManager(ScreenManager):
+	pass
+
+screen_manager = WindowManager()
 screen_manager.add_widget(MainMenu(name='mainmenu'))
 screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
 screen_manager.add_widget(ConnectionLostMenu(name='connectionlostmenu'))
@@ -367,6 +464,8 @@ screen_manager.add_widget(StatisticsMenu(name='statisticsmenu'))
 screen_manager.add_widget(SettingsMenu(name='settingsmenu'))
 screen_manager.add_widget(AboutMenu(name='aboutmenu'))
 screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
+screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
+screen_manager.add_widget(SearchForServerMenuFloat(name='searchforservermenufloat'))
 
 
 class MenuApp(App):

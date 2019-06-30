@@ -25,7 +25,7 @@ Builder.load_file('kvfilesmenu/statisticsmenu.kv')
 Builder.load_file('kvfilesmenu/settingsmenu.kv')
 Builder.load_file('kvfilesmenu/aboutmenu.kv')
 Builder.load_file('kvfilesmenu/gamestartmenu.kv')
-Builder.load_file('kvfilesmenu/searchforservermenufloat.kv')
+Builder.load_file('kvfilesmenu/searchforservermenufloatcomplex.kv')
 
 class GameOverMenu(Screen):
 
@@ -454,7 +454,7 @@ class ValidatePortLabel(Bubble):
 	validated = False
 ###################################################################
 
-class SearchForServerMenufloat(Screen):
+class SearchForServerMenufloatcomplex(Screen):
 
 	ip = '-'
 	port = 0
@@ -548,7 +548,7 @@ class WindowManager(ScreenManager):
 	pass
 
 screen_manager = WindowManager()
-screen_manager.add_widget(SearchForServerMenufloat(name='searchforservermenufloat'))
+screen_manager.add_widget(SearchForServerMenufloatcomplex(name='searchforservermenufloatcomplex'))
 screen_manager.add_widget(MainMenu(name='mainmenu'))
 screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
 screen_manager.add_widget(ConnectionLostMenu(name='connectionlostmenu'))
