@@ -65,6 +65,8 @@ class Lobby(object):
 		self.__comm.EAvailableGames += self.handle_available_games
 		self.__comm.EMatchCreated += self.handle_match_created
 		self.__comm.EGames += self.handle_list_matches
+		self.__comm.EMatch += self.handle_match
+		self.__comm.EServerError += self.handle_server_error
 
 		# Initialize hook : Only for clients
 		if hook_me != None:
@@ -145,7 +147,7 @@ class Lobby(object):
 							hook_get_matches=self.hook_get_matches
 							)
 		# Add event handlers for the Lobby thread
-		thread.ECreateGame += self.handle_create_match
+		thread.ECreateGame += self.handle_create_game
 
 		# Add the thread to the collections
 		self.__server_threads.append(thread)
@@ -287,7 +289,12 @@ class Lobby(object):
 		"""
 		try:
 			logging.debug("Match listed: %s" % name )
-			self.__matches.append(Match(name, ['BASIC', 'Players', '3', 'Lifes', '2'])) # // TODO Get features for every match
+			self.__matches.append(Match('Tron', name, ['BASIC'])) # // TODO Get features for every match
+
+			# Send a request to query match features
+			packet = self.__comm.match_features(name)
+			self.__sock.send(packet)
+			self.__process_response()
 		except Exception as e:
 			logging.error("Error appending match %s. Reason: %s" % (name, str(e)))
 	
@@ -326,6 +333,38 @@ class Lobby(object):
 			features (List[str]): List of the features
 		"""
 		# Create a new match object and lease a port from the server's collection
-		new_match = Match(name, features, self.__hook_lease_port())
+		new_match = Match(game, name, features, self.__hook_lease_port())
 		self.__matches.append(new_match)
 		logging.info("Match created!")
+
+	def handle_match(self, sender, game:str, name:str, features: List[str]):
+		"""
+		Event handler for getting the match features
+		
+		Args:
+			sender ([type]): Caller of the event
+			game (str): Name of the game
+			name (str): Name of the match
+			features (List[str]): Match features
+		"""
+		try:
+			for match in self.__matches:
+				if match.game == game and match.name == name:
+					match.set_features(features)
+					logging.debug("Match %s has the features: %s" % (name, features))
+					return
+			
+			logging.warning("Match %s not found in the lobby." % name)
+		except Exception as e:
+			logging.error("Error while setting the match features of %s to %s. Reason: %s" % (name, str(features), str(e)))
+	
+	def handle_server_error(self, sender, msg:str):
+		"""
+		Handle the error message from the server
+		
+		Args:
+			sender ([type]): Caller of the event
+			message (str): Error message
+		"""
+		# Simply log the error
+		logging.error(msg)

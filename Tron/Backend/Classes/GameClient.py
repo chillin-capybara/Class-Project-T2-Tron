@@ -17,6 +17,7 @@ class GameClient(object):
 	__lobbies : List[Lobby]  = None
 
 	__me : HumanPlayer = None
+	__entered_lobby : Lobby = None
 
 	def __init__(self):
 		"""
@@ -50,6 +51,26 @@ class GameClient(object):
 		"""
 		return self.__lobbies
 	
+	@property
+	def lobby(self):
+		"""
+		Entered lobby, when in a lobby
+		"""
+		self.__entered_lobby
+	
+	def enter_lobby(self, index: int):
+		"""
+		Index of the lobby in the list of the lobbies to enter.
+		
+		Args:
+			index (int): Index of the lobby
+		"""
+		# Say hello to the lobby
+		self.__lobbies[index].say_hello()
+
+		# Set the entered lobby
+		self.__entered_lobby = self.__lobbies[index]
+
 	def get_me(self):
 		"""
 		Hook, to get the client's player object
@@ -109,7 +130,3 @@ class GameClient(object):
 		"""
 		self.__add_lobby(self.__last_server, port)
 		logging.debug("New lobby discovered: %s:%d" % (self.__last_server, port))
-
-
-
-
