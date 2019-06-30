@@ -442,7 +442,61 @@ class SearchForLobbiesMenuFloat(Screen):
 ####################################################################
 ##Lobby Menu
 class LobbyMenuFloat(Screen):
-	pass
+	def getLobbyInformation(self):
+		"""
+		Get the Information of the available Lobbies
+
+		Args:
+			Lobbies (list): name; game; features
+		Return:
+			-
+		"""
+		Lobby = namedtuple('Lobby', ['name', 'game', 'features'])
+		lobby1 = Lobby("Letsfight", 'Tron', '3 Players; 4 Lives')
+		lobby2 = Lobby("FullHouse123", 'Tron', '5 Players; 8 Lives')
+		lobby3 = Lobby("Pong", 'Pong', '2 Players; 1 Lives')
+		lobby4 = Lobby("Alone", 'Minecraft', '1 Players; 1 Live; 3 Zombies; a Million Bricks')
+		listlobbies = [lobby1, lobby2, lobby3, lobby4]
+		count_lobbies = listlobbies.__len__()
+		for i in range(0,count_lobbies):
+			lobby = listlobbies[i]
+			if i == 0:
+				self.ids.lobby1nameLabel.text = lobby.name
+				self.ids.lobby1gameLabel.text = lobby.game
+				self.ids.lobby1featureLabel.text = lobby.features
+			elif i == 1:
+				self.ids.lobby2nameLabel.text = lobby.name
+				self.ids.lobby2gameLabel.text = lobby.game
+				self.ids.lobby2featureLabel.text = lobby.features
+			elif i == 2:
+				self.ids.lobby3nameLabel.text = lobby.name
+				self.ids.lobby3gameLabel.text = lobby.game
+				self.ids.lobby3featureLabel.text = lobby.features
+			elif i == 3:
+				self.ids.lobby4nameLabel.text = lobby.name
+				self.ids.lobby4gameLabel.text = lobby.game
+				self.ids.lobby4featureLabel.text = lobby.features
+			elif i == 4:
+				self.ids.lobby5nameLabel.text = lobby.name
+				self.ids.lobby5gameLabel.text = lobby.game
+				self.ids.lobby5featureLabel.text = lobby.features
+			else:
+				pass
+	def updatechosenLobby(self, currentlobby):
+		"""
+		Sets variable for choosen Lobby
+
+		Args:
+			Lobby (int):
+		Return:
+			Lobby (int)
+		"""
+		self.currentlobby = currentlobby
+
+		self.lobby = int(self.currentlobby)
+		
+		print('Lobby: %d has been choosen.' % (self.lobby), flush = True)
+		return self.lobby
 ####################################################################
 ####################################################################
 ##Create Match Menu Flaot version

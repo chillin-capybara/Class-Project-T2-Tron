@@ -48,6 +48,7 @@ class LobbyThread(threading.Thread):
 		self.__comm.EListGames += self.handle_list_games
 		self.__comm.ECreateMatch += self.handle_create_match
 		self.__comm.EListMatches += self.handle_list_matches
+		self.__comm.EMatchFeatures += self.handle_match_features
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
@@ -133,7 +134,17 @@ class LobbyThread(threading.Thread):
 		"""
 		try:
 			logging.info("Creating a new match %s/%s is requested with: %s" % (game, name, str(features)))
-			self.ECreateGame(self, game=game, name=name, features=features)
+			
+			# Check if the match exists.
+			ex_matches = self.__hook_get_matches()
+			c_with_name = sum(p.name == name for p in ex_matches)
+
+			if c_with_name == 0:
+				self.ECreateGame(self, game=game, name=name, features=features)
+			else:
+				logging.error("The match name %s is already reserver" % name)
+				packet = self.__comm.failed_to_create("The name %s is already reserved for a match!" % name)
+				self.send(packet)
 
 			# If there are no errors: -> Send confirmation
 			packet = self.__comm.match_created()
@@ -169,4 +180,26 @@ class LobbyThread(threading.Thread):
 
 		# Generate protocoll message, SEND	
 		packet = self.__comm.games(game, str_list)
+		self.send(packet)
+	
+	def handle_match_features(self, sender, name:str):
+		"""
+		Event handler for queriing the match features
+		
+		Args:
+			name (str): Name of the match
+		"""
+		matches = self.__hook_get_matches()
+		for match in matches:
+			match : Match
+			if match.name == name:
+				# Match found
+				logging.info("Sending match features: %s %s %s " % (match.game, match.name, match.features))
+				packet = self.__comm.match(match.game, match.name, match.features)
+				self.send(packet)
+				return
+		
+		# If match not found
+		logging.warning("Match %s not found on the server" % name)
+		packet = self.__comm.game_not_exists(name)
 		self.send(packet)
