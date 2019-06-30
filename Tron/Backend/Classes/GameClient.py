@@ -82,6 +82,16 @@ class GameClient(object):
 		# Set the entered lobby
 		self.__entered_lobby = self.__lobbies[index]
 
+	def join_match(self, index:int):
+		"""
+		Join the selected match from the client
+		
+		Args:
+			index (int): Index of the selected match
+		"""
+		self.lobby.join_match(index)
+		
+
 	def get_me(self):
 		"""
 		Hook, to get the client's player object

@@ -22,7 +22,8 @@ class Match(object):
 	__count_players : int = 0
 	__count_lifes : int = 0
 
-	__player_slots : LeasableList = None
+	__player_slots : LeasableList = None # List of player ID's
+	__players : List[HumanPlayer] = None # List of players 0: is reserved
 
 
 	@property
@@ -157,11 +158,24 @@ class Match(object):
 		"""
 		Create a match from the pre-initialzied object
 		"""
-		# Create a collection of leaseable player objects for server slots
-		list_of_player = []
-		for i in range(0, self.count_players):
-			list_of_player.append(HumanPlayer())
+		# Create the list of playerIDs
+		pids = list(range(1,self.count_players+1))
+		self.__player_slots = LeasableList(pids)
 
-		self.__player_slots = LeasableList(list_of_player)
+		# Create the player objects, but leave the 0th player empty
+		self.__players = []
+		self.__players.append(HumanPlayer()) # Leave the index 0 empty
 
-
+		for i in range(1,self.count_players+1):
+			self.__players.append(HumanPlayer())
+		
+	def lease_player_id(self) -> LeasableObject:
+		"""
+		Lease a player ID from the list of player_ids
+		
+		NOTE
+			The Player ID has to be freed, when the connnection is broken
+		Returns:
+			LeasableObject: Wrapped object of the playerid
+		"""
+		return self.__player_slots.lease()

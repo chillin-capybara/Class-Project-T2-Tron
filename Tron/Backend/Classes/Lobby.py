@@ -27,7 +27,7 @@ class Lobby(object):
 
 	__hook_me : Hook = None
 
-	__selected_matchname : str = None # Selected match to join
+	__selected_match : Match = None # Selected match to join
 
 
 	__hook_lease_port : Hook = None
@@ -70,7 +70,7 @@ class Lobby(object):
 		self.EError = Event('msg')
 		self.EMatchJoined = Event('matchname')
 
-		# Intialize communication protocol
+		# Intialize communication protocol : CLIENT EVENTS!!!!
 		self.__comm = BasicComm()
 		self.__comm.EWelcome += self.handle_welcome
 		self.__comm.EAvailableGames += self.handle_available_games
@@ -78,6 +78,7 @@ class Lobby(object):
 		self.__comm.EGames += self.handle_list_matches
 		self.__comm.EMatch += self.handle_match
 		self.__comm.EServerError += self.handle_server_error
+		self.__comm.EMatchJoined += self.handle_match_joined
 
 		# Initialize hook : Only for clients
 		if hook_me != None:
@@ -107,6 +108,13 @@ class Lobby(object):
 		Active matches in the lobby
 		"""
 		return self.__matches
+	
+	@property
+	def match(self) -> Match:
+		"""
+		Selected match for waiting to start...
+		"""
+		return self.__selected_match
 
 	def hook_get_games(self):
 		"""
@@ -197,23 +205,6 @@ class Lobby(object):
 			logging.info(resp)
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
-	
-	def join_match(self, name: str):
-		"""
-		Join the match with the selected name
-		
-		Args:
-			name (str): Selected match
-		"""
-		# Store the selected matchname
-		self.__selected_matchname = name
-
-		# Generate join request
-		packet = self.__comm.join_match(name, self.__hook_me())
-		self.__sock.send(packet)
-
-		# Wait for server response
-		self.__process_response()
 
 	def list_games(self):
 		"""
@@ -276,6 +267,24 @@ class Lobby(object):
 		# Wait and process the response
 		self.__process_response()
 	
+	def join_match(self, index: int):
+		"""
+		Join the selected match from the list
+		
+		Args:
+			index (int): Index of the match in the list
+		"""
+		# Send a request to join the game
+		logging.info("joining the match %s ..." % self.matches[index].name)
+		packet = self.__comm.join_match(self.matches[index].name, self.__hook_me())
+		self.__sock.send(packet)
+
+		# Set the selected match
+		self.__selected_match = self.matches[index]
+		
+		# Automatically handle the response from the server
+		self.__process_response()
+
 	def __process_response(self):
 		"""
 		Get and process the response of the server
@@ -421,4 +430,4 @@ class Lobby(object):
 		logging.info("The server accepted you to join the game with id=%d" % player_id)
 
 		# Call the Lobby's event -> With the name of the match
-		self.EMatchJoined(self, matchname=self.__selected_matchname)
+		self.EMatchJoined(self, matchname=self.__selected_match.name)

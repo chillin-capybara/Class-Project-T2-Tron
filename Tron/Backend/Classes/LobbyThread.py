@@ -8,7 +8,9 @@ from ..Core.Hook import Hook
 from ..Core.Event import Event
 from .BasicComm import BasicComm
 from ..Core.globals import *
+from ..Core.leasable_collections import *
 from .Match import Match
+from .HumanPlayer import HumanPlayer
 
 class LobbyThread(threading.Thread):
 	"""
@@ -23,6 +25,9 @@ class LobbyThread(threading.Thread):
 	__comm : BasicComm = None
 
 	__ECreateGame : Event = None # Event when a the creation of a new match is requested.
+
+	__hello_name :str = "JoeWorkingman" # Name of the player to be stored after the hello message
+	__leased_player_id : LeasableObject = None
 
 	def __init__(self, sock:socket.socket, hook_get_games, hook_get_matches):
 		"""
@@ -49,6 +54,7 @@ class LobbyThread(threading.Thread):
 		self.__comm.ECreateMatch += self.handle_create_match
 		self.__comm.EListMatches += self.handle_list_matches
 		self.__comm.EMatchFeatures += self.handle_match_features
+		self.__comm.EJoinMatch  += self.handle_join_match
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
@@ -91,6 +97,11 @@ class LobbyThread(threading.Thread):
 		except Exception as e:
 			logging.error("Connection to the client stopped: %s" % str(e))
 		finally:
+			try:
+				self.__leased_player_id.free()
+				logging.debug("Giving the player id free: %d" % self.__leased_player_id.getObj())
+			except:
+				pass # Player ID was not reserved
 			logging.info("Closing connection to [FILL THIS OUT]")
 	
 	def handle_hello(self, sender, playername: str, features: list):
@@ -103,6 +114,9 @@ class LobbyThread(threading.Thread):
 			features (list): Client features
 		"""
 		logging.info("%s said hello with the following features: %s" % (playername, str(features)))
+
+		# Store the player's name
+		self.__hello_name = playername
 
 		# Answer back with welcome message
 		packet = self.__comm.welcome(SERVER_FEATURES)
@@ -202,4 +216,36 @@ class LobbyThread(threading.Thread):
 		# If match not found
 		logging.warning("Match %s not found on the server" % name)
 		packet = self.__comm.game_not_exists(name)
+		self.send(packet)
+
+	def handle_join_match(self, sender, name: str, player: HumanPlayer):
+		"""
+		Handle when a client wants to join a match
+		
+		Args:
+			sender ([type]): Caller of the event
+			name (str): Name of the match to join
+			player (HumanPlayer): Player
+		"""
+		logging("%s wants to join the match %s" % (self.__hello_name, name))
+
+		# We have a color and a playername
+		player.setName(self.__hello_name)
+
+		# Check if the match exists
+		ex_matches = self.__hook_get_matches()
+		for match in ex_matches:
+			match: Match
+			if match.name == name:
+				# Found the match
+				self.__leased_player_id = match.lease_player_id()
+				pid: int = self.__leased_player_id.getObj() # Get the id of the player
+
+				# Tell the client the player id and the success of the join
+				packet = self.__comm.match_joined(pid)
+				self.send(packet)
+				return
+		
+		# Failed to join
+		packet = self.__comm.failed_to_join("The match %s does not exists in the lobby!" % name)
 		self.send(packet)
