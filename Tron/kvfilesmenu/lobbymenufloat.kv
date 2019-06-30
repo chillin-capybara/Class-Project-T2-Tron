@@ -10,6 +10,7 @@
 
 <LobbyMenuFloat>:
     on_pre_enter: root.getLobbyInformation()
+    on_enter: root.getLobbyInformation()
 
     HeaderLabel:
         text: 'Lobby Menu Float Version'
@@ -168,8 +169,8 @@
         pos_hint: {'x': .51, 'y': .1}
         text: 'Join match'
         on_release:
-            root.manager.current = 'gamestartmenu'
-            #root.startgame
+            #root.manager.current = 'gamestartmenu'
+            root.joinMatch()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
