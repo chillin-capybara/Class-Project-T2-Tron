@@ -381,6 +381,7 @@ class Lobby(object):
 		"""
 		# Create a new match object and lease a port from the server's collection
 		new_match = Match(game, name, features, self.__hook_lease_port())
+		new_match.create()
 		self.__matches.append(new_match)
 		logging.info("Match created!")
 

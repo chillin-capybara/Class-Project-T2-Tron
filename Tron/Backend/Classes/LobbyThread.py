@@ -227,7 +227,7 @@ class LobbyThread(threading.Thread):
 			name (str): Name of the match to join
 			player (HumanPlayer): Player
 		"""
-		logging("%s wants to join the match %s" % (self.__hello_name, name))
+		logging.info("%s wants to join the match %s" % (self.__hello_name, name))
 
 		# We have a color and a playername
 		player.setName(self.__hello_name)
