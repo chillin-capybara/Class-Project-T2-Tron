@@ -82,6 +82,9 @@ class GameClient(object):
 		Request the servers to list the lobbies on the network.
 		"""
 		try:
+			# Empty the list
+			self.__lobbies.clear()
+			
 			logging.info("Discovering lobbies...")
 			# Create socket
 			sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)

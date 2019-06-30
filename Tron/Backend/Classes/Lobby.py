@@ -238,6 +238,9 @@ class Lobby(object):
 		Args:
 			game (str): Tron / Pong
 		"""
+		# Empty the list of matches
+		self.__matches.clear()
+		
 		logging.info("Listing matches for %s" % game)
 		packet = self.__comm.list_matches(game)
 		self.__sock.send(packet)
