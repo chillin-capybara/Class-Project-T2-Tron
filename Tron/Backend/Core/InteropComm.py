@@ -54,49 +54,6 @@ class InteropComm(object):
 		
 		return dictionary
 
-	def processChildMatrixOld (self, currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount):
-		"""
-		wright down all the Elements of the "Child" Matrix
-		"""
-		 
-
-		#calculate Row und Column Size for the Child matrix
-		childMatrixRowCount = matrixRowCount - (currentSplittedMatrixRow + 1) * max_size[0] + 1
-		childMatrixColumnCount = matrixColumnCount - (currentSplittedMatrixColumn + 1) * max_size[1] + 1
-
-		#initialize child matrix 
-		matrixArray = [[0 for x in range(childMatrixColumnCount)] for y in range(childMatrixRowCount)]
-
-		# right down all the arguments to the child matrix array
-		#iterate on rows
-		for currentRow in range (currentSplittedMatrixRow * max_size[0] , (currentSplittedMatrixRow+1) * max_size[0]):
-			
-			#calculate current row of child matrix
-			currentChildRow = currentRow - max_size[0]*currentSplittedMatrixRow
-
-			#check if current child row not out of range
-			if currentChildRow >= childMatrixRowCount:
-				break
-			
-
-
-			# iterate on columns
-			for currentColumn in range (currentSplittedMatrixColumn * max_size[1], (currentSplittedMatrixColumn + 1) * max_size[1]):
-
-				#calculate current column of child matrix
-				currentChildColumn = currentColumn - max_size[0]*currentSplittedMatrixColumn
-
-				#check if current child column not out of range
-				if currentChildColumn >= childMatrixColumnCount:
-					break
-
-
-				#right down mother element into child matrix
-				matrixArray[currentChildRow][currentChildColumn] = matrix[currentRow][currentColumn]
-
-					
-		return matrixArray
-
 
 	def processChildMatrix(self, currentSplittedMatrixRow, currentSplittedMatrixColumn, max_size, matrix, matrixRowCount, matrixColumnCount):
 		"""
@@ -152,7 +109,7 @@ class InteropComm(object):
 			childSizeRow = max_size[0]
 
 		#column
-		columnDifference = (currentSplittedMatrixColumn + 1 ) * max_size[1] - matrixRowCount
+		columnDifference = (currentSplittedMatrixColumn + 1 ) * max_size[1] - matrixColumnCount
 
 		if columnDifference > 0:
 			childSizeColumn = max_size[1] - columnDifference
@@ -168,35 +125,11 @@ class InteropComm(object):
 		if childSize[0] < 1 | childSize[1] < 1 :
 			raise ValueError
 
-		if childSize[0] < max_size[0] | childSize[1] < max_size[1] :
+		if childSize[0] > max_size[0] | childSize[1] > max_size[1] :
 			raise ValueError
 
+
 		return childSize
-
-	def takeMotherElementToChild (self, currentChildRow, currentChildColumn, currentRow, currentColumn):
-		pass
-
-
-
-	def matrix_collapseOld(self, splitted_matrix: dict) -> list:
-		"""
-		Build the splitted matrix together
-		"""
-		motherMatrix: list
-
-		#calculate the dimension of the future new mother matrix
-		lastTuple = splitted_matrix.keys()[-1]
-		splittedMatrixRowCount, splittedMatrixColumnCount = lastTuple
-		
-		for currentSplit in range (0,len(splitted_matrix)):
-			
-			matrixString = splitted_matrix.values[currentSplit]
-			for currentCharacterCounter in range (0, len(matrixString - 1)):
-				currentCharacter = matrixString [currentCharacterCounter]
-				if (currentCharacter != ",") & (currentCharacter != ";"): 
-					motherMatrix[motherRow][motherColumn] = int(currentCharacter)
-
-		return motherMatrix
 
 
 	def matrix_collapse (self, splitted_matrix: dict) -> list:
@@ -207,66 +140,56 @@ class InteropComm(object):
 		lastKey = allKeysList [ len(allKeysList) - 1 ]	
 		firstKey = allKeysList [0]
 		
-		motherMatrix :list = [0] # init
-		bigMotherMatrix = [0]
+		motherMatrix :list = [] # init
+		bigMotherMatrix = []
+
+		currentColumn = 0
 
 			
 		# iterate over Rows
-		for currentRow in range (1, lastKey[0]):
+		for currentRow in range (1, lastKey[0] + 1):
 
-			for currentInsideRow in range ( 0, len( splitted_matrix[ firstKey ] ) - 1 ):
+			currentInsideRowRange = self.getIterationRange(splitted_matrix, firstKey, lastKey, "row", currentRow, currentColumn)
+			for currentInsideRow in range ( 0,currentInsideRowRange ):
 				
 				#iterate over Colums
-				for currentColumn in range (1, lastKey[1]):
+				for currentColumn in range (1, lastKey[1] + 1 ):
 					
-					for currentInsideColumn in range ( 0, len( splitted_matrix[ firstKey ][0] ) - 1 ): 
+					
+					currentInsideColumnRange = self.getIterationRange(splitted_matrix, firstKey, lastKey, "column", currentRow, currentColumn)
+					for currentInsideColumn in range ( 0,currentInsideColumnRange ): 
 						
 						motherMatrixColumn = (currentColumn - 1)*(len( splitted_matrix[ firstKey ][0] ) ) + currentInsideColumn
 						motherMatrixRow = (currentRow - 1)*(len( splitted_matrix[ firstKey ] ) )  + currentInsideRow
 						
 						newElement = splitted_matrix[(currentRow,currentColumn)][currentInsideRow][currentInsideColumn]
 						# motherMatrix[motherMatrixRow][motherMatrixColumn].append( newElement )
-						motherMatrix[motherMatrixRow].append( newElement )
-				bigMotherMatrix[currentRow].append ( motherMatrix )
+						newElementAsList = [newElement]
+
+						motherMatrix.append( newElementAsList[0] )
+				# bigMotherMatrix[currentRow].append ( motherMatrix )
+				bigMotherMatrix.append(motherMatrix)
 				motherMatrix = []
-		return motherMatrix
+
+		return bigMotherMatrix
 
 
-
-
-	def matrix_collapseOld2 (self, splitted_matrix: dict) -> list:
+	def getIterationRange (self, splitted_matrix, firstKey, lastKey, columnOrRow, currentRow, currentColumn):
 		"""
 		"""
-
-		motherMatrix = self.createMotherMatrix (splitted_matrix)
-
-		#process partikular dict element
-		for currentSplit in range(len(splitted_matrix)-1):
+		if columnOrRow == "column":
+			iterationRange = len( splitted_matrix[ firstKey ][0] )
+			if currentColumn == lastKey[1]: # we are in the appendix
+				iterationRange = len( splitted_matrix[ lastKey ][0] )
 			
-			
-			currentRowRange = len(list(splitted_matrix.values())[currentSplit])-1
-
-
-			#process one Row in dict element
-			for currentRow in range (currentRowRange):
-				matrixRowList = list (splitted_matrix.values())[currentSplit] # 
-
-				# currentElementCounterRange = len(matrixRowList)-1
-
-				#process one Element in Row
-				for currentElementCounter in range (len(matrixRowList)-1):
-					# find mother Matrix positions
-					currentSplittedMatrixPosition = list(splitted_matrix.keys())[currentSplit] #should be a tuple					
-					motherRow = currentSplittedMatrixPosition[0]
-					motherColumn = currentSplittedMatrixPosition[1]
-
-
-					currentSplittedMatrix = list(splitted_matrix.values())
-
-					splittedMatrixElementValue = currentSplittedMatrix[currentRow][currentElementCounter]
-
-					motherMatrix[motherRow][motherColumn] = splittedMatrixElementValue
-		return motherMatrix		
+		elif columnOrRow == "row":
+			iterationRange = len( splitted_matrix[ firstKey ] )
+			if currentRow == lastKey[0]: # we are in the appendix
+				iterationRange = len( splitted_matrix[ lastKey ] )
+		else:
+			raise ValueError
+		return iterationRange
+		
 
 	def createMotherMatrix (self, splitted_matrix):
 		"""
