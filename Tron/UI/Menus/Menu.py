@@ -24,6 +24,11 @@ Builder.load_file('kvfilesmenu/aboutmenu.kv')
 Builder.load_file('kvfilesmenu/gamestartmenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
 Builder.load_file('kvfilesmenu/searchforservermenufloat.kv')
+Builder.load_file('kvfilesmenu/createservermenufloat.kv')
+Builder.load_file('kvfilesmenu/searchforlobbiesmenufloat.kv')
+Builder.load_file('kvfilesmenu/lobbymenufloat.kv')
+Builder.load_file('kvfilesmenu/creatematchmenufloat.kv')
+Builder.load_file('kvfilesmenu/mainmenufloat.kv')
 
 class GameOverMenu(Screen):
 
@@ -348,11 +353,34 @@ class GameStartMenu(Screen):
 	def destroyserver(self):
 
 		GAME.DestroyServer()
+
+####################################################################
+##Main Manu New version
+class MainMenuFloat(Screen):
+	pass
+####################################################################
+####################################################################
+##Search for Lobbies Menu Float version
+class SearchForLobbiesMenuFloat(Screen):
+	pass
+####################################################################
+####################################################################
+##Lobby Menu
+class LobbyMenuFloat(Screen):
+	pass
+####################################################################
+####################################################################
+##Create Match Menu Flaot version
+class CreateMatchMenuFloat(Screen):
+	pass
+####################################################################
 ####################################################################
 ##Connection Lost Manu Float version
 class ConnectionLostMenuFloat(Screen):
 	pass
-
+####################################################################
+####################################################################
+##Define KV file Buttons
 class BackToMenuButton(Screen):
 	
 	def changeScreen(self):
@@ -450,11 +478,82 @@ class SearchForServerMenuFloat(Screen):
 		start_game.run()
 
 ####################################################################
+####################################################################
+##Creat Server Menu Float version
+class CreateServerMenuFloat(Screen):
+	arena = 1
+	difficulty = 1
+
+
+	def startGame(self):
+		"""
+		Send Startsignal to server and begin countdown
+
+		Args:
+			-
+		Return:
+			-
+		"""
+		start_game = GameApp()
+		start_game.run()
+
+	def updateArenatype(self, currentarenatype):
+		"""
+		Sets variable arenatype to 1 or 2
+
+		Args:
+			Arenatype (int):
+		Return:
+			arenatype
+		"""
+		self.currentarenatype = currentarenatype
+
+		self.arena = int(self.currentarenatype)
+		
+		print('Arenatype: %d has been choosen.' % (self.arena), flush = True)
+		return self.arena 
+
+	def updateDifficulty(self, currentdifficulty):
+		"""
+		Sets variable arenatype to 1 or 2
+
+		Args:
+			Difficulty (int):
+		Return:
+			difficulty
+		"""
+		self.currentdifficulty = currentdifficulty
+
+		self.difficulty = int(self.currentdifficulty)
+		print('Diffculty: %d has been choosen.' % (self.difficulty), flush = True)
+		return self.difficulty
+		
+	def createServer(self, numberplayer):
+		"""
+		Call open server function and send difficulty and arenatype
+
+		Args:
+			Arenatype (int):
+			Difficulty (int):
+		Return:
+			-
+		"""
+		self.numberplayer = numberplayer
+		GAME.CreateServer('', 9876, self.numberplayer)
+		print('Arenatype: %d, Diffculty: %d and %d Players to play have been choosen.' % (self.arena, self.difficulty, self.numberplayer), flush = True)
+
+	def destroyServer(self):
+
+		print('Destroying Server...')
+		GAME.DestroyServer()
+####################################################################
+
 class WindowManager(ScreenManager):
 	pass
 
 screen_manager = WindowManager()
 screen_manager.add_widget(MainMenu(name='mainmenu'))
+screen_manager.add_widget(MainMenuFloat(name='mainmenufloat'))
 screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
 screen_manager.add_widget(ConnectionLostMenu(name='connectionlostmenu'))
 screen_manager.add_widget(SearchForServerMenu(name='searchforservermenu'))
@@ -466,7 +565,10 @@ screen_manager.add_widget(AboutMenu(name='aboutmenu'))
 screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
 screen_manager.add_widget(SearchForServerMenuFloat(name='searchforservermenufloat'))
-
+screen_manager.add_widget(CreateServerMenuFloat(name='createservermenufloat'))
+screen_manager.add_widget(SearchForLobbiesMenuFloat(name='searchforlobbiesmenufloat'))
+screen_manager.add_widget(LobbyMenuFloat(name='lobbymenufloat'))
+screen_manager.add_widget(CreateMatchMenuFloat(name='creatematchmenufloat'))
 
 class MenuApp(App):
 
