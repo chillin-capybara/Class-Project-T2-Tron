@@ -39,8 +39,8 @@ class CommProt:
 	# Create events for processing responsees
 	EClientError       : Event    = None # (sender=, msg=)
 	EServerError       : Event    = None # (sender=, msg=)
-	EClientReady       : Event    = None # (sender=, player=)
-	EClientReadyAck    : Event    = None # (sender=, player_id=)
+	EJoinMatch         : Event    = None # (sender=, name=, player=)
+	EMatchJoined       : Event    = None # (sender=, player_id=)
 	EServerReady       : Event    = None # (sender=)
 	ECountdown         : Event    = None
 	EIngame            : Event    = None
@@ -75,8 +75,8 @@ class CommProt:
 		"""
 		self.EClientError           = Event('msg') # (sender=, msg=)
 		self.EServerError           = Event('msg') # (sender=, msg=)
-		self.EClientReady           = Event('player') # (sender=, player=)
-		self.EClientReadyAck        = Event('player_id') # (sender=, player_id=)
+		self.EJoinMatch             = Event('name', 'player') # (sender=, name=, player=)
+		self.EMatchJoined           = Event('player_id') # (sender=, player_id=)
 		self.EServerReady           = Event() # (sender=)
 		self.ECountdown             = Event('seconds')
 		self.EIngame                = Event('players')

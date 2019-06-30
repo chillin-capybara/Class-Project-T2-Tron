@@ -27,12 +27,16 @@ class Lobby(object):
 
 	__hook_me : Hook = None
 
+	__selected_matchname : str = None # Selected match to join
+
+
 	__hook_lease_port : Hook = None
 	__server_thread : threading.Thread = None
 	__server_sock : socket.socket = None
 	__server_threads : List[threading.Thread] = None
 
 	EError : Event = None
+	EMatchJoined : Event = None
 
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None):
 		"""
@@ -64,6 +68,7 @@ class Lobby(object):
 
 		# Initialize own events
 		self.EError = Event('msg')
+		self.EMatchJoined = Event('matchname')
 
 		# Intialize communication protocol
 		self.__comm = BasicComm()
@@ -193,6 +198,23 @@ class Lobby(object):
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
 	
+	def join_match(self, name: str):
+		"""
+		Join the match with the selected name
+		
+		Args:
+			name (str): Selected match
+		"""
+		# Store the selected matchname
+		self.__selected_matchname = name
+
+		# Generate join request
+		packet = self.__comm.join_match(name, self.__hook_me())
+		self.__sock.send(packet)
+
+		# Wait for server response
+		self.__process_response()
+
 	def list_games(self):
 		"""
 		Send a request to the server to list the available games
@@ -387,3 +409,16 @@ class Lobby(object):
 		
 		# Pass the error along to the client class
 		self.EError(self, msg=msg)
+	
+	def handle_match_joined(self, sender, player_id:int):
+		"""
+		Handle a match_joined resposne from the server
+		
+		Args:
+			sender (Any): Caller of the event
+			player_id (int): Player id of the current player
+		"""
+		logging.info("The server accepted you to join the game with id=%d" % player_id)
+
+		# Call the Lobby's event -> With the name of the match
+		self.EMatchJoined(self, matchname=self.__selected_matchname)

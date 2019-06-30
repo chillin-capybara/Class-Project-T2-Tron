@@ -21,6 +21,7 @@ class GameClient(object):
 	__entered_lobby : Lobby = None
 
 	EError : Event = None # Event to be called, when an error happens
+	EMatchJoined : Event = None
 
 	def __init__(self):
 		"""
@@ -35,6 +36,7 @@ class GameClient(object):
 
 		# Initialize local events
 		self.EError = Event('msg')
+		self.EMatchJoined = Event('matchname')
 
 		# Append the lobby event handler to the comm
 		self.__comm.ELobby += self.handle_lobby
@@ -128,6 +130,7 @@ class GameClient(object):
 		"""
 		lobby = Lobby(host, port, self.get_me)
 		lobby.EError += self.handle_EError # Add callback to the error handler
+		lobby.EMatchJoined += self.handle_EMatchJoined # Add callback for match joins
 		self.__lobbies.append(lobby)
 
 	def handle_EError(self, sender, msg: str):
@@ -151,3 +154,14 @@ class GameClient(object):
 		"""
 		self.__add_lobby(self.__last_server, port)
 		logging.debug("New lobby discovered: %s:%d" % (self.__last_server, port))
+	
+	def handle_EMatchJoined(self, sender, matchname: str):
+		"""
+		Handle the event of the Lobby, when the client can join into a match
+		
+		Args:
+			sender ([type]): Caller of the event
+			player_id (int): Player ID on the server
+		"""
+		logging.info("Notifying the user, that to wait for the match start.")
+		self.EMatchJoined(self, matchname=matchname)
