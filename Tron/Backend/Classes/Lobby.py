@@ -90,6 +90,13 @@ class Lobby(object):
 		"""
 		return self.__host
 	
+	@property
+	def matches(self) -> List[Match]:
+		"""
+		Active matches in the lobby
+		"""
+		return self.__matches
+
 	def hook_get_games(self):
 		"""
 		Get the list of games in the lobby
