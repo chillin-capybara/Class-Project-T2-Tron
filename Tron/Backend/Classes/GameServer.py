@@ -7,6 +7,7 @@ from ..Core.Event import Event
 from typing import List
 import logging
 import time
+import threading
 
 class GameServer(object):
 	"""
@@ -99,6 +100,13 @@ class GameServer(object):
 
 		self.__isRunning = True
 
+		thread = threading.Thread(target=self.__keepalive)
+		thread.start()
+	
+	def __keepalive(self):
+		"""
+		Keep-alive thread for the server to check status
+		"""
 		try:
 			while True:
 				if self.EStop.was_called():
@@ -110,7 +118,8 @@ class GameServer(object):
 		self.__isRunning = False
 		self.EStop.reset_called()
 		logging.info("The game server was stopped!")
-	
+
+
 	def Stop(self):
 		"""
 		Stop the server with all the threads

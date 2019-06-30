@@ -19,7 +19,8 @@ for x,y in d.keys():
 for i in range(0, max_x):
 	result.append([])
 
+rowshift = 0
+
 # Now lets add the elements
 for x,y in d.keys():
-	max_x = max(x, max_x)
-	max_y = max(y, max_y)
+	for 

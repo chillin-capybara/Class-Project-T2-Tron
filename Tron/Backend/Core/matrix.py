@@ -72,5 +72,6 @@ def matrix_collapse(s: dict):
 	Args:
 		s (dict): Splitted matrix in format of matrix_slits output
 	"""
-	pass
+	# Take the first array and add everything to it
+	oneone = s[(1,1)]
 	
