@@ -2,6 +2,7 @@ from .BasicComm import BasicComm
 from .Lobby import Lobby
 from ..Core.globals import *
 from .HumanPlayer import HumanPlayer
+from ..Core.Event import Event
 
 import logging
 import socket
@@ -19,6 +20,8 @@ class GameClient(object):
 	__me : HumanPlayer = None
 	__entered_lobby : Lobby = None
 
+	EError : Event = None # Event to be called, when an error happens
+
 	def __init__(self):
 		"""
 		Initialize the game client.
@@ -29,6 +32,12 @@ class GameClient(object):
 
 		# Initialize the list of the lobbies
 		self.__lobbies = []
+
+		# Initialize local events
+		self.EError = Event('msg')
+
+		# Append the lobby event handler to the comm
+		self.__comm.ELobby += self.handle_lobby
 
 		# Initialize the client Player
 		self.__me = HumanPlayer()
@@ -84,7 +93,7 @@ class GameClient(object):
 		try:
 			# Empty the list
 			self.__lobbies.clear()
-			
+
 			logging.info("Discovering lobbies...")
 			# Create socket
 			sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -94,9 +103,6 @@ class GameClient(object):
 			#sockfd.bind(("", LOBBY_DISCOVERY_PORT))
 
 			packet = self.__comm.discover_lobby()
-
-			# Append the lobby event handler to the comm
-			self.__comm.ELobby += self.handle_lobby
 
 			# Send out the discovery packet
 			sockfd.sendto(packet, ('<broadcast>', LOBBY_DISCOVERY_PORT))
@@ -120,8 +126,20 @@ class GameClient(object):
 			host (str): IP adress of the lobby's server
 			port (int): Port of the lobby
 		"""
-		self.__lobbies.append(Lobby(host, port, self.get_me))
+		lobby = Lobby(host, port, self.get_me)
+		lobby.EError += self.handle_EError # Add callback to the error handler
+		self.__lobbies.append(lobby)
 
+	def handle_EError(self, sender, msg: str):
+		"""
+		Handle errors from the lobby objects
+		
+		Args:
+			sender ([type]): Lobby that has error
+			msg (str): Error message
+		"""
+		# Pass along the event
+		self.EError(self, msg=msg)
 
 	def handle_lobby(self, sender, port: int):
 		"""

@@ -1,5 +1,6 @@
 from ..Core.globals import *
 from ..Core.Hook import Hook
+from ..Core.Event import Event
 from .BasicComm import BasicComm
 from .HumanPlayer import HumanPlayer
 from .LobbyThread import LobbyThread
@@ -31,6 +32,8 @@ class Lobby(object):
 	__server_sock : socket.socket = None
 	__server_threads : List[threading.Thread] = None
 
+	EError : Event = None
+
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None):
 		"""
 		Initialize a lobby on the server, to create games in
@@ -58,6 +61,9 @@ class Lobby(object):
 
 		# Initialize the array of matches
 		self.__matches = []
+
+		# Initialize own events
+		self.EError = Event('msg')
 
 		# Intialize communication protocol
 		self.__comm = BasicComm()
@@ -240,7 +246,7 @@ class Lobby(object):
 		"""
 		# Empty the list of matches
 		self.__matches.clear()
-		
+
 		logging.info("Listing matches for %s" % game)
 		packet = self.__comm.list_matches(game)
 		self.__sock.send(packet)
@@ -378,3 +384,6 @@ class Lobby(object):
 		"""
 		# Simply log the error
 		logging.error(msg)
+		
+		# Pass the error along to the client class
+		self.EError(self, msg=msg)
