@@ -140,7 +140,6 @@ class GameUI(Widget):
         ## final update function, where I trigger different functuions
         # self.ids.trackWidget.update()
         self.ids.trackWidget.update()
-        self.ids.headWidget.update_screen_size(self.size)
 
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
@@ -174,6 +173,9 @@ class GameUI(Widget):
             
         ## after specified time callback function is called anbd game starts
         Clock.schedule_once(callback, 0)
+        
+    def updateUpdater(self):
+        self.ids.headWidget.update_screen_size(self.size)
 
 
 # Entry Point
