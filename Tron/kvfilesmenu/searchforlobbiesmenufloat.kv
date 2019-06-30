@@ -32,21 +32,21 @@
         pos_hint: {"x": 0, "y": 0}
         background_color: (.5,.4,.3,1)
         pos_hint: {"bottom":1}
-        #on_release: root.changeScreen()
+        on_release: root.changeScreen()
 
 <SearchForLobbiesMenuFloat>:
-    #on_pre_enter: (root.getPlayerdata(""))
+    on_pre_enter: (root.getPlayerdata(""))
 
     HeaderLabel:
-        text: 'Search for Server Menu Float Version'
+        text: 'Search for Lobbies Menu Float Version'
         pos_hint: {"x": .01, "y": .91}
 
     ColoredLabel:
         id: explainmenuLabel
-        size_hint: ( .98, .5)
-        pos_hint: {'x': .01, 'y': .40}
+        size_hint: ( .98, .1)
+        pos_hint: {'x': .01, 'y': .8}
         background_color: (.4,.4,.2,1)
-        text: 'Here you can connect to the Server'
+        text: 'Here you can Enter a Lobby'
 
     Button:
         id: gamestartButton

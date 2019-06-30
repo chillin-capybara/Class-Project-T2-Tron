@@ -362,7 +362,85 @@ class MainMenuFloat(Screen):
 ####################################################################
 ##Search for Lobbies Menu Float version
 class SearchForLobbiesMenuFloat(Screen):
-	pass
+	def getPlayerdata(self,test):
+		print("Updating screen... %s" % test)
+
+		outputname = GAME.getPlayerName()
+		print(outputname, flush= True)
+		if outputname != '':
+			self.ids.explainmenuLabel.text = ('Here you can Enter the Lobby as %s' % outputname)
+		else:
+			pass
+
+		color = GAME.getColor()
+		playercolor = (color[0], color[1], color[2], 1)
+		self.ids.explainmenuLabel.background_color=playercolor
+
+	def getserverOnline(self):
+		"""
+		Get the server which are online
+
+		Args:
+			server_ip (list): Time the player was in the game
+		Return:
+			String
+		"""
+		
+		raise NotImplementedError
+
+	def connecttoServer(self, inputIp, inputPort):
+		"""
+		Sends IP and Port to Server
+
+		Args:
+			inputIp (str):
+			inputPort (str):
+		Return:
+			inputIp (str):
+			inputPort (int):
+		"""
+
+		self.inputIp = inputIp
+		self.inputPort = int(inputPort)
+
+		GAME.ConnectToServer(self.inputIp, self.inputPort)
+		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
+
+
+	def updateconnecttoserverButton(self, inputIp, inputPort):
+		"""
+		Takes IP from Input at Search for Server Menu
+
+		Args:
+			inputIp (str):
+			inputPort (str):
+		Return:
+			change String in connectinotoserverButton
+		"""
+		self.inputIp = inputIp
+		self.inputPort = inputPort
+		if inputIp:
+			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
+			self.ids.connecttoserverButton.text = output
+		
+		elif inputPort:
+			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
+			self.ids.connecttoserverButton.text = output
+
+		else:
+			pass
+
+	def startGame(self):
+		"""
+		Send Startsignal to server and begin countdown
+
+		Args:
+			-
+		Return:
+			-
+		"""
+		start_game = GameApp()
+		start_game.run()
 ####################################################################
 ####################################################################
 ##Lobby Menu
