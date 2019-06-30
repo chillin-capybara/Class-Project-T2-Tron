@@ -107,6 +107,13 @@ class Match(object):
 		"""
 		return self.get_features()
 
+	@property
+	def featureString(self) -> str:
+		"""
+		Features of the match formatted as string
+		"""
+		return self.get_feature_string()
+
 	def get_features(self) -> List[str]:
 		"""
 		List the features of the match
@@ -116,6 +123,16 @@ class Match(object):
 		"""
 		features = ['BASIC', 'Players', self.count_players, 'Lifes', self.count_lifes]
 		return features
+	
+	def get_feature_string(self) -> str:
+		"""
+		Get the features of the match as a string.
+		
+		Returns:
+			str: Features
+		"""
+		string = "BASIC || Players: %d || Lifes: %d" % (self.count_players, self.count_lifes)
+		return string
 	
 	def get_feature_int(self, name: str, features: List[str]) -> int:
 		"""
