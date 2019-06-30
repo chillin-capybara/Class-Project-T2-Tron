@@ -11,34 +11,79 @@
     #on_pre_enter: (root.getPlayerdata(""))
 
     HeaderLabel:
-        text: 'Search for Server Menu Float Version'
+        text: 'create Match Menu Float Version'
         pos_hint: {"x": .01, "y": .91}
 
     ColoredLabel:
         id: explainmenuLabel
-        size_hint: ( .98, .5)
-        pos_hint: {'x': .01, 'y': .40}
-        background_color: (.4,.4,.2,1)
-        text: 'Here you can connect to the Server'
+        size_hint: ( .98, .08)
+        pos_hint: {"x": .01, "y": .82}
+        background_color: (.1,.9,.5,1)
+        text: 'Here you can create a Match'
+
+    BoxLayout:
+    ##Input Playername
+        orientation: "horizontal"
+        size_hint: ( .98, .2)
+        pos_hint: {"x": .01, "y": .61}
+        spacing: 1
+
+        Label:
+            size_hint: (.35, 1)
+            text: 'Give a Name for the new Game'
+        
+        TextInput:
+            size_hint: (.65, 1)
+            id: gamenameTextInput
+            hint_text: 'Only_one_word_is_allowed'
+            on_text:
+                root.validateInput(self.text)
+
+        
+
+    BoxLayout:
+    ## Number of Players Silder
+        orientation: "vertical"
+        size_hint: ( .98, .2)
+        pos_hint: {"x": .01, "y": .40}
+
+        Label:
+            text: 'Number of Players ' + str(int(numberplayersSlider.value))
+
+        Slider:
+            id: numberplayersSlider
+            min: 2
+            max: 10
+            step: 1
+
+    BoxLayout:
+    ##Number of Lifes Slider
+        orientation: "vertical"
+        size_hint: ( .98, .2)
+        pos_hint: {"x": .01, "y": .19}
+
+        Label:
+            text: 'Number of Lifes ' + str(int(numberlifesSlider.value))
+
+        Slider:
+            id: numberlifesSlider
+            min: 1
+            max: 10
+            step: 1
 
     Button:
-        id: gamestartButton
+        id: creatematchButton
         size_hint: (.98, .08)
         pos_hint: {'x': .01, 'y': .1}
-        text: 'Connect to the Server and start Game(Not implemented yet)'
+        text: 'Create Match'
         on_release:
-            root.manager.current = 'gamestartmenu'
-        #    root.getserverOnline()
+            root.manager.current = 'lobbymenufloat'
+            root.createMatch(numberplayersSlider.value, numberlifesSlider.value, gamenameTextInput.text)
         #    root.connecttoServer(ipTextInput.text, portTextInput.text)
         #    root.startGame()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
-
-    Label:
-        size_hint: (.315, .2)
-        pos_hint: {"x": .01, "y": .19}
-        text: 'Please Enter the IP of the Server:'
 
 # <CreateServerMenu>:
 #     BoxLayout:
