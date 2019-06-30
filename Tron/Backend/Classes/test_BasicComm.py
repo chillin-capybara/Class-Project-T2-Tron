@@ -509,7 +509,7 @@ class test_BasicComm(unittest.TestCase):
 		NOTE:
 			This implementation only supports Tron
 		"""
-		packet = COMM.available_games()
+		packet = COMM.available_games(['Tron'])
 		self.assertEqual(
 			packet,
 			utf8("AVAILABLE_GAMES Tron")

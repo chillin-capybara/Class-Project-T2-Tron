@@ -1,0 +1,69 @@
+
+<BackgroundColor@Widget>
+    background_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<HeaderLabel@Label+BackgroundColor>
+    size_hint: (.98, .08)
+    background_color: (.3,.4,.5,1)
+    pos_hint: {"x": 0, "y": 0}
+
+<ColoredLabel@Label+BackgroundColor>
+
+<BackToMenuButton>:
+    Button:
+        id: backtomenuButton
+        text: 'Back to Mainmenu'
+        size_hint: (.98,.08)
+        pos_hint: {"x": 0, "y": 0}
+        background_color: (.5,.4,.3,1)
+        pos_hint: {"bottom":1}
+        on_release: root.changeScreen()
+
+<ConnectionLostMenuFloat>:
+
+    HeaderLabel:
+        text: 'Connection Lost Menu Float Version'
+        pos_hint: {"x": .01, "y": .91}
+
+    ColoredLabel:
+        id: connectionlostLabel
+        size_hint: ( .98, .5)
+        pos_hint: {'x': .01, 'y': .40}
+        background_color: (.4,.4,.2,1)
+        text: 'Die Oma hat den Spaten ins Glasfaserkabel gerammt. Der Server ist leider nicht mehr zu erreichen'
+    
+    Button:
+        id: gamestartButton
+        size_hint: (.98, .08)
+        pos_hint: {'x': .01, 'y': .1}
+        text: 'Start the game again (Not implemented yet)'
+        on_release:
+            root.manager.current = 'gamestartmenu'
+        #    root.startGame()
+
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}
+
+        # #Box or debugging
+        # BoxLayout:
+        #     Button:
+        #         text: 'Game Over Menu'
+        #         on_release: root.manager.current = 'gameovermenu'
+        #     Button:
+        #         text: 'Connection Lost Menu'
+        #         on_release: root.manager.current = 'connectionlostmenu'
+        #     Button:
+        #         text: 'Search For Server Menu'
+        #         on_release: root.manager.current = 'searchforservermenu'
+        #     Button:
+        #         text: 'Create Server Menu'
+        #         on_release: root.manager.current = 'createservermenu'
+        #     Button:
+        #         text: 'Pause Menu'
+        #         on_release: root.manager.current = 'pausemenu'

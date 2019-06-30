@@ -2,6 +2,8 @@ import threading
 import socket
 import logging
 
+from typing import List
+
 from ..Core.Hook import Hook
 from .BasicComm import BasicComm
 from ..Core.globals import *
@@ -39,6 +41,7 @@ class LobbyThread(threading.Thread):
 
 		# Initialize event handlers
 		self.__comm.EHello += self.handle_hello
+		self.__comm.EListGames += self.handle_list_games
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
@@ -83,4 +86,15 @@ class LobbyThread(threading.Thread):
 		self.__sock.send(packet)
 
 		logging.info("Answering with server features: %s" % str(SERVER_FEATURES))
-
+	
+	def handle_list_games(self, sender):
+		"""
+		Handlt the EAvailableGames from the Communication protocol
+		
+		Args:
+			sender (CommProt): Caller of the event
+		"""
+		logging.info("Sending the list of available games...")
+		list_game = self.__hook_get_games()
+		packet = self.__comm.available_games(SERVER_GAMES)
+		self.__sock.send(packet)
