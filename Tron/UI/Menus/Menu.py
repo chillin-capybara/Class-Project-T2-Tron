@@ -436,44 +436,8 @@ class SearchForLobbiesMenuFloat(Screen):
 			-
 		"""
 
-		
 		print('Enter Lobby %s' % (self.lobby))
-		
 
-	def updateconnecttoserverButton(self, inputIp, inputPort):
-		"""
-		Takes IP from Input at Search for Server Menu
-
-		Args:
-			inputIp (str):
-			inputPort (str):
-		Return:
-			change String in connectinotoserverButton
-		"""
-		self.inputIp = inputIp
-		self.inputPort = inputPort
-		if inputIp:
-			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connecttoserverButton.text = output
-		
-		elif inputPort:
-			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connecttoserverButton.text = output
-
-		else:
-			pass
-
-	def startGame(self):
-		"""
-		Send Startsignal to server and begin countdown
-
-		Args:
-			-
-		Return:
-			-
-		"""
-		start_game = GameApp()
-		start_game.run()
 ####################################################################
 ####################################################################
 ##Lobby Menu
@@ -537,7 +501,57 @@ class LobbyMenuFloat(Screen):
 ####################################################################
 ##Create Match Menu Flaot version
 class CreateMatchMenuFloat(Screen):
-	pass
+	
+	def createMatch(self, numberplayer, numberlifes, gamename):
+
+		self.numberplayer = numberplayer
+		self.numberlifes = numberlifes
+		self.gamename = gamename
+
+		print('Create Match with %d players, %d lifes and name %s' % (self.numberplayer, self.numberlifes, self.gamename))
+		#create match
+
+	def validateInput(self, inpt):
+
+		self.inpt = inpt
+
+		try:
+			lastcharacter = self.inpt[-1:]
+			x = re.findall("[a-zA-Z0-9_]", lastcharacter)
+			print(x)
+			print('length %d' % len(x)) 
+			if len(x) == 0:
+			#if len(parsspace) == 1:
+				rightstring = self.input[:-1]
+				print ('rigthstring: %s' % rightstring)
+				self.ids.gamenameTextInput.text = rightstring
+			
+			else:
+				print ('original string: %s' % inpt)
+				self.ids.gamenameTextInput.text = inpt
+				
+		#	for e in inptlist:
+		#		if value == "":
+		#			self.bubble.ids.label.text = "IP needs to look like 123.456.789.897"
+		#			status = False
+		#		elif len(e) == 3 and len(iplist) == 4:
+		#			print("Schleife länge 3")
+		#			status = True
+		#		elif len(iplist) != 4:
+		#			print("Länge nicht vier")
+		#			status = False
+		#			self.bubble.ids.label.text = "Input must be an valid IP"
+		#		else:
+		#			status = False
+		#			self.bubble.ids.label.text = "Input must be an valid IP"
+
+		except:
+			pass
+		#	status = False
+		#	self.bubble.ids.label.text = "Input must be an valid IP"
+
+
+
 ####################################################################
 ####################################################################
 ##Connection Lost Manu Float version
