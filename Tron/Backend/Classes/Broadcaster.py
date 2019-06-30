@@ -60,12 +60,22 @@ class Broadcaster(object):
 		# Start the thread
 		self.__thread.start()
 	
+	def handle_server_stop(self, sender):
+		"""
+		Handle the event, when the complete server is stopped
+		
+		Args:
+			sender ([type]): GameServer object
+		"""
+		self.Stop()
+
 	def Stop(self):
 		"""
 		Stop the discovery broadcaster.
 		NOTE:
 			Closing the socket causes the thread to close.
 		"""
+		logging.info("Stoppign the broadcasted")
 		# Close the socket
 		self.__sockfd.close()
 	

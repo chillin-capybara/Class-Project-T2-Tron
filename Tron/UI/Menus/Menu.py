@@ -7,10 +7,13 @@ from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import BooleanProperty
-#from ..mainUI import GameApp, GameUI
-from Backend.Classes.Game import Game
 import re
-GAME = Game()
+##import own modules
+#from ..mainUI import GameApp, GameUI
+from Backend.Classes.GameClient import GameClient
+from collections import namedtuple
+
+CLIENT = GameClient()
 
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenu.kv')
@@ -29,6 +32,7 @@ Builder.load_file('kvfilesmenu/searchforlobbiesmenufloat.kv')
 Builder.load_file('kvfilesmenu/lobbymenufloat.kv')
 Builder.load_file('kvfilesmenu/creatematchmenufloat.kv')
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
+Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
 
 class GameOverMenu(Screen):
 
@@ -115,8 +119,8 @@ class ConnectionLostMenu(Screen):
 		Return:
 			-
 		"""
-		start_game = GameApp()
-		start_game.run()
+		#start_game = GameApp()
+		#start_game.run()
 
 class SearchForServerMenu(Screen):
 
@@ -156,7 +160,7 @@ class SearchForServerMenu(Screen):
 		self.inputIp = inputIp
 		self.inputPort = int(inputPort)
 
-		GAME.ConnectToServer(self.inputIp, self.inputPort)
+		#GAME.ConnectToServer(self.inputIp, self.inputPort)
 		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
 
 
@@ -192,8 +196,8 @@ class SearchForServerMenu(Screen):
 		Return:
 			-
 		"""
-		start_game = GameApp()
-		start_game.run()
+		#start_game = GameApp()
+		#start_game.run()
 
 class CreateServerMenu(Screen):
 	arena = 1
@@ -209,8 +213,8 @@ class CreateServerMenu(Screen):
 		Return:
 			-
 		"""
-		start_game = GameApp()
-		start_game.run()
+		#start_game = GameApp()
+		#start_game.run()
 
 	def updateArenatype(self, currentarenatype):
 		"""
@@ -254,13 +258,13 @@ class CreateServerMenu(Screen):
 			-
 		"""
 		self.numberplayer = numberplayer
-		GAME.CreateServer('', 9876, self.numberplayer)
+		#GAME.CreateServer('', 9876, self.numberplayer)
 		print('Arenatype: %d, Diffculty: %d and %d Players to play have been choosen.' % (self.arena, self.difficulty, self.numberplayer), flush = True)
 
 	def destroyServer(self):
 
 		print('Destroying Server...')
-		GAME.DestroyServer()
+		#GAME.DestroyServer()
 
 
 class PauseMenu(Screen):
@@ -320,8 +324,8 @@ class SettingsMenu(Screen):
 			-
 		"""
 		# Save the name and the color
-		GAME.setPlayerName(playername)
-		GAME.setColor(color)
+		#GAME.setPlayerName(playername)
+		#GAME.setColor(color)
 		# TODO IMPLEMENT RGB Color picker
 
 		print("Playername changed to: %s" % playername)
@@ -331,13 +335,13 @@ class SettingsMenu(Screen):
 class StatisticsMenu(Screen):
 	def refreshstats(self,test):
 		print("Updating screen... %s" % test)
-		print("PLAYERNAME: %s" % GAME.getPlayerName())
+		#print("PLAYERNAME: %s" % GAME.getPlayerName())
 
-		outputname = 'Name: %s' % (GAME.getPlayerName())
+		#outputname = 'Name: %s' % (GAME.getPlayerName())
 		print(outputname, flush= True)
 		self.ids.nameLabel.text = outputname
 
-		color = GAME.getColor()
+		#color = GAME.getColor()
 		sol = "Color: %s" % str(color)
 		print(sol)
 		playercolor = (color[0], color[1], color[2], 1)
@@ -351,8 +355,7 @@ class AboutMenu(Screen):
 class GameStartMenu(Screen):
 
 	def destroyserver(self):
-
-		GAME.DestroyServer()
+		pass
 
 ####################################################################
 ##Main Manu New version
@@ -362,95 +365,198 @@ class MainMenuFloat(Screen):
 ####################################################################
 ##Search for Lobbies Menu Float version
 class SearchForLobbiesMenuFloat(Screen):
+
 	def getPlayerdata(self,test):
 		print("Updating screen... %s" % test)
 
-		outputname = GAME.getPlayerName()
+		outputname = CLIENT.me.getName()
 		print(outputname, flush= True)
 		if outputname != '':
 			self.ids.explainmenuLabel.text = ('Here you can Enter the Lobby as %s' % outputname)
 		else:
 			pass
 
-		color = GAME.getColor()
+		color = CLIENT.me.getColor()
 		playercolor = (color[0], color[1], color[2], 1)
 		self.ids.explainmenuLabel.background_color=playercolor
 
-	def getserverOnline(self):
+	def getavailableLobbies(self):
 		"""
-		Get the server which are online
+		Get the Lobbies which are available
 
 		Args:
-			server_ip (list): Time the player was in the game
+			Lobbies (list): IP & Port
 		Return:
-			String
+			-
 		"""
+		# Lobby = namedtuple('Lobby', ['host', 'port'])
+		# lobby1 = Lobby("192.168.1.1", 20)
+		# lobby2 = Lobby("10.0.0.1", 9984)
+		# lobby1.host
+		CLIENT.discover_lobby()
+		listlobbies = CLIENT.lobbies
+		count_lobbies = listlobbies.__len__()
+		for i in range(0,count_lobbies):
+			lobby = listlobbies[i]
+			if i == 0:
+				self.ids.lobby1Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 1:
+				self.ids.lobby2Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 2:
+				self.ids.lobby3Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 3:
+				self.ids.lobby4Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			elif i == 4:
+				self.ids.lobby5Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			else:
+				pass
+
+	def updatechosenLobby(self, currentlobby):
+		"""
+		Sets variable for choosen Lobby
+
+		Args:
+			Lobby (int):
+		Return:
+			Lobby (int)
+		"""
+		self.currentlobby = currentlobby
+
+		self.lobby = int(self.currentlobby)
 		
-		raise NotImplementedError
+		print('Lobby: %d has been choosen.' % (self.lobby), flush = True)
+		return self.lobby
 
-	def connecttoServer(self, inputIp, inputPort):
+	def enterLobby(self):
 		"""
-		Sends IP and Port to Server
-
-		Args:
-			inputIp (str):
-			inputPort (str):
-		Return:
-			inputIp (str):
-			inputPort (int):
-		"""
-
-		self.inputIp = inputIp
-		self.inputPort = int(inputPort)
-
-		GAME.ConnectToServer(self.inputIp, self.inputPort)
-		print('Connect to Server with IP: %s and Port: %d' % (self.inputIp, self.inputPort))
-
-
-	def updateconnecttoserverButton(self, inputIp, inputPort):
-		"""
-		Takes IP from Input at Search for Server Menu
-
-		Args:
-			inputIp (str):
-			inputPort (str):
-		Return:
-			change String in connectinotoserverButton
-		"""
-		self.inputIp = inputIp
-		self.inputPort = inputPort
-		if inputIp:
-			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connecttoserverButton.text = output
-		
-		elif inputPort:
-			output = 'Connect to the Server with IP %s and Port %s' % (self.inputIp, self.inputPort)
-			self.ids.connecttoserverButton.text = output
-
-		else:
-			pass
-
-	def startGame(self):
-		"""
-		Send Startsignal to server and begin countdown
+		Sends Lobby to Server
 
 		Args:
 			-
 		Return:
 			-
 		"""
-		start_game = GameApp()
-		start_game.run()
+
+		print('Enter Lobby %s' % (self.lobby))
+		CLIENT.enter_lobby(self.lobby-1)
+
 ####################################################################
 ####################################################################
 ##Lobby Menu
 class LobbyMenuFloat(Screen):
-	pass
+	def getLobbyInformation(self):
+		"""
+		Get the Information of the available Lobbies
+
+		Args:
+			Lobbies (list): name; game; features
+		Return:
+			-
+		"""
+		Match = namedtuple('Match', ['name', 'game', 'features'])
+		match1 = Match("Letsfight", 'Tron', '3 Players; 4 Lives')
+		match2 = Match("FullHouse123", 'Tron', '5 Players; 8 Lives')
+		match3 = Match("Pong", 'Pong', '2 Players; 1 Lives')
+		match4 = Match("Alone", 'Minecraft', '1 Players; 1 Live; 3 Zombies; a Million Bricks')
+		listmatches = [match1, match2, match3, match4]
+
+		count_matches = listmatches.__len__()
+		for i in range(0,count_matches):
+			match = listmatches[i]
+			if i == 0:
+				self.ids.match1nameLabel.text = match.name
+				self.ids.match1gameLabel.text = match.game
+				self.ids.match1featureLabel.text = match.features
+			elif i == 1:
+				self.ids.match2nameLabel.text = match.name
+				self.ids.match2gameLabel.text = match.game
+				self.ids.match2featureLabel.text = match.features
+			elif i == 2:
+				self.ids.match3nameLabel.text = match.name
+				self.ids.match3gameLabel.text = match.game
+				self.ids.match3featureLabel.text = match.features
+			elif i == 3:
+				self.ids.match4nameLabel.text = match.name
+				self.ids.match4gameLabel.text = match.game
+				self.ids.match4featureLabel.text = match.features
+			elif i == 4:
+				self.ids.match5nameLabel.text = match.name
+				self.ids.match5gameLabel.text = match.game
+				self.ids.match5featureLabel.text = match.features
+			else:
+				pass
+	def updatechosenMatch(self, currentmatch):
+		"""
+		Sets variable for choosen Lobby
+
+		Args:
+			Lobby (int):
+		Return:
+			Lobby (int)
+		"""
+		self.currentmatch = currentmatch
+
+		self.match = int(self.currentmatch)
+		
+		print('Lobby: %d has been choosen.' % (self.match), flush = True)
+		return self.match
 ####################################################################
 ####################################################################
 ##Create Match Menu Flaot version
 class CreateMatchMenuFloat(Screen):
-	pass
+	
+	def createMatch(self, numberplayer, numberlifes, matchname):
+
+		self.numberplayer = numberplayer
+		self.numberlifes = numberlifes
+		self.matchname = matchname
+
+		print('Create Match with %d players, %d lifes and name %s' % (self.numberplayer, self.numberlifes, self.matchname))
+		settings = {
+			'Players' : self.numberplayer,
+			'Lifes' : self.numberlifes
+		}
+		CLIENT.lobby.create_match('Tron', self.matchname, settings)
+
+	def validateInput(self, inpt):
+
+		self.inpt = inpt
+
+		try:
+			lastcharacter = self.inpt[-1:]
+			x = re.findall("[a-zA-Z0-9_]", lastcharacter)
+			print(x)
+			print('length %d' % len(x)) 
+			if len(x) == 0:
+			#if len(parsspace) == 1:
+				rightstring = self.input[:-1]
+				print ('rigthstring: %s' % rightstring)
+				self.ids.gamenameTextInput.text = rightstring
+			
+			else:
+				print ('original string: %s' % inpt)
+				self.ids.gamenameTextInput.text = inpt
+				
+		#	for e in inptlist:
+		#		if value == "":
+		#			self.bubble.ids.label.text = "IP needs to look like 123.456.789.897"
+		#			status = False
+		#		elif len(e) == 3 and len(iplist) == 4:
+		#			print("Schleife länge 3")
+		#			status = True
+		#		elif len(iplist) != 4:
+		#			print("Länge nicht vier")
+		#			status = False
+		#			self.bubble.ids.label.text = "Input must be an valid IP"
+		#		else:
+		#			status = False
+		#			self.bubble.ids.label.text = "Input must be an valid IP"
+
+		except:
+			pass
+		#	status = False
+		#	self.bubble.ids.label.text = "Input must be an valid IP"
+
 ####################################################################
 ####################################################################
 ##Connection Lost Manu Float version
@@ -463,6 +569,9 @@ class BackToMenuButton(Screen):
 	
 	def changeScreen(self):
 		screen_manager.current = 'mainmenu'
+
+class ListLabel(Screen):
+	pass
 ####################################################################
 ####################################################################
 ##Search For Server Menu Float version

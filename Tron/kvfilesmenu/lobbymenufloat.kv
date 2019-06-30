@@ -7,165 +7,169 @@
 #waiting_for _other_player_if_waiting_Anzeige
 
 #operations:
-#    -
-<BackgroundColor@Widget>
-    background_color: 1, 1, 1, 1
-    canvas.before:
-        Color:
-            rgba: root.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-<HeaderLabel@Label+BackgroundColor>
-    size_hint: (.98, .08)
-    background_color: (.3,.4,.5,1)
-    pos_hint: {"x": 0, "y": 0}
-
-<ColoredLabel@Label+BackgroundColor>
-
-<BackToMenuButton>:
-    Button:
-        id: backtomenuButton
-        text: 'Back to Mainmenu'
-        size_hint: (.98,.08)
-        pos_hint: {"x": 0, "y": 0}
-        background_color: (.5,.4,.3,1)
-        pos_hint: {"bottom":1}
-        #on_release: root.changeScreen()
 
 <LobbyMenuFloat>:
-    #on_pre_enter: (root.getPlayerdata(""))
+    on_pre_enter: root.getLobbyInformation()
 
     HeaderLabel:
-        text: 'Search for Server Menu Float Version'
+        text: 'Lobby Menu Float Version'
         pos_hint: {"x": .01, "y": .91}
 
     ColoredLabel:
         id: explainmenuLabel
+        size_hint: ( .98, .08)
+        pos_hint: {'x': .01, 'y': .81}
+        background_color: (.1,.3,.7,1)
+        text: 'Here you can connect to the server'
+
+    BoxLayout:
+        orientation: 'vertical'
         size_hint: ( .98, .5)
-        pos_hint: {'x': .01, 'y': .40}
-        background_color: (.4,.4,.2,1)
-        text: 'Here you can connect to the Server'
+        pos_hint: {'x': .01, 'y': .2}
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                id: match1nameLabel
+                text: "Lobby1"
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match1gameLabel
+                text: "Tron"
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match1featureLabel
+                text: "3 Lives, 4 Players"
+                size_hint: (0.5,1)
+                color: 0, 0, 0, 1
+            CheckBox:
+                id: match1Checkbox
+                group: "MatchCheckbox"
+                size_hint: (0.1,1)
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenMatch(1)
+            
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                id: match2nameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match2gameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match2featureLabel
+                text: ""
+                size_hint: (0.5,1)
+                color: 0, 0, 0, 1
+            CheckBox:
+                id: match2Checkbox
+                group: "MatchCheckbox"
+                size_hint: (0.1,1)
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenMatch(2)
+        
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                id: match3nameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match3gameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match3featureLabel
+                text: ""
+                size_hint: (0.5,1)
+                color: 0, 0, 0, 1
+            CheckBox:
+                id: match3Checkbox
+                group: "MatchCheckbox"
+                size_hint: (0.1,1)
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenMatch(3)
+
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                id: match4nameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match4gameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match4featureLabel
+                text: ""
+                size_hint: (0.5,1)
+                color: 0, 0, 0, 1
+            CheckBox:
+                id: match4Checkbox
+                group: "MatchCheckbox"
+                size_hint: (0.1,1)
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenMatch(4)
+
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                id: match5nameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match5gameLabel
+                text: ""
+                size_hint: (0.2,1)
+                color: 0, 0, 0, 1
+            Label:
+                id: match5featureLabel
+                text: ""
+                size_hint: (0.5,1)
+                color: 0, 0, 0, 1
+            CheckBox:
+                id: match5Checkbox
+                group: "MatchCheckbox"
+                size_hint: (0.1,1)
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenMatch(5)
 
     Button:
-        id: gamestartButton
-        size_hint: (.98, .08)
+        id: creatematchButton
+        size_hint: (.485, .08)
+        background_color: (0.1,0.3,0.7,1)
         pos_hint: {'x': .01, 'y': .1}
-        text: 'Connect to the Server and start Game(Not implemented yet)'
+        text: 'Create match'
+        on_release:
+            root.manager.current = 'creatematchmenufloat'
+            #root.creatematch
+
+    Button:
+        id: joinmatchButton
+        size_hint: (.485, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .51, 'y': .1}
+        text: 'Join match'
         on_release:
             root.manager.current = 'gamestartmenu'
-        #    root.getserverOnline()
-        #    root.connecttoServer(ipTextInput.text, portTextInput.text)
-        #    root.startGame()
+            #root.startgame
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
-
-    Label:
-        size_hint: (.315, .2)
-        pos_hint: {"x": .01, "y": .19}
-        text: 'Please Enter the IP of the Server:'
-
-    TextInput:
-        id: ipTextInput
-        size_hint: (.47, .2)
-        pos_hint: {"x": .325, "y": .19}
-        hint_text: '131.159.200.137'
-        # limit to 15 chars
-        input_filter: lambda text, from_undo: text[:15 - len(self.text)]
-       # on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
-
-    TextInput:
-        id: portTextInput
-        size_hint: (.185, .2)
-        pos_hint: {"x": .8, "y": .19}
-        hint_text: '9877'
-        input_filter: 'int'
-        ##limit to 5 chars
-        #input_filter: lambda text, from_undo: text[:5 - len(self.text)]
-        #on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
-
-
-# <SearchForServerMenu>:
-
-#     id: searchforservermenuId
-#     inputIp: ipTextInput
-#     inputPort: portTextInput
-
-#     BoxLayout:
-#         orientation: 'vertical'
-#         spacing: 10
-#         padding: 10
-
-#         Label:
-#             id: menunameLabel
-#             text: 'Search For Server Menu'
-#             size_hint: 1, .3
-#             color: 0, 0, 0, 1
-
-#         Label:
-#             id: statusenemiesLabel
-#             text: 'Other players will grab a coffee. Wanna join?'
-#             color: 0, 0, 0, 1
-
-#         Label:
-#             id: playersonlineLabel
-#             text: 'Noone wants to play with you. Even computer says NO'
-#             color: 0, 0, 0, 1
-
-#         BoxLayout:
-#             orientation: 'horizontal'
-
-#             Label:
-#                 id: askforipLabel
-#                 text: "Please Enter the IP from the Server"
-
-#             TextInput:
-#                 id: ipTextInput
-#                 hint_text: '131.159.200.137'
-#                 # limit to 15 chars
-#                 input_filter: lambda text, from_undo: text[:15 - len(self.text)]
-#                 on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
-
-#             TextInput:
-#                 id: portTextInput
-#                 hint_text: '9877'
-#                 input_filter: 'int'
-#                 # limit to 5 chars
-#                 #input_filter: lambda text, from_undo: text[:5 - len(self.text)]
-#                 on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
-
-#         Button:
-#             id: connecttoserverButton
-#             text: 'Connect to the Server and start Game(Not implemented yet)'
-#             on_release:
-#                 root.manager.current = 'gamestartmenu'
-#             #    root.getserverOnline()
-#                 root.connecttoServer(ipTextInput.text, portTextInput.text)
-#             #    root.startGame()
-
-#         Button:
-#             id: backtomenuButton
-#             text: 'Return to the Main Menu (Not implemented yet)'
-#             on_release: root.manager.current = 'mainmenu'
-
-#         BoxLayout:
-#             Button:
-#                 text: 'Game Over Menu'
-#                 on_release: root.manager.current = 'gameovermenu'
-#             Button:
-#                 text: 'Connection Lost Menu'
-#                 on_release: root.manager.current = 'connectionlostmenu'
-#             Button:
-#                 text: 'Search For Server Menu'
-#                 on_release: root.manager.current = 'searchforservermenu'
-#             Button:
-#                 text: 'Create Server Menu'
-#                 on_release: root.manager.current = 'createservermenu'
-#             Button:
-#                 text: 'Pause Menu'
-#                 on_release: root.manager.current = 'pausemenu'
-#             Button:
-#                 text: 'Connection Lost Float'
-#                 on_release: root.manager.current = 'connectionlostmenufloat'

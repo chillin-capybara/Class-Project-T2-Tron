@@ -8,34 +8,11 @@
 
 #operations:
 #    -
-<BackgroundColor@Widget>
-    background_color: 1, 1, 1, 1
-    canvas.before:
-        Color:
-            rgba: root.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-<HeaderLabel@Label+BackgroundColor>
-    size_hint: (.98, .08)
-    background_color: (.3,.4,.5,1)
-    pos_hint: {"x": 0, "y": 0}
-
-<ColoredLabel@Label+BackgroundColor>
-
-<BackToMenuButton>:
-    Button:
-        id: backtomenuButton
-        text: 'Back to Mainmenu'
-        size_hint: (.98,.08)
-        pos_hint: {"x": 0, "y": 0}
-        background_color: (.5,.4,.3,1)
-        pos_hint: {"bottom":1}
-        on_release: root.changeScreen()
 
 <SearchForLobbiesMenuFloat>:
-    on_pre_enter: (root.getPlayerdata(""))
+    on_pre_enter:
+        root.getPlayerdata("")
+        root.getavailableLobbies()
 
     HeaderLabel:
         text: 'Search for Lobbies Menu Float Version'
@@ -48,43 +25,119 @@
         background_color: (.4,.4,.2,1)
         text: 'Here you can Enter a Lobby'
 
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: (.98, .5)
+        pos_hint: {'x': .01, 'y': .185}
+        spacing: 1
+        padding: 1
+
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: (.9, 1)
+
+            Label:
+                id: lobby1Label
+                #size_hint: ( .98, .095)
+                #pos_hint: {'x': .01, 'y': .695}
+                text: 'xxxx'
+            Label:
+                id: lobby2Label
+                #size_hint: ( .98, .095)
+                #pos_hint: {'x': .01, 'y': .59}
+                text: 'xxxx'
+            Label:
+                id: lobby3Label
+                #size_hint: ( .98, .095)
+                #pos_hint: {'x': .01, 'y': .485}
+                text: 'xxxx'
+            Label:
+                id: lobby4Label
+                #size_hint: ( .98, .095)
+                #pos_hint: {'x': .01, 'y': .38}
+                text: 'xxxx'
+            Label:
+                id: lobby5Label
+                #size_hint: ( .98, .095)
+                #pos_hint: {'x': .01, 'y': .275}
+                text: 'xxxx'
+        
+        BoxLayout:
+            orientation: "vertical"
+            size_hint: (.1, 1)
+
+            CheckBox:
+                id: lobby1Checkbox
+                group: "LobbyCheckbox"
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenLobby(1)
+
+            CheckBox:
+                id: lobby2Checkbox
+                group: "LobbyCheckbox"
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenLobby(2)
+
+            CheckBox:
+                id: lobby3Checkbox
+                group: "LobbyCheckbox"
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenLobby(3)
+
+            CheckBox:
+                id: lobby4Checkbox
+                group: "LobbyCheckbox"
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenLobby(4)
+
+            CheckBox:
+                id: lobby5Checkbox
+                group: "LobbyCheckbox"
+                color: (1,0,0,1)
+                on_active:
+                    root.updatechosenLobby(5)
+
+
     Button:
-        id: gamestartButton
+        id: enterlobbyButton
         size_hint: (.98, .08)
-        pos_hint: {'x': .01, 'y': .1}
-        text: 'Connect to the Server and start Game(Not implemented yet)'
+        pos_hint: {"x": .01, "y": .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Enter Lobby'
         on_release:
-            root.manager.current = 'gamestartmenu'
-        #    root.getserverOnline()
-        #    root.connecttoServer(ipTextInput.text, portTextInput.text)
-        #    root.startGame()
+            root.enterLobby()
+            root.manager.current = 'lobbymenufloat'
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
 
-    Label:
-        size_hint: (.315, .2)
-        pos_hint: {"x": .01, "y": .19}
-        text: 'Please Enter the IP of the Server:'
+    # Label:
+    #     size_hint: (.315, .2)
+    #     pos_hint: {"x": .01, "y": .19}
+    #     text: 'Please Enter the IP of the Server:'
 
-    TextInput:
-        id: ipTextInput
-        size_hint: (.47, .2)
-        pos_hint: {"x": .325, "y": .19}
-        hint_text: '131.159.200.137'
-        # limit to 15 chars
-        input_filter: lambda text, from_undo: text[:15 - len(self.text)]
-        #on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
+    # TextInput:
+    #     id: ipTextInput
+    #     size_hint: (.47, .2)
+    #     pos_hint: {"x": .325, "y": .19}
+    #     hint_text: '131.159.200.137'
+    #     # limit to 15 chars
+    #     input_filter: lambda text, from_undo: text[:15 - len(self.text)]
+    #     #on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
 
-    TextInput:
-        id: portTextInput
-        size_hint: (.185, .2)
-        pos_hint: {"x": .8, "y": .19}
-        hint_text: '9877'
-        input_filter: 'int'
-        ##limit to 5 chars
-        #input_filter: lambda text, from_undo: text[:5 - len(self.text)]
-        #on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
+    # TextInput:
+    #     id: portTextInput
+    #     size_hint: (.185, .2)
+    #     pos_hint: {"x": .8, "y": .19}
+    #     hint_text: '9877'
+    #     input_filter: 'int'
+    #     ##limit to 5 chars
+    #     #input_filter: lambda text, from_undo: text[:5 - len(self.text)]
+    #     #on_text: root.updateconnecttoserverButton(ipTextInput.text, portTextInput.text)
 
 
 # <SearchForServerMenu>:

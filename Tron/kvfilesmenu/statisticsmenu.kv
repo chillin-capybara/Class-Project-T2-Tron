@@ -2,16 +2,6 @@
 # Display Wincount
 # Display Time Lived
 # Reset Statistics
-<BackgroundColor@Widget>
-    background_color: 1, 1, 1, 1
-    canvas.before:
-        Color:
-            rgba: root.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-<ColoredLabel@Label+BackgroundColor>
 
 <StatisticsMenu>:
     on_pre_enter: (root.refreshstats(""))
@@ -23,19 +13,19 @@
             id: menunameLabel
             text: 'Statistics Menu'
             size_hint: (1, 0.1)
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         Label:
             id: nameLabel
             text: "Name: "
             size_hint: (1, 1)
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         BoxLayout:
             orientation: 'horizontal'
             Label:
                 id: colorLabel
                 text: "Color: "
                 size_hint: (1.5, 1)
-                color: 1, 0, 0, 1
+                color: 0, 0, 0, 1
             ColoredLabel:
                 id: showcolorLabel
                 size_hint:(1,1)
@@ -44,12 +34,12 @@
             id: wincountLabel
             text: 'Wincount: (not yet implemented)'
             size_hint: (1, 1)
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         Label:
             id: timelivedLabel
             text: 'Time lived: (not yet implemented)'
             size_hint: (1, 1)
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         Button:
             id: resetButton
             text: 'Reset Statistics (not yet implemented)'

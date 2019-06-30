@@ -10,9 +10,9 @@ The lobby protocol described in the following consists of a TCP protocol, implem
   - All text is only allowed to contain the characters A-Za-z0-9_.!
   - Lists (denoted as list<> in the protocol description) are always comma-separated and are not allowed to contain spaces.
   - Colors are always denoted as a list representing a decimal RGB code.
-  
+
 ## Server Specification
- 
+
   - The server shall support one lobby and multiple active matches.
   - One client can only be part of one match.
   - If a match in the lobby has no active players anymore, it is deleted. 
@@ -40,7 +40,7 @@ Some (important) extra features which can be implemented are described in separa
 | ------------------ | ---------------- | -------------- | ---------------------------------------------------- | ----------------------------------------------------------- |
 | **DISCOVER_LOBBY**  | Client -> Subnet | DISCOVER_LOBBY  | -                                                    | Broadcast message sent to IP 255.255.255.255 and port 54000 |
 | **LOBBY** [Port]    | Server -> Client | LOBBY 54001     | Port: The port the server waits for a TCP connection | Response to the Client                                      |
- 
+
 ## Control Protocol (TCP)
 
   * The default control protocol port is on server side 54001.
@@ -93,5 +93,5 @@ The message (reason) is allowed to contain whitespaces.
 | **ERR_GAME_NOT_EXIST** [NAME]     | Server -> Client | ERR_GAME_NOT_EXIST Testmatch                | Name: The name of the game                  | The server signals the client that the game does not exist.                               |
 | **DISCONNECTING_YOU** [REASON]    | Server -> Client | DISCONNECTING_YOU You are banned            | -                                           | The server can always choose to disconnect a client forcefully.                           |
 | **LEAVING_MATCH** [REASON]        | Client -> Server | LEAVING_MATCH I do not want to play anymore | -                                           | The client can always choose to leave a match in the lobby or an active match.            |
- 
+
 
