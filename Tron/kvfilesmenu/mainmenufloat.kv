@@ -5,7 +5,7 @@
 # About
 # Quit
 
-<MainMenu>:
+<MainMenuFloat>:
     BoxLayout:
         orientation: 'vertical'
         spacing: 2
@@ -41,10 +41,20 @@
             background_color: (0.1,0.3,0.7,1)
             on_release: root.manager.current = 'aboutmenu'
         Button:
-            id: mainmanufloatButton
-            text: 'Main Menu Float'
+            id: creatematchButton
+            text: 'Create Match Menu'
             background_color: (0.1,0.3,0.7,1)
-            on_release: root.manager.current = 'mainmenufloat'
+            on_release: root.manager.current = 'creatematchmenufloat'
+        Button:
+            id: searchforlobbiesmenuButton
+            text: 'Search for Lobbies Menu'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'searchforlobbiesmenufloat'
+        Button:
+            id: lobbymenuButton
+            text: 'Lobby Menu'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'lobbymenufloat'
         Button:
             id: quitButton
             text: 'Quit (WIP)'

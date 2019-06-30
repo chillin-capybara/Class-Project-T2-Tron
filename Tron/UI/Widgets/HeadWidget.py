@@ -24,6 +24,7 @@ from kivy.uix.widget import Widget
 
 class HeadWidget(Widget):
     player = ObjectProperty(None)
+    screen_size = ObjectProperty(None)
     game_is_running = BooleanProperty(False)
     countdown_is_running = BooleanProperty(False)
     opacityValue = NumericProperty(1)
@@ -46,67 +47,66 @@ class HeadWidget(Widget):
         return tuple(addOpacity)
 
     def calculatePoints(self):
-        print (self.update_screen_size[0])
-
         ## creating all points requiered for a triangle + detecting in which direction the triangle is heading to
         fieldsize = UI.mainUI.FIELDSIZE
         velocity = self.player.getVelocity()
         playPos = self.player.getPosition()
         nowpoint = (
-            playPos.x * (self.size[0]/fieldsize[0]), 
-            playPos.y * (self.size[1]/fieldsize[1])
+            playPos.x * (self.screen_size[0]/fieldsize[0]), 
+            playPos.y * (self.screen_size[1]/fieldsize[1])
         )
         
         if velocity == Vect2D(1, 0):
             xPos1 = nowpoint[0] 
-            yPos1 = nowpoint[1] - 5*(self.size[1]/fieldsize[1])
+            yPos1 = nowpoint[1] - 5*(self.screen_size[1]/fieldsize[1])
 
             xPos2 = nowpoint[0]
-            yPos2 = nowpoint[1] + 5*(self.size[1]/fieldsize[1])
+            yPos2 = nowpoint[1] + 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0] + 5*(self.size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] + 5*(self.screen_size[0]/fieldsize[0])
             yPos3 = nowpoint[1]
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
         if velocity == Vect2D(0, 1):
-            xPos1 = nowpoint[0] - 5*(self.size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] - 5*(self.screen_size[0]/fieldsize[0])
             yPos1 = nowpoint[1] 
 
             xPos2 = nowpoint[0]
-            yPos2 = nowpoint[1] + 5*(self.size[1]/fieldsize[1])
+            yPos2 = nowpoint[1] + 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0] + 5*(self.size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] + 5*(self.screen_size[0]/fieldsize[0])
             yPos3 = nowpoint[1]
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
         if velocity == Vect2D(-1, 0):
-            xPos1 = nowpoint[0] - 5*(self.size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] - 5*(self.screen_size[0]/fieldsize[0])
             yPos1 = nowpoint[1] 
 
             xPos2 = nowpoint[0]
-            yPos2 = nowpoint[1] + 5*(self.size[1]/fieldsize[1])
+            yPos2 = nowpoint[1] + 5*(self.screen_size[1]/fieldsize[1])
 
             xPos3 = nowpoint[0] 
-            yPos3 = nowpoint[1] - 5*(self.size[0]/fieldsize[0])
+            yPos3 = nowpoint[1] - 5*(self.screen_size[0]/fieldsize[0])
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
 
         if velocity == Vect2D(0, -1):
-            xPos1 = nowpoint[0] - 5*(self.size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] - 5*(self.screen_size[0]/fieldsize[0])
             yPos1 = nowpoint[1] 
 
             xPos2 = nowpoint[0]
-            yPos2 = nowpoint[1] - 5*(self.size[1]/fieldsize[1])
+            yPos2 = nowpoint[1] - 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0] + 5*(self.size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] + 5*(self.screen_size[0]/fieldsize[0])
             yPos3 = nowpoint[1]
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
     def update_screen_size(self, screensize_from_top):
+        ## todo getting value to be constant
         print (screensize_from_top)
         return screensize_from_top
          
