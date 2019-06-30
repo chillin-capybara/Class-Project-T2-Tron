@@ -52,11 +52,11 @@ class GameClient(object):
 		return self.__lobbies
 	
 	@property
-	def lobby(self):
+	def lobby(self) -> Lobby:
 		"""
 		Entered lobby, when in a lobby
 		"""
-		self.__entered_lobby
+		return self.__entered_lobby
 	
 	def enter_lobby(self, index: int):
 		"""
