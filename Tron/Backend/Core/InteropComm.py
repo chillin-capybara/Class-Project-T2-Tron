@@ -204,14 +204,35 @@ class InteropComm(object):
 		"""
 		
 		allKeysList = list( splitted_matrix.keys() )
-		lastKey = allKeysList [ len(allKeysList)-1 ]		
+		lastKey = allKeysList [ len(allKeysList) - 1 ]	
+		firstKey = allKeysList [0]
+		
+		motherMatrix :list = [0] # init
+		bigMotherMatrix = [0]
 
-		motherMatrix = []
-		for currentRow in range (allKeysList):
-			pass
+			
+		# iterate over Rows
+		for currentRow in range (1, lastKey[0]):
 
-
+			for currentInsideRow in range ( 0, len( splitted_matrix[ firstKey ] ) - 1 ):
+				
+				#iterate over Colums
+				for currentColumn in range (1, lastKey[1]):
+					
+					for currentInsideColumn in range ( 0, len( splitted_matrix[ firstKey ][0] ) - 1 ): 
+						
+						motherMatrixColumn = (currentColumn - 1)*(len( splitted_matrix[ firstKey ][0] ) ) + currentInsideColumn
+						motherMatrixRow = (currentRow - 1)*(len( splitted_matrix[ firstKey ] ) )  + currentInsideRow
+						
+						newElement = splitted_matrix[(currentRow,currentColumn)][currentInsideRow][currentInsideColumn]
+						# motherMatrix[motherMatrixRow][motherMatrixColumn].append( newElement )
+						motherMatrix[motherMatrixRow].append( newElement )
+				bigMotherMatrix[currentRow].append ( motherMatrix )
+				motherMatrix = []
 		return motherMatrix
+
+
+
 
 	def matrix_collapseOld2 (self, splitted_matrix: dict) -> list:
 		"""
