@@ -1,6 +1,18 @@
 # Color Input (Tupel)
 # Back to Main Menu
 # Name Input
+<BackgroundColor@Widget>
+    background_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<ColoredLabel@Label+BackgroundColor>
+
+
 <SettingsMenu>:
     BoxLayout:
         orientation: 'vertical'
@@ -79,8 +91,8 @@
                     text: 'Current Color:'
                     size_hint: (1, 1)
                     color: 1, 0, 0, 1
-                Button:
-                    id: colordisplayButton
+                ColoredLabel:
+                    id: colordisplayLabel
                     text: ''
                     background_color: (redcolorSlider.value,greencolorSlider.value,bluecolorSlider.value,1)
                     size_hint: (1, 1.5)
