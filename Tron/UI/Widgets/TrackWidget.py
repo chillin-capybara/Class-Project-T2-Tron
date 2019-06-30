@@ -88,17 +88,17 @@ class TrackWidget(Widget):
             if self.game_is_running == True:
                 for player in players:   
                     if player == self._player:
-                        allPoints_from_submission = self.pointCreator()
+                        allPoints_after_calculation = self.pointCreator()
                     else:
                         allPoints_from_submission = player.getLine()
+                        allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission, player)
                     
-                    
-                    allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission, player)
+                   
 
                 
                     Color(rgba = self.getPlayerColor(player))
 
-                    HeadWidget(player = player)
+                    HeadWidget(screen_size = self.size, player = player)
 
                     for point in allPoints_after_calculation:
                         xPos2 = (self.size[0]/fieldsize[0]) * point.x
@@ -127,9 +127,11 @@ class TrackWidget(Widget):
     def constructMissingPoints(self, track, player):
         ## function who creates all missing points in between
         if player == self._player and  self.counter_constructMissingPoints == 0:
-            allPoints = [player.getPosition(), player.getPosition()]
-            
-        allPoints = [player.getPosition()]
+            track = [player.getPosition(), player.getPosition()]
+        if player == self._player:
+            print ("hi")
+        # allPoints = [player.getPosition()]
+        allPoints = []
         pointCount = len(track)
         for i in range(0, pointCount - 1):
             startPoint = track[i]
