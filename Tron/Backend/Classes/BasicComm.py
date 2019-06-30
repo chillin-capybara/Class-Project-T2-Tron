@@ -831,11 +831,15 @@ class BasicComm(CommProt):
 			game, str_matches = params.split(' ', 1)
 			matches = str_matches.split(',')
 
+			self.EGames.reset_called()
 			self.EGames(self, game=game, matches=matches)
 
 			return self.GAMES, game, matches
 		except Exception as e:
-			raise MessageError("Syntax error in GAMES [...]: %s" % str(e))
+			if not self.EGames.was_called():
+				self.EGames(self, game=game, matches=matches) # Call the event with empty list of games
+			else:
+				raise MessageError("Syntax error in GAMES [...]: %s" % str(e))
 
 	def __process_match_features(self, params: str) -> Tuple[int, list]:
 		"""
