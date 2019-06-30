@@ -44,6 +44,15 @@ class GameServer(object):
 		# Initialize the Broadcaster
 		self.__broadcaster = Broadcaster(self.get_lobbies)
 	
+	def hook_lease_port(self) -> LeasableObject:
+		"""
+		Lease a port from the collections of ports on the server.
+
+		Returns:
+			LeasableObject: New port
+		"""
+		return self.__available_ports.lease()
+
 	def create_lobby(self):
 		"""
 		Create a new lobby and add it to the collection of lobbies on the server
@@ -51,7 +60,7 @@ class GameServer(object):
 		leased_port = self.__available_ports.lease()
 		host : str = "" # On the server, lobbys have empty host
 		port: int = leased_port.getObj()
-		self.__lobbies.append(Lobby(host, port))
+		self.__lobbies.append(Lobby(host, port, hook_lease_port=self.hook_lease_port))
 	
 	def get_lobbies(self) -> List[Lobby]:
 		"""

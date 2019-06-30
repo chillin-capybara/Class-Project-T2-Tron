@@ -785,8 +785,8 @@ class BasicComm(CommProt):
 
 			# Return the value
 			return self.CREATE_MATCH, game, name, features
-		except:
-			raise MessageError("Invalid message syntax for create_match")
+		except Exception as e:
+			raise MessageError("Invalid message syntax for create_match: %s" % str(e))
 	
 	def __process_match_created(self, params: None) -> Tuple[int, str]:
 		"""
@@ -834,8 +834,8 @@ class BasicComm(CommProt):
 			self.EGames(self, game=game, matches=matches)
 
 			return self.GAMES, game, matches
-		except:
-			raise MessageError("Syntax error in GAMES [...]")
+		except Exception as e:
+			raise MessageError("Syntax error in GAMES [...]: %s" % str(e))
 
 	def __process_match_features(self, params: str) -> Tuple[int, list]:
 		"""

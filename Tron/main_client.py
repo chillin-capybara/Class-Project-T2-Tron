@@ -25,9 +25,13 @@ if __name__ == '__main__':
 			client.lobbies[0].say_hello()
 			while True:
 				print("(1) List available games")
+				print("(2) Create sample match Tron/CoolMatch Players,3,Lifes,2")
+				print("(3) List matches")
 				user_in = input("Select an option:")
 
 				if user_in == "1":
 					client.lobbies[0].list_games()
-
-	
+				elif user_in == "2":
+					client.lobbies[0].create_match('Tron', 'CoolMatch', {'Players': 3, 'Lifes' : 2})
+				elif user_in == "3":
+					client.lobbies[0].list_matches('Tron')

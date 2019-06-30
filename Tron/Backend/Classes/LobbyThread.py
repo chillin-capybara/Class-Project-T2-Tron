@@ -5,8 +5,10 @@ import logging
 from typing import List
 
 from ..Core.Hook import Hook
+from ..Core.Event import Event
 from .BasicComm import BasicComm
 from ..Core.globals import *
+from .Match import Match
 
 class LobbyThread(threading.Thread):
 	"""
@@ -19,6 +21,8 @@ class LobbyThread(threading.Thread):
 	__sock : socket.socket = None
 
 	__comm : BasicComm = None
+
+	__ECreateGame : Event = None # Event when a the creation of a new match is requested.
 
 	def __init__(self, sock:socket.socket, hook_get_games, hook_get_matches):
 		"""
@@ -42,9 +46,27 @@ class LobbyThread(threading.Thread):
 		# Initialize event handlers
 		self.__comm.EHello += self.handle_hello
 		self.__comm.EListGames += self.handle_list_games
+		self.__comm.ECreateMatch += self.handle_create_match
+		self.__comm.EListMatches += self.handle_list_matches
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
+
+		# Initialize the __ECreateGame
+		self.__ECreateGame = Event('game', 'name', 'features')
+	
+	@property
+	def ECreateGame(self):
+		"""
+		Event to be called when the creation of a new match is requested
+		
+		Returns:
+			Event: Event to add callbacks to
+		"""
+		return self.__ECreateGame
+	@ECreateGame.setter
+	def ECreateGame(self, new: Event):
+		self.__ECreateGame = new
 
 	def run(self):
 		"""
@@ -98,3 +120,53 @@ class LobbyThread(threading.Thread):
 		list_game = self.__hook_get_games()
 		packet = self.__comm.available_games(SERVER_GAMES)
 		self.__sock.send(packet)
+	
+	def handle_create_match(self, sender, game:str, name: str, features: List[str]) -> None:
+		"""
+		Handle the create match commands from the client.
+		
+		Args:
+			sender (CommProt): Caller of the event
+			game (str): Name of the game = Tron/Pong
+			name (str): Name of the game
+			features (List[str]): List of features in the game
+		"""
+		try:
+			logging.info("Creating a new match %s/%s is requested with: %s" % (game, name, str(features)))
+			self.ECreateGame(self, game=game, name=name, features=features)
+
+			# If there are no errors: -> Send confirmation
+			packet = self.__comm.match_created()
+			self.__sock.send(packet)
+		except Exception as e:
+			# Failed to create the match
+			# // TODO add error message sending
+			logging.error("Error creating the match!")
+	
+	def send(self, data: bytes):
+		"""
+		Send data to the socket of the lobbythread
+		
+		Args:
+			data (bytes): Data to be sent
+		"""
+		return self.__sock.send(data)
+
+	def handle_list_matches(self, sender, game:str):
+		"""
+		Handle the list matches request from the client
+		
+		Args:
+			sender (CommProt): Caller of the event
+			game (str): Name of the game to list matches of
+		"""
+		logging.info("Sending list of matches for %s" % game)
+		list_matches : List[Match] = self.__hook_get_matches()
+		str_list = []
+
+		for m in list_matches:
+			str_list.append(m.name)
+
+		# Generate protocoll message, SEND	
+		packet = self.__comm.games(game, str_list)
+		self.send(packet)
