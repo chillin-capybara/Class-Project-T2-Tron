@@ -104,6 +104,22 @@ class LobbyThread(threading.Thread):
 				pass # Player ID was not reserved
 			logging.info("Closing connection to [FILL THIS OUT]")
 	
+	def handle_lobby_stop(self, sender):
+		"""
+		Handle the stop of the lobby object
+		
+		Args:
+			sender ([type]): Caller lobby object
+		"""
+		self.Stop()
+
+	def Stop(self):
+		"""
+		Stop the Lobbythread, when the server was stopped
+		"""
+		logging.info("Stopping the lobby is requested by the server.")
+		self.__sock.close()
+
 	def handle_hello(self, sender, playername: str, features: list):
 		"""
 		Handle EHello from the communication protocoll
@@ -244,8 +260,30 @@ class LobbyThread(threading.Thread):
 				# Tell the client the player id and the success of the join
 				packet = self.__comm.match_joined(pid)
 				self.send(packet)
+
+				match.EStart += self.handle_match_started
+				# Check for the Event to start
+				match.check_for_start()
 				return
 		
 		# Failed to join
 		packet = self.__comm.failed_to_join("The match %s does not exists in the lobby!" % name)
 		self.send(packet)
+
+	def handle_match_started(self, sender, port, player_ids, players):
+		"""
+		Handle when the server starts the match
+		Send out the notifications to all clients
+		
+		Args:
+			sender (match): Caller of the event
+			port (int) : Port of the match
+			player_ids (list) : list of the available player ids
+			players (list) : List of the player objects in the match
+		"""
+		logging.info("Notifying %s that the game %s has started" % (self.__hello_name, sender.name))
+		# Generate match started package for every player in their thread
+		packet = self.__comm.match_started(port, player_ids, players)
+		self.send(packet)
+
+

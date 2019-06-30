@@ -37,6 +37,7 @@ class Lobby(object):
 
 	EError : Event = None
 	EMatchJoined : Event = None
+	ELobbyStop : Event = None # Event to spread, when the server gets stopped
 
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None):
 		"""
@@ -69,6 +70,7 @@ class Lobby(object):
 		# Initialize own events
 		self.EError = Event('msg')
 		self.EMatchJoined = Event('matchname')
+		self.ELobbyStop = Event()
 
 		# Intialize communication protocol : CLIENT EVENTS!!!!
 		self.__comm = BasicComm()
@@ -142,6 +144,25 @@ class Lobby(object):
 		self.__server_thread = threading.Thread(target=self.__server)
 		self.__server_thread.start()
 	
+	def Stop(self):
+		"""
+		Stop the lobby server with all it's parent threads
+		"""
+		logging.info("Stopping the lobby server was requested")
+		# Trigger a socket close
+		self.__server_sock.close()
+
+		self.ELobbyStop(self)
+
+	def handle_server_stop(self, sender):
+		"""
+		Handle the server stop
+		
+		Args:
+			sender ([type]): GameServer
+		"""
+		self.Stop()
+
 	def __server(self):
 		"""
 		Server thread of the lobby on the server
@@ -174,6 +195,9 @@ class Lobby(object):
 							)
 		# Add event handlers for the Lobby thread
 		thread.ECreateGame += self.handle_create_game
+
+		# Add Lobby stop event handler
+		self.ELobbyStop += thread.handle_lobby_stop
 
 		# Add the thread to the collections
 		self.__server_threads.append(thread)
@@ -432,3 +456,15 @@ class Lobby(object):
 
 		# Call the Lobby's event -> With the name of the match
 		self.EMatchJoined(self, matchname=self.__selected_match.name)
+	
+	def handle_match_started(self, sender, port:int, pclist:list):
+		"""
+		Handle the event, when the match starts
+		
+		Args:
+			sender ([type]): Caller of the event
+			port (int): Port of the starting match
+			pclist (list): list of player ids and colors
+		"""
+		logging.info("Match started on port %d with (pid,r,g,b): %s" % str(pclist))
+		# Connect to the match server via udp and tcp for the control

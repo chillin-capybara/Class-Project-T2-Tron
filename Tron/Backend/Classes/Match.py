@@ -1,5 +1,6 @@
 from typing import List
 from ..Core.leasable_collections import *
+from ..Core.Event import Event
 from .HumanPlayer import HumanPlayer
 import logging
 
@@ -25,6 +26,7 @@ class Match(object):
 	__player_slots : LeasableList = None # List of player ID's
 	__players : List[HumanPlayer] = None # List of players 0: is reserved
 
+	EStart : Event = None # Start event of the match
 
 	@property
 	def port(self) -> int:
@@ -82,6 +84,8 @@ class Match(object):
 
 		# Set the matches features
 		self.set_features(features)
+
+		self.EStart = Event('port', 'player_ids', 'players') # Simple Event to notify the joined playes to that the match is starting
 
 		logging.debug(
 			"Match %s initialized in port %d for %d players with %d lifes" %
@@ -179,3 +183,18 @@ class Match(object):
 			LeasableObject: Wrapped object of the playerid
 		"""
 		return self.__player_slots.lease()
+	
+	def check_for_start(self):
+		"""
+		Check if the match can be started or not
+		"""
+
+		if self.__player_slots.count_free() == 0:
+			logging.info("Match %s is full, starting the match..." % self.name)
+
+			# Generate the params string from the players
+			player_ids = list(range(1,self.count_players+1))
+			players = self.__players[1:] # Ignore player 0
+
+			# All slots reserved
+			self.EStart(self, port=port, player_ids=player_ids, players=players)

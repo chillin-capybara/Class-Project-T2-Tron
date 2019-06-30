@@ -15,6 +15,7 @@ def partial(a: list, max_row:int, max_col:int, dim_row:int, dim_col:int, i:int,j
 	Returns:
 		list: (i,j) Partial matrix in list representation
 	"""
+	# I DON'T KNOW WHY THIS WORKS; BUT WORKS -> DON'T TOUCH IT!!!!
 	pre = []
 	rows = a[(i-1) * max_row:min(i*max_row,dim_row)]
 	if j > 1:
@@ -39,6 +40,7 @@ def matrix_split(a: list, max_row:int, max_col:int):
 	Returns:
 		dict: {(1,1): [[],[],...], (1,2): ..., (2,3): ... ...}
 	"""
+	# Get the dimensions of the matrix
 	dim_row = len(a)
 	dim_col = len(a[0])
 
@@ -55,8 +57,20 @@ def matrix_split(a: list, max_row:int, max_col:int):
 
 	result = {}
 
+	# Calculate every partial and apppend them to the results
 	for i in range (1, i_max+1):
 		for j in range(1, j_max+1):
 			result[(i,j)] = partial(a,max_row,max_col,dim_row,dim_col,i,j)
 	
 	return result
+
+
+def matrix_collapse(s: dict):
+	"""
+	Collapse a splitted matrix
+	
+	Args:
+		s (dict): Splitted matrix in format of matrix_slits output
+	"""
+	pass
+	
