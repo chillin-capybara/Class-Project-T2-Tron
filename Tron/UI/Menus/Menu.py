@@ -453,38 +453,39 @@ class LobbyMenuFloat(Screen):
 		Return:
 			-
 		"""
-		Lobby = namedtuple('Lobby', ['name', 'game', 'features'])
-		lobby1 = Lobby("Letsfight", 'Tron', '3 Players; 4 Lives')
-		lobby2 = Lobby("FullHouse123", 'Tron', '5 Players; 8 Lives')
-		lobby3 = Lobby("Pong", 'Pong', '2 Players; 1 Lives')
-		lobby4 = Lobby("Alone", 'Minecraft', '1 Players; 1 Live; 3 Zombies; a Million Bricks')
-		listlobbies = [lobby1, lobby2, lobby3, lobby4]
-		count_lobbies = listlobbies.__len__()
-		for i in range(0,count_lobbies):
-			lobby = listlobbies[i]
+		Match = namedtuple('Match', ['name', 'game', 'features'])
+		match1 = Match("Letsfight", 'Tron', '3 Players; 4 Lives')
+		match2 = Match("FullHouse123", 'Tron', '5 Players; 8 Lives')
+		match3 = Match("Pong", 'Pong', '2 Players; 1 Lives')
+		match4 = Match("Alone", 'Minecraft', '1 Players; 1 Live; 3 Zombies; a Million Bricks')
+		listmatches = [match1, match2, match3, match4]
+
+		count_matches = listmatches.__len__()
+		for i in range(0,count_matches):
+			match = listmatches[i]
 			if i == 0:
-				self.ids.lobby1nameLabel.text = lobby.name
-				self.ids.lobby1gameLabel.text = lobby.game
-				self.ids.lobby1featureLabel.text = lobby.features
+				self.ids.match1nameLabel.text = match.name
+				self.ids.match1gameLabel.text = match.game
+				self.ids.match1featureLabel.text = match.features
 			elif i == 1:
-				self.ids.lobby2nameLabel.text = lobby.name
-				self.ids.lobby2gameLabel.text = lobby.game
-				self.ids.lobby2featureLabel.text = lobby.features
+				self.ids.match2nameLabel.text = match.name
+				self.ids.match2gameLabel.text = match.game
+				self.ids.match2featureLabel.text = match.features
 			elif i == 2:
-				self.ids.lobby3nameLabel.text = lobby.name
-				self.ids.lobby3gameLabel.text = lobby.game
-				self.ids.lobby3featureLabel.text = lobby.features
+				self.ids.match3nameLabel.text = match.name
+				self.ids.match3gameLabel.text = match.game
+				self.ids.match3featureLabel.text = match.features
 			elif i == 3:
-				self.ids.lobby4nameLabel.text = lobby.name
-				self.ids.lobby4gameLabel.text = lobby.game
-				self.ids.lobby4featureLabel.text = lobby.features
+				self.ids.match4nameLabel.text = match.name
+				self.ids.match4gameLabel.text = match.game
+				self.ids.match4featureLabel.text = match.features
 			elif i == 4:
-				self.ids.lobby5nameLabel.text = lobby.name
-				self.ids.lobby5gameLabel.text = lobby.game
-				self.ids.lobby5featureLabel.text = lobby.features
+				self.ids.match5nameLabel.text = match.name
+				self.ids.match5gameLabel.text = match.game
+				self.ids.match5featureLabel.text = match.features
 			else:
 				pass
-	def updatechosenLobby(self, currentlobby):
+	def updatechosenMatch(self, currentmatch):
 		"""
 		Sets variable for choosen Lobby
 
@@ -493,12 +494,12 @@ class LobbyMenuFloat(Screen):
 		Return:
 			Lobby (int)
 		"""
-		self.currentlobby = currentlobby
+		self.currentmatch = currentmatch
 
-		self.lobby = int(self.currentlobby)
+		self.match = int(self.currentmatch)
 		
-		print('Lobby: %d has been choosen.' % (self.lobby), flush = True)
-		return self.lobby
+		print('Lobby: %d has been choosen.' % (self.match), flush = True)
+		return self.match
 ####################################################################
 ####################################################################
 ##Create Match Menu Flaot version

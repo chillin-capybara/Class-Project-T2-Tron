@@ -29,127 +29,127 @@
         BoxLayout:
             orientation: 'horizontal'
             Label:
-                id: lobby1nameLabel
+                id: match1nameLabel
                 text: "Lobby1"
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby1gameLabel
+                id: match1gameLabel
                 text: "Tron"
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby1featureLabel
+                id: match1featureLabel
                 text: "3 Lives, 4 Players"
                 size_hint: (0.5,1)
                 color: 0, 0, 0, 1
             CheckBox:
-                id: lobby1Checkbox
-                group: "LobbyCheckbox"
+                id: match1Checkbox
+                group: "MatchCheckbox"
                 size_hint: (0.1,1)
                 color: (1,0,0,1)
                 on_active:
-                    root.updatechosenLobby(1)
+                    root.updatechosenMatch(1)
             
         BoxLayout:
             orientation: 'horizontal'
             Label:
-                id: lobby2nameLabel
+                id: match2nameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby2gameLabel
+                id: match2gameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby2featureLabel
+                id: match2featureLabel
                 text: ""
                 size_hint: (0.5,1)
                 color: 0, 0, 0, 1
             CheckBox:
-                id: lobby2Checkbox
-                group: "LobbyCheckbox"
+                id: match2Checkbox
+                group: "MatchCheckbox"
                 size_hint: (0.1,1)
                 color: (1,0,0,1)
                 on_active:
-                    root.updatechosenLobby(2)
+                    root.updatechosenMatch(2)
         
         BoxLayout:
             orientation: 'horizontal'
             Label:
-                id: lobby3nameLabel
+                id: match3nameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby3gameLabel
+                id: match3gameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby3featureLabel
+                id: match3featureLabel
                 text: ""
                 size_hint: (0.5,1)
                 color: 0, 0, 0, 1
             CheckBox:
-                id: lobby3Checkbox
-                group: "LobbyCheckbox"
+                id: match3Checkbox
+                group: "MatchCheckbox"
                 size_hint: (0.1,1)
                 color: (1,0,0,1)
                 on_active:
-                    root.updatechosenLobby(3)
+                    root.updatechosenMatch(3)
 
         BoxLayout:
             orientation: 'horizontal'
             Label:
-                id: lobby4nameLabel
+                id: match4nameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby4gameLabel
+                id: match4gameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby4featureLabel
+                id: match4featureLabel
                 text: ""
                 size_hint: (0.5,1)
                 color: 0, 0, 0, 1
             CheckBox:
-                id: lobby4Checkbox
-                group: "LobbyCheckbox"
+                id: match4Checkbox
+                group: "MatchCheckbox"
                 size_hint: (0.1,1)
                 color: (1,0,0,1)
                 on_active:
-                    root.updatechosenLobby(4)
+                    root.updatechosenMatch(4)
 
         BoxLayout:
             orientation: 'horizontal'
             Label:
-                id: lobby5nameLabel
+                id: match5nameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby5gameLabel
+                id: match5gameLabel
                 text: ""
                 size_hint: (0.2,1)
                 color: 0, 0, 0, 1
             Label:
-                id: lobby5featureLabel
+                id: match5featureLabel
                 text: ""
                 size_hint: (0.5,1)
                 color: 0, 0, 0, 1
             CheckBox:
-                id: lobby5Checkbox
-                group: "LobbyCheckbox"
+                id: match5Checkbox
+                group: "MatchCheckbox"
                 size_hint: (0.1,1)
                 color: (1,0,0,1)
                 on_active:
-                    root.updatechosenLobby(5)
+                    root.updatechosenMatch(5)
 
     Button:
         id: creatematchButton
