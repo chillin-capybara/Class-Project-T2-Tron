@@ -23,15 +23,9 @@ class TestInterComm (unittest.TestCase):
 		"""
 		testObject = InteropComm()
 		# Reversibility check
-		#matrix: list = [[1,2,3],[4,5,6],[7,8,9]]
-		matrix: list = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15],[16,17,18,19,20],[21,22,23,24,25]]
-		# matrix: list = [[1,2,3,4,5,6,7]]
-		# matrix: list = [[1],[2],[3],[4],[5],[6]]
-		# matrix: list = [[1]]
-		splitted_matrix: dict = testObject.matrix_split(matrix, (3,4))
-		print(splitted_matrix ) # Or any other split condition
+		matrix: list = [[1,2,3],[4,5,6],[7,8,9]]
+		splitted_matrix: dict = testObject.matrix_split(matrix, (2,2)) # Or any other split condition
 		reconstructed_matrix: list = testObject.matrix_collapse(splitted_matrix)
-		print (reconstructed_matrix)
 		# Requirement
 		self.assertTrue(matrix == reconstructed_matrix)
 

@@ -20,13 +20,6 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "TRON SERVER",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/Tron/main_server.py",
-            "console": "integratedTerminal"
-        },
-        {
             "name": "Python: Aktuelle Datei",
             "type": "python",
             "request": "launch",

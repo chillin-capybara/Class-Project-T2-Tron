@@ -8,6 +8,7 @@
 #    -
 
 <CreateServerMenuFloat>:
+    on_pre_enter: (root.getPlayerdata(""))
 
     HeaderLabel:
         text: 'Search for Server Menu Float Version'
@@ -15,42 +16,29 @@
 
     ColoredLabel:
         id: explainmenuLabel
-        size_hint: ( .98, .08)
-        pos_hint: {'x': .01, 'y': .82}
+        size_hint: ( .98, .5)
+        pos_hint: {'x': .01, 'y': .40}
         background_color: (.4,.4,.2,1)
-        text: 'Here you can create a Server'
+        text: 'Here you can connect to the Server'
 
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint: ( .98, .16)
-        pos_hint: {'x': .01, 'y': .65}
-
-
-        Label:
-            text: 'Number of Lobbies ' + str(int(numberlobbiesSlider.value))
-
-        Slider:
-            id: numberlobbiesSlider
-            min: 1
-            max: 10
-            step: 1
-    
-    BoxLayout:
-        orientation: "horizontal"
-        size_hint: ( .98, .16)
-        pos_hint: {'x': .01, 'y': .48}
-
-        Label:
-            text: 'Server status:'
-        Label:
-            text: 'running' if statusserverSwitch.active else 'not running'
-        Switch:
-            id: statusserverSwitch
-            on_active:
-                root.statusServer(self.active, numberlobbiesSlider.value)
+    Button:
+        id: gamestartButton
+        size_hint: (.98, .08)
+        pos_hint: {'x': .01, 'y': .1}
+        text: 'Connect to the Server and start Game(Not implemented yet)'
+        on_release:
+            root.manager.current = 'gamestartmenu'
+        #    root.getserverOnline()
+            root.connecttoServer(ipTextInput.text, portTextInput.text)
+        #    root.startGame()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
+
+    Label:
+        size_hint: (.315, .2)
+        pos_hint: {"x": .01, "y": .19}
+        text: 'Please Enter the IP of the Server:'
 
 # <CreateServerMenu>:
 #     BoxLayout:

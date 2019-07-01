@@ -10,7 +10,7 @@
 
 <HeaderLabel@Label+BackgroundColor>
     size_hint: (.98, .08)
-    background_color: (.0,.6,.2,1)
+    background_color: (.3,.4,.5,1)
     pos_hint: {"x": 0, "y": 0}
 
 <ColoredLabel@Label+BackgroundColor>
@@ -26,15 +26,3 @@
         on_release: root.changeScreen()
 
 <ListLabel@Label>
-
-# <ematchJoinedPopup>:
-#     id: ematchjoinedPopup
-#     title: 'ERROR'
-#     Label:
-#         text: 'Waiting for match to start...'
-#         size_hint: (None, None)
-#         size: (400, 400)
-
-#     Button:
-#         text: 'Cancel'
-#         on_press: ematchjoinedPopup.dismiss()

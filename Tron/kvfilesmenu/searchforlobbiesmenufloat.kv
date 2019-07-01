@@ -10,7 +10,7 @@
 #    -
 
 <SearchForLobbiesMenuFloat>:
-    on_enter:
+    on_pre_enter:
         root.getPlayerdata("")
         root.getavailableLobbies()
 
@@ -101,18 +101,10 @@
                 on_active:
                     root.updatechosenLobby(5)
 
-    Button:
-        id: refreshButton
-        size_hint: (.1, .08)
-        pos_hint: {"x": .89, "y": .1}
-        background_color: (0.1,0.3,0.7,1)
-        text: 'Refresh'
-        on_release:
-            root.getavailableLobbies()
 
     Button:
         id: enterlobbyButton
-        size_hint: (.87, .08)
+        size_hint: (.98, .08)
         pos_hint: {"x": .01, "y": .1}
         background_color: (0.1,0.3,0.7,1)
         text: 'Enter Lobby'

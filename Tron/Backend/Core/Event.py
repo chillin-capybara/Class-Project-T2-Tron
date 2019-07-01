@@ -60,7 +60,7 @@ class Event(object):
 		
 		# If the Event handler prototype is invalid
 		if not self.matches_prototype(callback):
-			raise SyntaxError("Invalid Event Handler: %s. Correct prototype: %s" % (callback.__name__, self.get_prototype_string()))
+			raise SyntaxError("Invalid Event Handler. Correct prototype: %s" % self.get_prototype_string())
 
 		self.__callables.append(callback)
 	

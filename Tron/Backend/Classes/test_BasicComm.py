@@ -21,7 +21,7 @@ class test_BasicComm(unittest.TestCase):
 	Test the basic communication protocoll
 	"""
 
-	def test_join_match(self):
+	def test_client_ready(self):
 		"""
 		Test the client_ready function
 		"""
@@ -29,8 +29,8 @@ class test_BasicComm(unittest.TestCase):
 		# Test Random player data 1
 		PLAYER.setName('Joe')
 		PLAYER.setColor((25,25,25))
-		packet = COMM.join_match('game1', PLAYER)
-		original = utf8("JOIN_MATCH game1 25,25,25")
+		packet = COMM.client_ready(PLAYER)
+		original = utf8("JOIN_MATCH Joe 25,25,25")
 		self.assertEqual(
 			packet,
 			original
@@ -39,8 +39,8 @@ class test_BasicComm(unittest.TestCase):
 		# Test Random player data 1
 		PLAYER.setName('Jesus')
 		PLAYER.setColor((2,2,2))
-		packet = COMM.join_match('godgame', PLAYER)
-		original = utf8("JOIN_MATCH godgame 2,2,2")
+		packet = COMM.client_ready(PLAYER)
+		original = utf8("JOIN_MATCH Jesus 2,2,2")
 		self.assertEqual(
 			packet,
 			original
@@ -54,52 +54,50 @@ class test_BasicComm(unittest.TestCase):
 		# Sampel DATA
 		PLAYER.setName('Jesus')
 		PLAYER.setColor((2,2,2))
-		packet = COMM.join_match('game1', PLAYER)
-		ptype, match, player = COMM.process_response(packet)
+		packet = COMM.client_ready(PLAYER)
+		ptype, player = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY)
-		self.assertEqual(match, "game1")
-		self.assertTrue(player.getColor() == PLAYER.getColor())
+		self.assertTrue(player == PLAYER)
 
 		# Test with sample data 2
 		PLAYER.setName('EverydayJoe')
 		PLAYER.setColor((1,1,1))
-		packet = COMM.join_match('JoeMatch', PLAYER)
-		ptype, match, player = COMM.process_response(packet)
+		packet = COMM.client_ready(PLAYER)
+		ptype, player = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY)
-		self.assertEqual(match, "JoeMatch")
-		self.assertTrue(player.getColor() == PLAYER.getColor())
+		self.assertTrue(player == PLAYER)
 
-	def test_match_joined(self):
+	def test_client_ready_ack(self):
 		"""
 		Test the client_ready ack message
 		"""
 		# Test with ID=0
-		packet = COMM.match_joined(0)
+		packet = COMM.client_ready_ack(0)
 		original = utf8("MATCH_JOINED 0")
 		self.assertEqual(
 			packet,
 			original
 		)
 		# Test with ID=1
-		packet = COMM.match_joined(1)
+		packet = COMM.client_ready_ack(1)
 		original = utf8("MATCH_JOINED 1")
 		self.assertEqual(
 			packet,
 			original
 		)
 	
-	def test_process_match_joined(self):
+	def test_process_client_ready_ack(self):
 		"""
 		Process the client_ready acknowledgement
 		"""
 		# Test with random data 0
-		packet = COMM.match_joined(0)
+		packet = COMM.client_ready_ack(0)
 		ptype, player_id = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY_ACK)
 		self.assertEqual(player_id, 0)
 
 		# Test with random data 100
-		packet = COMM.match_joined(100)
+		packet = COMM.client_ready_ack(100)
 		ptype, player_id = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY_ACK)
 		self.assertEqual(player_id, 100)
