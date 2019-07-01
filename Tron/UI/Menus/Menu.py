@@ -357,9 +357,27 @@ class SettingsMenu(Screen):
 
 		print("Playername changed to: %s" % playername)
 		print("Color changed to %s" % str(color))
+	
+	def validateInput(self, inpt):
+
+		self.inpt = inpt
+
+		try:
+			lastcharacter = self.inpt[-1:]
+			x = re.findall("[a-zA-Z0-9_]", lastcharacter)
+			if len(x) == 1:
+				self.ids.nameTextInput.text = inpt
+
+			else:
+				rightstring = self.inpt[:-1]
+				self.ids.nameTextInput.text = rightstring
+
+		except Exception as e:
+			logging.warning(str(e))
 
 
 class StatisticsMenu(Screen):
+
 	def refreshstats(self,test):
 		print("Updating screen... %s" % test)
 		print("PLAYERNAME: %s" % CLIENT.me.getName())

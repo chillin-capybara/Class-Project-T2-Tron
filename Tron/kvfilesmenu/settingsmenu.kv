@@ -35,7 +35,10 @@
                 color: 0, 0, 0, 1
             TextInput:
                 id: nameTextInput
-                hint_text: 'Player 1'
+                hint_text: 'Player_1'
+                on_text:
+                    root.validateInput(self.text)
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint: (1,1)

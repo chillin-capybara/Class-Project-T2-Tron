@@ -8,7 +8,6 @@
 #    -
 
 <CreateMatchMenuFloat>:
-    #on_pre_enter: (root.getPlayerdata(""))
 
     HeaderLabel:
         text: 'create Match Menu Float Version'
@@ -38,8 +37,6 @@
             hint_text: 'Only_one_word_is_allowed'
             on_text:
                 root.validateInput(self.text)
-
-        
 
     BoxLayout:
     ## Number of Players Silder

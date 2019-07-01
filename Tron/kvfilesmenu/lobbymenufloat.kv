@@ -9,7 +9,6 @@
 #operations:
 
 <LobbyMenuFloat>:
-    on_pre_enter: root.getLobbyInformation()
     on_enter: root.getLobbyInformation()
 
     HeaderLabel:
@@ -154,7 +153,7 @@
 
     Button:
         id: creatematchButton
-        size_hint: (.485, .08)
+        size_hint: (.43, .08)
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {'x': .01, 'y': .1}
         text: 'Create match'
@@ -164,13 +163,22 @@
 
     Button:
         id: joinmatchButton
-        size_hint: (.485, .08)
+        size_hint: (.43, .08)
         background_color: (0.1,0.3,0.7,1)
-        pos_hint: {'x': .51, 'y': .1}
+        pos_hint: {'x': .45, 'y': .1}
         text: 'Join match'
         on_release:
             #root.manager.current = 'gamestartmenu'
             root.joinMatch()
+    
+    Button:
+        id: refreshButton
+        size_hint: (.1, .08)
+        pos_hint: {"x": .89, "y": .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Refresh'
+        on_release:
+            root.getLobbyInformation()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
