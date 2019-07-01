@@ -38,6 +38,7 @@ class Lobby(object):
 	EError : Event = None
 	EMatchJoined : Event = None
 	ELobbyStop : Event = None # Event to spread, when the server gets stopped
+	EMatchStarted : Event = None
 
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None):
 		"""
@@ -71,6 +72,7 @@ class Lobby(object):
 		self.EError = Event('msg')
 		self.EMatchJoined = Event('matchname')
 		self.ELobbyStop = Event()
+		self.EMatchStarted = Event() # Detalt event to start the GAME itself
 
 		# Intialize communication protocol : CLIENT EVENTS!!!!
 		self.__comm = BasicComm()
@@ -472,3 +474,6 @@ class Lobby(object):
 		"""
 		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(players)))
 		# Connect to the match server via udp and tcp for the control
+
+		# Notifty the UI to show the game
+		self.EMatchStarted(self)
