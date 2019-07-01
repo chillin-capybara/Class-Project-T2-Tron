@@ -107,6 +107,12 @@ class Vect2D(object):
 			return True
 		else:
 			return False
+
+	def clone(self):
+		"""
+		needed to implement clone fucntion to create reference to new RAM space
+		"""
+		return Vect2D(x = self.x, y = self.y)
 	
 
 
