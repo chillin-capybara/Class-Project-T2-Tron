@@ -51,6 +51,7 @@ class HeadWidget(Widget):
         tracksize = UI.mainUI.TRACKSIZE
         velocity = self.player.getVelocity()
         playPos = self.player.getPosition()
+        print(velocity)
         nowpoint = (
             playPos.x * (self.screen_size[0]/fieldsize[0]),
             playPos.y * (self.screen_size[1]/fieldsize[1]),
