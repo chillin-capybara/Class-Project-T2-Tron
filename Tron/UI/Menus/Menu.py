@@ -15,7 +15,7 @@ import re
 import logging
 import time
 ##import own modules
-#from ..mainUI import GameApp, GameUI
+from ..mainUI import GameApp, GameUI
 from Backend.Classes.GameClient import GameClient
 from collections import namedtuple
 from Backend.Classes.GameServer import GameServer
@@ -60,7 +60,11 @@ CLIENT.EMatchJoined += handle_ematchJoined
 def handle_ematchStarted(sender):
 
 	screen_manager.current = 'gamestartmenu'
-	#CLIENT.me.startgame
+	GameApp.run()
+
+CLIENT.EMatchStarted += handle_ematchStarted
+
+
 
 class GameOverMenu(Screen):
 
