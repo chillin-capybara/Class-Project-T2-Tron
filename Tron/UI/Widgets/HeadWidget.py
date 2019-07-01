@@ -31,8 +31,10 @@ class HeadWidget(Widget):
     
 
     def on_player(self, instance, value):
+        #print (self.parent.parent.size)
         if value == None:
             return
+
         self.canvas = Canvas()
         with self.canvas:
             Color(rgba = self.getPlayerColor())
@@ -47,63 +49,64 @@ class HeadWidget(Widget):
     def calculatePoints(self):
         ## creating all points requiered for a triangle + detecting in which direction the triangle is heading to
         fieldsize = UI.mainUI.FIELDSIZE
-        headsize = UI.mainUI.HEADSIZE
-        tracksize = UI.mainUI.TRACKSIZE
         velocity = self.player.getVelocity()
         playPos = self.player.getPosition()
-        print(velocity)
         nowpoint = (
-            playPos.x * (self.screen_size[0]/fieldsize[0]),
-            playPos.y * (self.screen_size[1]/fieldsize[1]),
+            playPos.x * (self.screen_size[0]/fieldsize[0]), 
+            playPos.y * (self.screen_size[1]/fieldsize[1])
         )
-
-        ## I needed to add some values (0.5*tracksize) because the rectangle is defined on the left lower point
+        
         if velocity == Vect2D(1, 0):
-            xPos1 = nowpoint[0]  + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos1 = nowpoint[1] - headsize*(self.screen_size[1]/fieldsize[1]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] 
+            yPos1 = nowpoint[1] - 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos2 = nowpoint[0] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos2 = nowpoint[1] + headsize*(self.screen_size[1]/fieldsize[1]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] + 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0] + headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos3 = nowpoint[1] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] + 5*(self.screen_size[0]/fieldsize[0])
+            yPos3 = nowpoint[1]
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
         if velocity == Vect2D(0, 1):
-            xPos1 = nowpoint[0] - headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos1 = nowpoint[1]  + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] - 5*(self.screen_size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] 
 
-            xPos2 = nowpoint[0] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos2 = nowpoint[1] + headsize*(self.screen_size[1]/fieldsize[1]) + (1*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] + 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0] + headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos3 = nowpoint[1] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] + 5*(self.screen_size[0]/fieldsize[0])
+            yPos3 = nowpoint[1]
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
         if velocity == Vect2D(-1, 0):
-            xPos1 = nowpoint[0] - headsize*(self.screen_size[0]/fieldsize[0])
-            yPos1 = nowpoint[1]  + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] - 5*(self.screen_size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] 
 
             xPos2 = nowpoint[0]
-            yPos2 = nowpoint[1] + headsize*(self.screen_size[1]/fieldsize[1]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            yPos2 = nowpoint[1] + 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0]
-            yPos3 = nowpoint[1] - headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] 
+            yPos3 = nowpoint[1] - 5*(self.screen_size[0]/fieldsize[0])
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 
 
         if velocity == Vect2D(0, -1):
-            print(tracksize/2)
-            xPos1 = nowpoint[0] - headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize) *(self.screen_size[0]/fieldsize[0])
-            yPos1 = nowpoint[1]  + (0*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos1 = nowpoint[0] - 5*(self.screen_size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] 
 
-            xPos2 = nowpoint[0] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos2 = nowpoint[1] - headsize*(self.screen_size[1]/fieldsize[1]) + (0*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos2 = nowpoint[0]
+            yPos2 = nowpoint[1] - 5*(self.screen_size[1]/fieldsize[1])
 
-            xPos3 = nowpoint[0] + headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos3 = nowpoint[1] + (0*tracksize)*(self.screen_size[0]/fieldsize[0])
+            xPos3 = nowpoint[0] + 5*(self.screen_size[0]/fieldsize[0])
+            yPos3 = nowpoint[1]
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
+
+    def update_screen_size(self, screensize_from_top):
+        ## todo getting value to be constant
+        print (screensize_from_top)
+        return screensize_from_top
+         
