@@ -70,8 +70,7 @@ class TrackWidget(Widget):
     def __init__(self, **kwargs):
         ## creates update function for all uses, ensures synchronized update trigger
         super(TrackWidget, self).__init__(**kwargs)
-        self._player = UI.mainUI.CLIENT.me
-        # self._game = UI.mainUI.GAME
+        self._player = UI.mainUI.GAME.me
         ## adding the me player to the players list
         players.append(self._player)
         
