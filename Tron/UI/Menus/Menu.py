@@ -351,10 +351,9 @@ class SettingsMenu(Screen):
 		Return:
 			-
 		"""
-		# Save the name and the color
-		#GAME.setPlayerName(playername)
-		#GAME.setColor(color)
-		# TODO IMPLEMENT RGB Color picker
+		#Save the name and the color
+		CLIENT.me.setName(playername)
+		CLIENT.me.setColor(color)
 
 		print("Playername changed to: %s" % playername)
 		print("Color changed to %s" % str(color))
@@ -363,13 +362,13 @@ class SettingsMenu(Screen):
 class StatisticsMenu(Screen):
 	def refreshstats(self,test):
 		print("Updating screen... %s" % test)
-		#print("PLAYERNAME: %s" % GAME.getPlayerName())
+		print("PLAYERNAME: %s" % CLIENT.me.getName())
 
-		#outputname = 'Name: %s' % (GAME.getPlayerName())
+		outputname = 'Name: %s' % (CLIENT.me.getName())
 		print(outputname, flush= True)
 		self.ids.nameLabel.text = outputname
 
-		#color = GAME.getColor()
+		color = CLIENT.me.getColor()
 		sol = "Color: %s" % str(color)
 		print(sol)
 		playercolor = (color[0], color[1], color[2], 1)
@@ -593,7 +592,7 @@ class ConnectionLostMenuFloat(Screen):
 class BackToMenuButton(Screen):
 	
 	def changeScreen(self):
-		screen_manager.current = 'mainmenu'
+		screen_manager.current = 'mainmenufloat'
 
 class ListLabel(Screen):
 	pass
@@ -726,8 +725,9 @@ class WindowManager(ScreenManager):
 	pass
 
 screen_manager = WindowManager()
-screen_manager.add_widget(MainMenu(name='mainmenu'))
 screen_manager.add_widget(MainMenuFloat(name='mainmenufloat'))
+screen_manager.add_widget(MainMenu(name='mainmenu'))
+#screen_manager.add_widget(MainMenuFloat(name='mainmenufloat'))
 screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
 screen_manager.add_widget(ConnectionLostMenu(name='connectionlostmenu'))
 screen_manager.add_widget(SearchForServerMenu(name='searchforservermenu'))
