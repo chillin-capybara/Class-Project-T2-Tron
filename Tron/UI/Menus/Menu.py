@@ -566,7 +566,7 @@ class CreateMatchMenuFloat(Screen):
 				self.ids.gamenameTextInput.text = inpt
 
 			else:
-				self.openBubble(lastcharacter)
+				#self.openBubble(lastcharacter)
 				rightstring = self.inpt[:-1]
 				self.ids.gamenameTextInput.text = rightstring
 
