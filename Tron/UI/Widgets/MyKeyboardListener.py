@@ -45,7 +45,7 @@ class MyKeyboardListener(Widget):
         # enterPause Menu
         if keycode[1] == 'p':
             print("not Implemented Yet Pause Menu")
-            keyboard.release()
+            UI.mainUI.GAME.RequestPause()
 
         if keycode[1] == 'a':
             self.press_a_key()

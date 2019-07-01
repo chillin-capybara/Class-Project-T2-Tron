@@ -51,7 +51,6 @@ class HeadWidget(Widget):
         tracksize = UI.mainUI.TRACKSIZE
         velocity = self.player.getVelocity()
         playPos = self.player.getPosition()
-        print(velocity)
         nowpoint = (
             playPos.x * (self.screen_size[0]/fieldsize[0]),
             playPos.y * (self.screen_size[1]/fieldsize[1]),
@@ -60,13 +59,13 @@ class HeadWidget(Widget):
         ## I needed to add some values (0.5*tracksize) because the rectangle is defined on the left lower point
         if velocity == Vect2D(1, 0):
             xPos1 = nowpoint[0]  + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos1 = nowpoint[1] - headsize*(self.screen_size[1]/fieldsize[1]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            yPos1 = nowpoint[1] - headsize*(self.screen_size[1]/fieldsize[1]) + (0.3*tracksize)*(self.screen_size[0]/fieldsize[0])
 
             xPos2 = nowpoint[0] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos2 = nowpoint[1] + headsize*(self.screen_size[1]/fieldsize[1]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            yPos2 = nowpoint[1] + headsize*(self.screen_size[1]/fieldsize[1]) + (0.3*tracksize)*(self.screen_size[0]/fieldsize[0])
 
             xPos3 = nowpoint[0] + headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
-            yPos3 = nowpoint[1] + (0.5*tracksize)*(self.screen_size[0]/fieldsize[0])
+            yPos3 = nowpoint[1] + (0.3*tracksize)*(self.screen_size[0]/fieldsize[0])
 
             return [xPos1, yPos1, xPos2, yPos2, xPos3, yPos3]
 

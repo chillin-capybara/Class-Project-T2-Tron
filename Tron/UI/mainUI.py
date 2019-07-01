@@ -58,6 +58,7 @@ Builder.load_string("""
         TrackWidget:
             id: trackWidget
             size: root.size
+            playerList: root.playerList
 
     # kv file for displaying all ingame players with colors
 
@@ -71,6 +72,7 @@ Builder.load_string("""
             size: root.getPlayerWidgetSize()
             size_hint: None, None
             playerList: root.playerList
+            game: root.game
 """)
 
 
@@ -79,7 +81,7 @@ Builder.load_string("""
 
 
 ## Static global defined values
-UPDATES_PER_SECOND = 15
+UPDATES_PER_SECOND = 3
 # FIELDSIZE = Arena.getSize()
 FIELDSIZE = (100, 100)
 HEADSIZE = 1
@@ -100,37 +102,44 @@ GAME.setPlayerName("Its me")
 p1 = HumanPlayer()
 p1.setName("Simon")
 p1.setColor((1, 1, 0))
-p1.setPosition(20, 20)
+p1.setPosition(10, 10)
 p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+p1.setVelocity(-1,0)
+p1.move(10)
 
 # p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
 p2 = HumanPlayer()
 p2.setName("Lorenz")
 p2.setColor((0, 1, 1))
-p2.setPosition(50, 50)
+p2.setPosition(30, 40)
 p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
 p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
 p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
 p2.setVelocity(1, 0)
+p2.move(5)
 
 p3 = HumanPlayer()
 p3.setName("Marcell")
 p3.setColor((1, 0, 1))
-p3.setPosition(50, 50)
+p3.setPosition(70, 40)
 p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
 p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
 p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
 p3.setVelocity(0, 1)
+print(p1.getPosition())
 
-players = [p1, p2, p3]
+print(p1.getPosition())
+
+players = [p1, p2, p3, CLIENT.me]
 
 GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
 
 class GameUI(Widget):
     playerList = ListProperty(players)
-    print(playerList)
-
+    game = ObjectProperty(GAME)
+    # print(GAME.getPlayers())
+    
     ## Values for later use in functions
     countdown_is_running = BooleanProperty(False)
     game_is_running = BooleanProperty(False)
@@ -150,7 +159,7 @@ class GameUI(Widget):
         ## final update function, where I trigger different functuions
         # self.ids.trackWidget.update()
         self.ids.trackWidget.update()
-
+        
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
@@ -162,7 +171,10 @@ class GameUI(Widget):
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
-            self.ids.trackWidget.setBooleanGame()            
+            self.ids.trackWidget.setBooleanGame()     
+            p1.move(3)
+            p2.move(2)
+            p3.move(1)       
             
 
 

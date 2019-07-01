@@ -4,7 +4,7 @@ from kivy.properties import ListProperty, StringProperty, NumericProperty
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ListProperty
+from kivy.properties import NumericProperty, ListProperty, ObjectProperty
 from kivy.animation import Animation
 from kivy.graphics import *
 import UI.mainUI
@@ -24,7 +24,8 @@ Builder.load_string("""
 
 class PlayerWidget(Widget):
     playerList = ListProperty([])
-
+    game = ObjectProperty()
+    print(game)
     def on_playerList(self, instance, value):
         ## function for creating the input for the BoxLayout, capable of printing the text + the color of the player
         self.ids.boxLayout1.clear_widgets()
