@@ -89,11 +89,10 @@ Builder.load_string("""
 """)
 
 
-## Static global defined values
-UPDATES_PER_SECOND = 5
+
+UPDATES_PER_SECOND = 15
 FIELDSIZE = (100, 100)
-HEADSIZE = 1
-TRACKSIZE = 1
+
 
 print("Client initialized", flush=True)
 # Define global GAME object
@@ -104,8 +103,6 @@ CLIENT.me.setVelocity(0,1)
 
 
 class GameUI(Widget):
-
-    # playerList = ListProperty(CLIENT.getPlayers())
     
     playerList = ListProperty([
         {
@@ -148,7 +145,6 @@ class GameUI(Widget):
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanCountdown()
-            self.ids.trackWidget.increaseOpacity()
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:
@@ -158,7 +154,7 @@ class GameUI(Widget):
             self.ids.trackWidget.increaseOpacity()
         
         # TODO -> MOVE HAST TO GO INTO THE SERVER
-        # CLIENT.me.step() # Update the player's position 
+        CLIENT.me.step() # Update the player's position 
             
 
 

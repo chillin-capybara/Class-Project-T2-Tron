@@ -9,15 +9,15 @@
             id: menunameLabel
             text: 'About Menu'
             size_hint: (1, 0.1)
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         Label:
             id: abouttextLabel
             text: 'A-Moll \r\n \r\n Our team consist of Artem, Marcell, Oliver, Lorenz and Ludwig: A-Moll \r\n But we are not a sad minor scale! ;)'
             size_hint: 1, 5
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         Button:
             id: backtomenuButton
             text: 'Back to Main Menu'
             background_color: (1,0,0,1)
             size_hint: 1, 0.5
-            on_release: root.manager.current = 'mainmenu'
+            on_release: root.manager.current = 'mainmenufloat'
