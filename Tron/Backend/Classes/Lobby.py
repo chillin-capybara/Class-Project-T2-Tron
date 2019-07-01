@@ -80,6 +80,7 @@ class Lobby(object):
 		self.__comm.EGames += self.handle_list_matches
 		self.__comm.EMatch += self.handle_match
 		self.__comm.EServerError += self.handle_server_error
+		self.__comm.EMatchStarted += self.handle_match_started
 		self.__comm.EMatchJoined += self.handle_match_joined
 
 		# Initialize hook : Only for clients
