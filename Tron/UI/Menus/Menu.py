@@ -51,7 +51,7 @@ CLIENT.EError += ErrorPopup
 
 def handle_ematchJoined(sender, matchname):
 
-	popup = Popup(title='Match Joined', content=Label(text = 'Waiting for %s to start...' % matchname), size_hint=(None, None), size=(400, 400), auto_dismiss=False)
+	popup = Popup(title='Match Joined', content=Label(text = 'Waiting for %s to start...' % matchname), size_hint=(None, None), size=(400, 400), auto_dismiss=True)
 
 	popup.open()
 
@@ -60,7 +60,7 @@ CLIENT.EMatchJoined += handle_ematchJoined
 def handle_ematchStarted(sender):
 
 	screen_manager.current = 'gamestartmenu'
-	GameApp.run()
+	GameApp().run()
 
 CLIENT.EMatchStarted += handle_ematchStarted
 
