@@ -461,7 +461,7 @@ class Lobby(object):
 		# Wait for the start message -> let the fun begin
 		self.__process_response()
 	
-	def handle_match_started(self, sender, port:int, list:list):
+	def handle_match_started(self, sender, port:int, players:list):
 		"""
 		Handle the event, when the match starts
 		
@@ -470,5 +470,5 @@ class Lobby(object):
 			port (int): Port of the starting match
 			pclist (list): list of player ids and colors
 		"""
-		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(list)))
+		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(players)))
 		# Connect to the match server via udp and tcp for the control

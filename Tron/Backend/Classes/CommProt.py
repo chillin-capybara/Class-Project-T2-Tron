@@ -100,7 +100,7 @@ class CommProt:
 		self.EGames                 = Event('game', 'matches')
 		self.EMatchFeatures         = Event('name')
 		self.EMatch                 = Event('game', 'name', 'features')
-		self.EMatchStarted          = Event('port', 'list') # the list is formatted as (id, r, g, b)
+		self.EMatchStarted          = Event('port', 'players') # the list is formatted as (id, r, g, b)
 
 	def client_ready(self, player):
 		"""

@@ -26,6 +26,7 @@ class HumanPlayer(Player):
 	__IsInPause = False
 
 	__track = None
+	__last_velocity : Vect2D = None
 
 # input check Velocity.x
 	@property
@@ -68,7 +69,12 @@ class HumanPlayer(Player):
 		self.__track = LightTrack()
 		self.__Position = Vect2D(0,0)
 		self.__Velocity = Vect2D(0,0)
+		self.__last_velocity = Vect2D(0,0)
 		self.__IpAdress = "0.0.0.0"
+
+		# Set the color to black as default
+		self.__Color = (0,0,0)
+
 
 	def getTrack(self):
 		return self.__track
@@ -233,6 +239,11 @@ class HumanPlayer(Player):
 		Args: 
 		velocity: velocity as Vect2D
 		"""
+		# Store the old velocity
+		self.__last_velocity.x = self.__Velocity.x
+		self.__last_velocity.y = self.__Velocity.y
+
+		# Set the new velocity
 		self.__Velocity.x = x
 		self.__Velocity.y = y
 
@@ -275,6 +286,13 @@ class HumanPlayer(Player):
 		"""
 		self.__Position.x += self.__Velocity.x * time
 		self.__Position.y += self.__Velocity.y * time
+	
+	def step(self):
+		"""
+		Step the player forward in the direction of it's velocity
+		"""
+		self.__Position.x += self.__Velocity.x
+		self.__Position.y += self.__Velocity.y
 
 # # test Player implementation
 # testPlayer = HumanPlayer()

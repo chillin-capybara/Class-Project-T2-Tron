@@ -9,7 +9,7 @@ from kivy.properties import StringProperty, NumericProperty, BooleanProperty, Ob
 from kivy.lang import Builder
 from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
-from Backend.Classes.Game import Game
+from Backend.Classes.GameClient import GameClient
 
 
 from UI.Widgets.CountdownWidget import CountdownWidget
@@ -94,13 +94,12 @@ UPDATES_PER_SECOND = 15
 FIELDSIZE = (100, 100)
 
 
-print("GAME CREATED...", flush=True)
+print("Client initialized", flush=True)
 # Define global GAME object
-GAME = Game()
-GAME.me.setName("Peter")
-GAME.me.setColor((1, 1, 0))
-GAME.me.setVelocity(1, 0)
-GAME.me.setPosition(20, 20)
+CLIENT = GameClient()
+CLIENT.me.setPosition(20,20)
+CLIENT.me.setColor((90,60,90))
+CLIENT.me.setVelocity(0,1)
 
 
 class GameUI(Widget):
@@ -153,6 +152,9 @@ class GameUI(Widget):
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()
             self.ids.trackWidget.increaseOpacity()
+        
+        # TODO -> MOVE HAST TO GO INTO THE SERVER
+        CLIENT.me.step() # Update the player's position 
             
 
 

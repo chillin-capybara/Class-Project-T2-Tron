@@ -197,4 +197,4 @@ class Match(object):
 			players = self.__players[1:] # Ignore player 0
 
 			# All slots reserved
-			self.EStart(self, port=port, player_ids=player_ids, players=players)
+			self.EStart(self, port=self.port, player_ids=player_ids, players=players)

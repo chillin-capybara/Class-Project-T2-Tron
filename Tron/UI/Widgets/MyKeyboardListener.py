@@ -10,8 +10,8 @@ class MyKeyboardListener(Widget):
     def __init__(self, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
 
-        self._game = UI.mainUI.GAME
-        print (UI.mainUI.GAME.me.getName)
+        self._game = UI.mainUI.CLIENT
+        print (UI.mainUI.CLIENT.me.getName)
         self._player = self._game.me
         print(self._player)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')

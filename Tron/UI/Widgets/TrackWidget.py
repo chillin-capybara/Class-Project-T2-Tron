@@ -70,7 +70,7 @@ class TrackWidget(Widget):
     def __init__(self, **kwargs):
         ## creates update function for all uses, ensures synchronized update trigger
         super(TrackWidget, self).__init__(**kwargs)
-        self._player = UI.mainUI.GAME.me
+        self._player = UI.mainUI.CLIENT.me
         players.append(self._player)
         
     
@@ -184,7 +184,7 @@ class TrackWidget(Widget):
         self.allPoints_from_pointCreator.append(Vect2D(xVal, yVal))
         self.counter += 1
 
-        self._player.setPosition(xVal, yVal)
+        #self._player.setPosition(xVal, yVal)
 
         return self.allPoints_from_pointCreator
 

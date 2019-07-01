@@ -894,7 +894,7 @@ class BasicComm(CommProt):
 				for i in range(0, int(len(mylist) / 4)):
 					pre.append((int(mylist[4*i]), int(mylist[4*i+1]), int(mylist[4*i+2]), int(mylist[4*i+3])))
 
-				self.EMatchStarted(self, port=int(str_port), list=pre)
+				self.EMatchStarted(self, port=int(str_port), players=pre)
 				return self.MATCH_STARTED, int(str_port), pre
 			else:
 				raise MessageError("Invalid syntax for MATCH_STARTED")

@@ -285,5 +285,6 @@ class LobbyThread(threading.Thread):
 		# Generate match started package for every player in their thread
 		packet = self.__comm.match_started(port, player_ids, players)
 		self.send(packet)
+		logging.info("Packet sent...")
 
 
