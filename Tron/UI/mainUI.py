@@ -94,12 +94,15 @@ CLIENT.me.setVelocity(1, 0)
 CLIENT.me.setPosition(20, 20)
 
 GAME = Game()
+
+
 GAME.setPlayerName("Its me")
 p1 = HumanPlayer()
 p1.setName("Simon")
 p1.setColor((1, 1, 0))
 p1.setPosition(20, 20)
 p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+
 # p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
 p2 = HumanPlayer()
@@ -122,36 +125,11 @@ p3.setVelocity(0, 1)
 
 players = [p1, p2, p3]
 
-# GAME.__Players = [p1, p2, p3]
-
-
-
-
-
-
-
-
+GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
 
 class GameUI(Widget):
     playerList = ListProperty(players)
     print(playerList)
-    # print(GameClient.)
-    # playerList = ListProperty([
-    #     {
-    #         "name": "Simon",
-    #         "color": (1, 0, 0, 1)
-    #     },
-    #     {
-    #         "name": "Ludi",
-    #         "color": (0, 1, 0, 1)
-
-    #     },
-    #     {
-    #         "name": "Dani",
-    #         "color": (0, 0, 1, 1)
-
-    #     }
-    # ])
 
     ## Values for later use in functions
     countdown_is_running = BooleanProperty(False)
