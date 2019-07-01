@@ -12,7 +12,6 @@ class MyKeyboardListener(Widget):
 
         self._game = UI.mainUI.CLIENT
         self._player = self._game.me
-        print(self._player)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use

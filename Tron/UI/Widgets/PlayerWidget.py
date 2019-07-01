@@ -22,8 +22,6 @@ Builder.load_string("""
 """)
 
 class PlayerWidget(Widget):
-    # self._game = UI.mainUI.GAME
-    # player
     playerList = ListProperty()
 
     def on_playerList(self, instance, value):
