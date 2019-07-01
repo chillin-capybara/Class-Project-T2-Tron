@@ -98,10 +98,11 @@
                     size_hint: (1, 1.5)
         Label:
             size_hint: (1,2)
+
         Button:
             id: backtomenuButton
             text: 'Back to Main Menu (Save)'
             background_color: (1,0,0,1)
             size_hint: (1, 0.5)
             on_press: root.savechanges(nameTextInput.text, (redcolorSlider.value, greencolorSlider.value, bluecolorSlider.value))
-            on_release: root.manager.current = 'mainmenu'
+            on_release: root.manager.current = 'mainmenufloat'
