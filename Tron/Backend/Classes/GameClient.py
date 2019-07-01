@@ -22,6 +22,7 @@ class GameClient(object):
 
 	EError : Event = None # Event to be called, when an error happens
 	EMatchJoined : Event = None
+	EMatchStarted : Event = None
 
 	def __init__(self):
 		"""
@@ -37,6 +38,7 @@ class GameClient(object):
 		# Initialize local events
 		self.EError = Event('msg')
 		self.EMatchJoined = Event('matchname')
+		self.EMatchStarted = Event()
 
 		# Append the lobby event handler to the comm
 		self.__comm.ELobby += self.handle_lobby
@@ -141,6 +143,7 @@ class GameClient(object):
 		lobby = Lobby(host, port, self.get_me)
 		lobby.EError += self.handle_EError # Add callback to the error handler
 		lobby.EMatchJoined += self.handle_EMatchJoined # Add callback for match joins
+		lobby.EMatchStarted += self.handle_match_started
 		self.__lobbies.append(lobby)
 
 	def handle_EError(self, sender, msg: str):
@@ -177,4 +180,4 @@ class GameClient(object):
 		self.EMatchJoined(self, matchname=matchname)
 	
 	def handle_match_started(self):
-		pass
+		self.EMatchStarted(self)
