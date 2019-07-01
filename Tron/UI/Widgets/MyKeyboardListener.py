@@ -2,14 +2,14 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
 from Backend.Core.Vect2D import Vect2D
-from kivy.properties import ListProperty
+from kivy.properties import ListProperty, NumericProperty
 
 
 
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
+   
     trackPoints = ListProperty([])
-    
 
 
     def __init__(self, **kwargs):
@@ -18,11 +18,20 @@ class MyKeyboardListener(Widget):
         self._game = UI.mainUI.CLIENT
         self._player = self._game.me
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
+
+        ## needed to implement clone fucntion to create reference to new RAM space
+        playerPosVec2D = self._player.getPosition()
+        self.trackPoints.append(playerPosVec2D.clone())
+
+        print (self.trackPoints[0].x, self.trackPoints[0].y)
+
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use
             # to change the keyboard layout.
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
+    
+
 
 
     def _keyboard_closed(self):
@@ -91,9 +100,13 @@ class MyKeyboardListener(Widget):
             self._player.setVelocity(1, 0)
             return
 
+    counter = NumericProperty(0)
+    
+    
+
     def addingTrack_to_player(self):
-        self.trackPoints[0] = [self._player.getPosition()]
-        print (self._player.getPosition().x, self.trackPoints[0])
-        #
-        # self._player.addTrack(self._player.getPosition(), self.trackPoints[0]))
+        self.trackPoints.append(self._player.getPosition().clone())
+        self._player.addTrack(self.trackPoints[-2], self.trackPoints[-1])
+        
+        
 

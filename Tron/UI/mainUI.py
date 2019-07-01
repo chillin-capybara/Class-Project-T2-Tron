@@ -9,6 +9,7 @@ from kivy.properties import StringProperty, NumericProperty, BooleanProperty, Ob
 from kivy.lang import Builder
 from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
+from Backend.Classes.Game import Game
 from Backend.Classes.GameClient import GameClient
 
 
@@ -90,17 +91,18 @@ Builder.load_string("""
 
 
 ## Static global defined values
-UPDATES_PER_SECOND = 5
+UPDATES_PER_SECOND = 15
 FIELDSIZE = (100, 100)
 HEADSIZE = 1
 TRACKSIZE = 1
 
-print("Client initialized", flush=True)
+print("GAME CREATED...", flush=True)
 # Define global GAME object
 CLIENT = GameClient()
-CLIENT.me.setPosition(20,20)
-CLIENT.me.setColor((90,60,90))
-CLIENT.me.setVelocity(0,1)
+CLIENT.me.setName("Peter")
+CLIENT.me.setColor((1, 1, 0))
+CLIENT.me.setVelocity(1, 0)
+CLIENT.me.setPosition(20, 20)
 
 
 class GameUI(Widget):
@@ -154,11 +156,7 @@ class GameUI(Widget):
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
-            self.ids.trackWidget.setBooleanGame()
-            self.ids.trackWidget.increaseOpacity()
-        
-        # TODO -> MOVE HAST TO GO INTO THE SERVER
-        # CLIENT.me.step() # Update the player's position 
+            self.ids.trackWidget.setBooleanGame()            
             
 
 
