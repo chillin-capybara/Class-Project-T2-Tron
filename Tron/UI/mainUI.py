@@ -89,10 +89,11 @@ Builder.load_string("""
 """)
 
 
-
-UPDATES_PER_SECOND = 15
+## Static global defined values
+UPDATES_PER_SECOND = 5
 FIELDSIZE = (100, 100)
-
+HEADSIZE = 1
+TRACKSIZE = 1
 
 print("GAME CREATED...", flush=True)
 # Define global GAME object
@@ -146,13 +147,14 @@ class GameUI(Widget):
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanCountdown()
+            self.ids.trackWidget.increaseOpacity()
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()
-            self.ids.trackWidget.increaseOpacity()
+            
             
 
 
