@@ -95,7 +95,6 @@ class HeadWidget(Widget):
 
 
         if velocity == Vect2D(0, -1):
-            print(tracksize/2)
             xPos1 = nowpoint[0] - headsize*(self.screen_size[0]/fieldsize[0]) + (0.5*tracksize) *(self.screen_size[0]/fieldsize[0])
             yPos1 = nowpoint[1]  + (0*tracksize)*(self.screen_size[0]/fieldsize[0])
 

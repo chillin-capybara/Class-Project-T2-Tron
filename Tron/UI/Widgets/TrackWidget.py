@@ -112,10 +112,8 @@ class TrackWidget(Widget):
                             firstPoint = player.getPosition().clone()
                             self.pointCreator(player)
                             player.addTrack(firstPoint, player.getPosition().clone())
-                            print(player.getTrack())
 
                         self.pointCreator(player)
-                        print(self._player.getTrack())
                         
                         # if len(player.getTrack()) > 0:
                         #     allPoints_from_submission = player.getTrack()
@@ -127,9 +125,8 @@ class TrackWidget(Widget):
 
 
                     else:
-            
-                        allPoints_from_submission = player.getTrack()
-                        allPoints_after_calculation = self.constructMissingPoints_for_remote(allPoints_from_submission, player)
+                        
+                        allPoints_after_calculation = self.constructMissingPoints_for_remote(player)
                 
                     Color(rgba = self.getPlayerColor(player))
 
@@ -200,7 +197,6 @@ class TrackWidget(Widget):
             velocity.x * self.speed_factor, 
             velocity.y * self.speed_factor
         )
-        # print (player.getPosition().x, player.getPosition().y)
         xVal = round(move[0] + player.getPosition().x)
         yVal = round(move[1] + player.getPosition().y)
         
@@ -208,7 +204,6 @@ class TrackWidget(Widget):
         self.counter += 1
 
         player.setPosition(xVal, yVal)
-        # print (player.getPosition().x, player.getPosition().y)
 
 
 
@@ -219,14 +214,11 @@ class TrackWidget(Widget):
         self.allPoints.clear()
         trackList = player.getTrack()
         trackList.append(player.getPosition())
-        if len(player.getTrack()) >3:
-            print(player.getTrack()[0].x, player.getTrack()[0].y, player.getTrack()[1].x, player.getTrack()[1].y, player.getTrack()[2].x, player.getTrack()[2].y, player.getTrack()[3].x, player.getTrack()[3].y)
+        
         pointCount = len(trackList)
         for i in range(0, pointCount - 1):
             startPoint = trackList[i]
-            print(startPoint.x, startPoint.y)
             endPoint = trackList[i + 1]
-            print(endPoint.x, endPoint.y)
             # startPoint = (10, 10)
             # endPoint = (14, 10)
 
@@ -241,25 +233,22 @@ class TrackWidget(Widget):
             for j in range(0, lineLength):
                 xVal = round(startPoint.x + deltaX * j)
                 yVal = round(startPoint.y + deltaY * j)
-                print(xVal, yVal)
                 self.allPoints.append(Vect2D(xVal, yVal))
 
         self.allPoints.append(trackList[-1])
-        print(self.allPoints)
         return self.allPoints
 
-    def constructMissingPoints_for_remote(self, track, player):
+
+
+    def constructMissingPoints_for_remote(self, player):
         ## function who creates all missing points in between
-        if player == self._player and  self.counter_constructMissingPoints == 0:
-            track = [player.getPosition(), player.getPosition()]
-        if player == self._player:
-            print ("hi")
-        # allPoints = [player.getPosition()]
+        allPoints_from_submission = player.getTrack()
         allPoints = []
-        pointCount = len(track)
+        
+        pointCount = len(allPoints_from_submission)
         for i in range(0, pointCount - 1):
-            startPoint = track[i]
-            endPoint = track[i + 1]
+            startPoint = allPoints_from_submission[i]
+            endPoint = allPoints_from_submission[i + 1]
 
             # startPoint = (10, 10)
             # endPoint = (14, 10)
@@ -278,7 +267,7 @@ class TrackWidget(Widget):
                 yVal = round(startPoint.y + deltaY * j)
                 allPoints.append(Vect2D(xVal, yVal))
 
-        allPoints.append(track[-1])
+        allPoints.append(allPoints_from_submission[-1])
 
         return allPoints
 

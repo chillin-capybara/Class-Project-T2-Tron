@@ -11,6 +11,7 @@ from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.GameClient import GameClient
+from Backend.Classes.Arena import Arena
 
 
 from UI.Widgets.CountdownWidget import CountdownWidget
@@ -79,19 +80,12 @@ Builder.load_string("""
             size: root.getPlayerWidgetSize()
             size_hint: None, None
             playerList: root.playerList
-
-    AnchorLayout:
-        size: root.size
-        anchor_x: "center"
-        anchor_y: "center"
-        HeadWidget:
-            id: headWidget
-            size: root.size
 """)
 
 
 ## Static global defined values
-UPDATES_PER_SECOND = 5
+UPDATES_PER_SECOND = 15
+# FIELDSIZE = Arena.getSize()
 FIELDSIZE = (100, 100)
 HEADSIZE = 1
 TRACKSIZE = 1
@@ -103,7 +97,6 @@ CLIENT.me.setName("Peter")
 CLIENT.me.setColor((1, 1, 0))
 CLIENT.me.setVelocity(1, 0)
 CLIENT.me.setPosition(20, 20)
-# ANFANGSPOS = CLIENT.me.getPosition()
 
 class GameUI(Widget):
 

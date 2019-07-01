@@ -106,5 +106,4 @@ class MyKeyboardListener(Widget):
     def addingTrack_to_player(self):
         self.trackPoints.append(self._player.getPosition().clone())
         self._player.addTrack(self.trackPoints[-2], self.trackPoints[-1])
-        # print(self._player.getTrack())
         
