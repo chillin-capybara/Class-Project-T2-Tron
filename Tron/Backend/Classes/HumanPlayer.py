@@ -120,7 +120,9 @@ class HumanPlayer(Player):
 		Returns:
 		LightTrack as Track object
 		"""
-		raise NotImplementedError
+
+		return LightTrack.getLine()
+
 
 
 	def isAlive(self) -> bool:
