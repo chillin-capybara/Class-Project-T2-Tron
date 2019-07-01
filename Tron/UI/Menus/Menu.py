@@ -573,14 +573,14 @@ class CreateMatchMenuFloat(Screen):
 		except Exception as e:
 			logging.warning(str(e))
 
-	def openBubble(self, character):
+	# def openBubble(self, character):
 
-		#arrow_pos='top_mid', text='Character %s is not allowed' % character
-		self.bubble = Bubble()
+	# 	#arrow_pos='top_mid', text='Character %s is not allowed' % character
+	# 	self.bubble = Bubble()
 
-		self.add_widget(self.bubble)
-		time.sleep(1)
-		self.bubble.clear_widgets()
+	# 	self.add_widget(self.bubble)
+	# 	time.sleep(1)
+	# 	self.bubble.clear_widgets()
 
 ####################################################################
 ####################################################################
