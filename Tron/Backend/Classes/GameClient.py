@@ -179,5 +179,5 @@ class GameClient(object):
 		logging.info("Notifying the user, that to wait for the match start.")
 		self.EMatchJoined(self, matchname=matchname)
 	
-	def handle_match_started(self):
+	def handle_match_started(self, sender):
 		self.EMatchStarted(self)
