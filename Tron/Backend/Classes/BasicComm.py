@@ -6,6 +6,10 @@ from ..Core.globals import *
 from typing import Tuple
 import logging
 
+# Import the matrix splitting functionalities
+from ..Core.matrix import matrix_split, matrix_to_string, string_to_matrix
+from ..Core.matrix_splitter import MatrixSplitter
+
 def c2b(func):
 	"""
 	Decorate a function to return byte data, converted to byte instead of string
@@ -97,7 +101,9 @@ class BasicComm(CommProt):
 			'GAMES'                    : self.__process_games,
 			'MATCH'                    : self.__process_match,
 			'MATCH_STARTED'            : self.__process_match_started,
-			'MATCH_FEATURES'           : self.__process_match_features
+			'MATCH_FEATURES'           : self.__process_match_features,
+			'UPDATE_FIELD'             : self.__process_update_field,
+			'NEW_DIRECTION'            : self.__process_new_direction
 			}
 		
 		# Initialize the events, and the abstract class
@@ -457,6 +463,36 @@ class BasicComm(CommProt):
 		
 		str_list = list_to_strlist(full_list)
 		return "MATCH_STARTED %d %s" % (port, str_list)
+	
+	@c2b
+	def update_field(self, key: str, matrix: list) -> str:
+		"""
+		Generate an UPDATE_FILED message
+		
+		Args:
+			key (str): (i,j) index of the part matrix
+			matrix (list): Partial (matrix) to send
+		
+		Returns:
+			str: Message
+		"""
+		matrix_str = matrix_to_string(matrix)
+		message = "UPDATE_FIELD %d,%d %s" % (key[0],key[1],matrix_str)
+		return message
+	
+	@c2b
+	def new_direction(self, player_id: int, direcion: tuple) -> str:
+		"""
+		Get a change direction message from the client
+		
+		Args:
+			player_id (int): ID of the player who sends the packet
+			direction (tuple): New direction as x,y
+		
+		Returns:
+			str: Message strin
+		"""
+		return "NEW_DIRECTION %d %d,%d" % (player_id, direcion[0], direcion[1])
 
 	def process_response(self, response: bytes):
 		"""
@@ -900,3 +936,44 @@ class BasicComm(CommProt):
 				raise MessageError("Invalid syntax for MATCH_STARTED")
 		except:
 			MessageError("Invalid Syntax for MATCH_STARTED!")
+	
+	def __process_update_field(self, params:str) -> Tuple[int, tuple, list]:
+		"""
+		Process an update field request
+		
+		Args:
+			params (str): Partial index and string representation of the matrix
+		
+		Returns:
+			Tuple[int, tuple, list]: Comm.UPDATE_FIELD, (i,j), matrix
+		"""
+		keys, str_matrix = params.split(" ", 1)
+		i,j = keys.split(",")
+		i = int(i)
+		j = int(j)
+
+		matrix = string_to_matrix(str_matrix)
+
+		# Call the event
+		self.EUpdateField(self, key=(i,j), matrix=matrix)
+
+		return self.UPDATE_FIELD, (i,j), matrix
+	
+	def __process_new_direction(self, params: str):
+		"""
+		Process a new direction request from the client on the server
+		
+		Args:
+			params (str): Player id x,y
+		"""
+		pid, sdir = params.split(" ", 1)
+		x,y = sdir.split(',', 1)
+
+		pid = int(pid)
+		x = int(x)
+		y = int(y)
+
+		# Call the event
+		self.ENewDirection(self, player_id = pid, direction=(x,y))
+
+		return self.NEW_DIRECTION, pid, (x,y)

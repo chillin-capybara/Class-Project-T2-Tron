@@ -884,5 +884,85 @@ class test_BasicComm(unittest.TestCase):
 		self.assertEqual(lists, [(0,50,50,50), (1,99,99,99)])
 		self.assertTrue(COMM.EMatchStarted.was_called())
 	
+	def test_update_field(self):
+		"""
+		Test the update field message
+		"""
+		# Test data 1
+		matrix = [[1,2,3],[4,5,6],[7,8,9]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+		self.assertEqual(
+			packet,
+			utf8("UPDATE_FIELD 1,1 1,2,3;4,5,6;7,8,9")
+		)
+
+		# Test data 2
+		matrix = [[9,9],[8,8],[7,7]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+		self.assertEqual(
+			packet,
+			utf8("UPDATE_FIELD 1,1 9,9;8,8;7,7")
+		)
+	
+	def test_process_update_field(self):
+		"""
+		Test the message processor of the UPDATE_FIELD
+		"""
+		matrix = [[1,2,3],[4,5,6],[7,8,9]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+
+		mtype, mkey, mmatrix = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.UPDATE_FIELD)
+		self.assertEqual(mkey, (1,1))
+		self.assertEqual(mmatrix, matrix)
+
+		# Test data 2
+		matrix = [[9,9],[8,8],[7,7]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+		mtype, mkey, mmatrix = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.UPDATE_FIELD)
+		self.assertEqual(mkey, (1,1))
+		self.assertEqual(mmatrix, matrix)
+	
+	def test_new_direction(self):
+		"""
+		Test the message generation for NEW_DIRECTIOn
+		"""
+		packet = COMM.new_direction(1, (0,1))
+		self.assertEqual(
+			packet,
+			utf8("NEW_DIRECTION 1 0,1")
+		)
+
+		packet = COMM.new_direction(9, (1,1))
+		self.assertEqual(
+			packet,
+			utf8("NEW_DIRECTION 9 1,1")
+		)
+	
+	def test_process_new_direction(self):
+		"""
+		Test the message processor of the direction change
+		"""
+		packet = COMM.new_direction(1, (0,1))
+		mtype, pid, mdir = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.NEW_DIRECTION)
+		self.assertEqual(pid, 1)
+		self.assertEqual(mdir, (0,1))
+
+		packet = COMM.new_direction(90, (2,7))
+		mtype, pid, mdir = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.NEW_DIRECTION)
+		self.assertEqual(pid, 90)
+		self.assertEqual(mdir, (2,7))
+	
 if __name__ == '__main__':
 	unittest.main()

@@ -1,6 +1,6 @@
 import array
 
-class InteropComm(object):
+class MatrixSplitter(object):
 	"""
 	Implements Communication methods and functions for 
 	the Interoperability tests
