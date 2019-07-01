@@ -470,5 +470,5 @@ class Lobby(object):
 			port (int): Port of the starting match
 			pclist (list): list of player ids and colors
 		"""
-		logging.info("Match started on port %d with (pid,r,g,b): %s" % str(list))
+		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(list)))
 		# Connect to the match server via udp and tcp for the control
