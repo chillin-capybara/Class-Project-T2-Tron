@@ -121,7 +121,7 @@ class HumanPlayer(Player):
 		LightTrack as Track object
 		"""
 
-		return LightTrack.getLine()
+		return self.__track.getLine()
 
 
 
