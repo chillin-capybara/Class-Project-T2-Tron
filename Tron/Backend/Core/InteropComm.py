@@ -250,69 +250,38 @@ class InteropComm(object):
 
 	def matrix_collapse_opt (self, splitted_matrix: dict) -> list:
 		"""
+		collapse splitted matrices "childes" to the mother matrix
+		using numpy
+			Args:
+				splitted_matrix: dict - input splits as a dictionary
+			Returns:
+				motherMatrix: list - resulting matrix as a nested list
+			Raises:
+				TODO
 		"""
-		allKeysList = list( splitted_matrix.keys() )
-		lastKey = allKeysList [ len(allKeysList) - 1 ]
-		#take the first child matrix 
-		rowOfMotherMatrix = np.array((splitted_matrix[(1,1)]))
-		motherMatrix = np.array(()) 
+		allKeysList = list( splitted_matrix.keys() ) 
+		lastKey = allKeysList [ len(allKeysList) - 1 ] # fetch matrix dimensions
+		
+		motherMatrix = np.array(()) # init mother array
 
-		# iterate over Rows
 		for currentRow in range (1, lastKey[0] + 1):
-			#iterate over Colums
-			for currentColumn in range (2, lastKey[1] + 1 ):
-				if currentRow == 1 & currentColumn == lastKey[1] + 1: #initialize motherMatrix as first Row
-					motherMatrix = rowOfMotherMatrix 
+
+			rowOfMotherMatrix = np.array((splitted_matrix[(currentRow,1)])) # init row with 1st column
+			for currentColumn in range (2, lastKey[1] + 2 ): # start with 2nd column, because 1st already init
+				#handle the the transition between mother rows
+				if (currentColumn == ((lastKey[1])+1)):
+					if (currentRow == 1): 
+						motherMatrix = rowOfMotherMatrix
+					else:
+						motherMatrix = np.vstack((motherMatrix, rowOfMotherMatrix))
 					break
+				# handle transition between column inside of the row
 				childMatrix = np.array( splitted_matrix[ (currentRow, currentColumn) ] )
 				rowOfMotherMatrix = np.hstack( (rowOfMotherMatrix, childMatrix) )
-			motherMatrix = np.vstack((motherMatrix, rowOfMotherMatrix))
 
-		print(motherMatrix)
+		motherMatrix = motherMatrix.tolist()
+
 		return motherMatrix
-
-
-
-
-
-
-
-		allKeysList = list( splitted_matrix.keys() )
-		lastKey = allKeysList [ len(allKeysList) - 1 ]	
-		firstKey = allKeysList [0]
-		
-		motherMatrix :list = [] # init
-		bigMotherMatrix = []
-
-		currentColumn = 0
-
-			
-		# iterate over Rows
-		for currentRow in range (1, lastKey[0] + 1):
-
-			currentInsideRowRange = self.getIterationRange(splitted_matrix, firstKey, lastKey, "row", currentRow, currentColumn)
-			for currentInsideRow in range ( 0,currentInsideRowRange ):
-				
-				#iterate over Colums
-				for currentColumn in range (1, lastKey[1] + 1 ):
-					
-					
-					currentInsideColumnRange = self.getIterationRange(splitted_matrix, firstKey, lastKey, "column", currentRow, currentColumn)
-					for currentInsideColumn in range ( 0,currentInsideColumnRange ): 
-						
-						motherMatrixColumn = (currentColumn - 1)*(len( splitted_matrix[ firstKey ][0] ) ) + currentInsideColumn
-						motherMatrixRow = (currentRow - 1)*(len( splitted_matrix[ firstKey ] ) )  + currentInsideRow
-						
-						newElement = splitted_matrix[(currentRow,currentColumn)][currentInsideRow][currentInsideColumn]
-						# motherMatrix[motherMatrixRow][motherMatrixColumn].append( newElement )
-						newElementAsList = [newElement]
-
-						motherMatrix.append( newElementAsList[0] )
-				# bigMotherMatrix[currentRow].append ( motherMatrix )
-				bigMotherMatrix.append(motherMatrix)
-				motherMatrix = []
-
-		return bigMotherMatrix
 
 
 	def getIterationRange (self, splitted_matrix, firstKey, lastKey, columnOrRow, currentRow, currentColumn):
