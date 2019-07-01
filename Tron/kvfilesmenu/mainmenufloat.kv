@@ -1,0 +1,63 @@
+# Create Server
+# Search for Server
+# Settings
+# Statistics
+# About
+# Quit
+
+<MainMenuFloat>:
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 2
+        padding: 2
+        Label:
+            id: menunameLabel
+            text: 'Main Menu'
+            size_hint: (1, 0.1)
+            color: 1, 0, 0, 1
+        Button:
+            id: createserverButton
+            text: 'Create Server'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'createservermenu'
+        Button:
+            id: searchforserverButton
+            text: 'Search for Server'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'searchforservermenu'
+        Button:
+            id: settingsButton
+            text: 'Settings'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'settingsmenu'
+        Button:
+            id: statisticsButton
+            text: 'Statistics'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'statisticsmenu'
+        Button:
+            id: aboutButton
+            text: 'About'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'aboutmenu'
+        Button:
+            id: creatematchButton
+            text: 'Create Match Menu'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'creatematchmenufloat'
+        Button:
+            id: searchforlobbiesmenuButton
+            text: 'Search for Lobbies Menu'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'searchforlobbiesmenufloat'
+        Button:
+            id: lobbymenuButton
+            text: 'Lobby Menu'
+            background_color: (0.1,0.3,0.7,1)
+            on_release: root.manager.current = 'lobbymenufloat'
+        Button:
+            id: quitButton
+            text: 'Quit (WIP)'
+            background_color: (1,0,0,1)
+            size_hint: (1, 0.5)
+            on_release: exit()

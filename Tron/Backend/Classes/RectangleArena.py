@@ -22,7 +22,9 @@ class RectangleArena(Arena):
 	#Size setter implementation
 	@property
 	def sizeX(self):
-		"""TODO: DOCSTRING"""
+		"""
+		property for sizeX input check
+		"""
 		return self.__sizeX
 
 	@sizeX.setter
@@ -37,7 +39,9 @@ class RectangleArena(Arena):
 	
 	@property
 	def sizeY(self):
-		"""TODO: DOCSTRING"""
+		"""
+		property for sizeY input check
+		"""
 		return self.__sizeY
 
 	@sizeY.setter
@@ -52,7 +56,9 @@ class RectangleArena(Arena):
 	#Name setter implementation
 	@property
 	def name(self):
-		"""TODO: DOCSTRING"""
+		"""
+		property for name input check
+		"""
 		return self.__name 
 
 	# @sizeX.setter
@@ -99,7 +105,7 @@ class RectangleArena(Arena):
 			str: Arena name
 		"""
 		
-		return self.__name #TODO: were is the difference between __str__?
+		return self.__name 
 	
 	def __str__(self) -> str:
 		"""
@@ -107,7 +113,7 @@ class RectangleArena(Arena):
 		Returns:
 			str: Arena name
 		"""
-		return self.__name
+		return self.getName()
 
 	def getSize(self):
 		"""

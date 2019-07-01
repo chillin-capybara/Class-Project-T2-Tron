@@ -19,22 +19,53 @@ class CommProt:
 	REVENGE_ACK            = 11
 	SERVER_NOTIFICAITON    = 12
 	CLIENT_CHAT            = 13
+	LEAVING_GAME           = 14
+	GAME_ENDED             = 15
+	DISCOVER_LOBBY         = 16
+	LOBBY                  = 17
+	LIST_GAMES             = 18
+	AVAILABLE_GAMES        = 19
+	HELLO                  = 20
+	WELCOME                = 21
+	CREATE_MATCH           = 22
+	MATCH_CREATED          = 23
+	LIST_MATCHES           = 24
+	GAMES                  = 25
+	MATCH_FEATURES         = 26
+	MATCH                  = 27
+	MATCH_STARTED          = 28
+
 
 	# Create events for processing responsees
-	EClientError           = None # (sender=, msg=)
-	EServerError           = None # (sender=, msg=)
-	EClientReady           = None # (sender=, player=)
-	EClientReadyAck        = None # (sender=, player_id=)
-	EServerReady           = None # (sender=)
-	ECountdown             = None
-	EIngame                = None
-	EClientIngame          = None # (sender=, player=)
-	EPause                 = None # (sender=)
-	ERevenge               = None # (sender=)
-	ERevengeAck            = None # (sender=)
-	EExitGame              = None # (sender=)
-	EServerNotification    = None
-	EClientChat            = None
+	EClientError       : Event    = None # (sender=, msg=)
+	EServerError       : Event    = None # (sender=, msg=)
+	EClientReady       : Event    = None # (sender=, player=)
+	EClientReadyAck    : Event    = None # (sender=, player_id=)
+	EServerReady       : Event    = None # (sender=)
+	ECountdown         : Event    = None
+	EIngame            : Event    = None
+	EClientIngame      : Event    = None # (sender=, player=)
+	EPause             : Event    = None # (sender=)
+	ERevenge           : Event    = None # (sender=)
+	ERevengeAck        : Event    = None # (sender=)
+	EExitGame          : Event    = None # (sender=)
+	EServerNotification: Event    = None
+	EClientChat        : Event    = None
+	EGameEnded         : Event    = None # (sender=, msg=)
+	EDiscoverLobby     : Event    = None
+	ELobby             : Event    = None # (sender=, port=)
+	EListGames         : Event    = None
+	EAvailableGames    : Event    = None
+	EHello             : Event    = None
+	EWelcome           : Event    = None
+	ECreateMatch       : Event    = None
+	EMatchCreated      : Event    = None
+	EListMatches       : Event    = None
+	EGames : Event = None
+	EMatchFeatures: Event = None
+	EMatch : Event = None
+	EMatchStarted : Event = None
+
 
 	def __init__(self):
 		"""
@@ -47,8 +78,8 @@ class CommProt:
 		self.EClientReady           = Event('player') # (sender=, player=)
 		self.EClientReadyAck        = Event('player_id') # (sender=, player_id=)
 		self.EServerReady           = Event() # (sender=)
-		self.ECountdown             = Event()
-		self.EIngame                = Event()
+		self.ECountdown             = Event('seconds')
+		self.EIngame                = Event('players')
 		self.EClientIngame          = Event('player') # (sender=, player=)
 		self.EPause                 = Event() # (sender=)
 		self.ERevenge               = Event() # (sender=)
@@ -56,6 +87,20 @@ class CommProt:
 		self.EExitGame              = Event() # (sender=)
 		self.EServerNotification    = Event('msg') # (sender=, msg=
 		self.EClientChat            = Event('player_id', 'msg') # (sender=, player_id=, msg=)
+		self.EGameEnded             = Event('msg') # (sender=, msg=)
+		self.EDiscoverLobby         = Event() # (sender=)
+		self.ELobby                 = Event('port')
+		self.EListGames             = Event()
+		self.EAvailableGames        = Event('games') # (sender=, games=)
+		self.EHello                 = Event('playername', 'features')
+		self.EWelcome               = Event('features')
+		self.ECreateMatch           = Event('game', 'name', 'features')
+		self.EMatchCreated          = Event()
+		self.EListMatches           = Event('game')
+		self.EGames                 = Event('game', 'matches')
+		self.EMatchFeatures         = Event('name')
+		self.EMatch                 = Event('game', 'name', 'features')
+		self.EMatchStarted          = Event('port', 'list') # the list is formatted as (id, r, g, b)
 
 	def client_ready(self, player):
 		"""

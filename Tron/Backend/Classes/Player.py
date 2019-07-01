@@ -18,7 +18,7 @@ class Player(object):
 		Get the Color of the Player.
 
 		Returns:
-			int: Color of the Player
+			(r,g,b): Color of the Player
 		"""
 		raise NotImplementedError
 
@@ -102,7 +102,7 @@ class Player(object):
 		Set the color of the player
 
 		Args:
-			color (int): New color code based on the game specification
+			color (r,g,b): New color code based on the game specification
 		
 		Raises:
 			TypeError: The entered value is not an int
@@ -127,7 +127,11 @@ class Player(object):
 	def setVelocity(self, x, y):
 		"""
 		Set the velocity of the player to the given x, y directions
-		TODO: DOKU
+		Args:
+			x (int): Velocity along the x axis
+			y (int): Velocity along the y axis
+		Raises:
+			TypeError: Argument type mismatch
 		"""
 		raise NotImplementedError
 	

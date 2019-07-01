@@ -1,7 +1,6 @@
 from .HumanPlayer import HumanPlayer
 from .Player import Player as IPlayer
-from .Client import Client
-from .TCPCLient import TCPCLient
+
 
 class Factory:
 	"""
@@ -9,7 +8,7 @@ class Factory:
 	"""
 
 	@staticmethod
-	def Player(playername: str, color: int) -> IPlayer:
+	def Player(playername: str, color: tuple) -> IPlayer:
 		"""
 		Factor a new player instance of HumanPlayer or RandomPlayer
 		Args:
@@ -34,7 +33,7 @@ class Factory:
 			return obj.isPlayer() == True
 		except:
 			return False
-	
-	@staticmethod
-	def Client() -> Client:
-		return TCPCLient()
+
+	#@staticmethod
+	#def Client():
+	#	return TCPCLient()

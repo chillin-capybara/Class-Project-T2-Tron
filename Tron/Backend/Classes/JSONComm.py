@@ -1,5 +1,4 @@
 from .CommProt import CommProt
-from .Game import Game
 from .Player import Player
 from .Factory import Factory
 from .Arena import Arena
@@ -137,7 +136,15 @@ class JSONComm(CommProt):
 			vel: Vect2D = player.getVelocity()
 
 			# Create a dict
-			player_dict = {'playername': player.getName(), 'color': player.getColor(), 'x':pos.x, 'y':pos.y, 'vx': vel.x, 'vy':vel.y}
+			player_dict = {
+				'playername': player.getName(), 
+				'color_r': player.getColor()[0],
+				'color_g': player.getColor()[1],
+				'color_b': player.getColor()[2],
+				'x':pos.x,
+				'y':pos.y,
+				'vx': vel.x,
+				'vy':vel.y}
 			array.append(player_dict)
 		
 		return array
@@ -182,7 +189,9 @@ class JSONComm(CommProt):
 		msgdict = {
 			'type': 'client_ingame',
 			'playername': player.getName(),
-			'color': player.getColor(),
+			'color_r': player.getColor()[0],
+			'color_g': player.getColor()[1],
+			'color_b': player.getColor()[2],
 			'x': player.getPosition().x,
 			'y': player.getPosition().y,
 			'vx': player.getVelocity().x,
@@ -208,7 +217,9 @@ class JSONComm(CommProt):
 		msgdict = {
 			'type': 'client_ready',
 			'playername' : player.getName(),
-			'color': player.getColor(),
+			'color_r': player.getColor()[0],
+			'color_g': player.getColor()[1],
+			'color_b': player.getColor()[2],
 			'timestamp': get_timestamp()
 		}
 
@@ -383,15 +394,17 @@ class JSONComm(CommProt):
 				self.EClientChat(self, player_id=pid, msg=msg)
 				return CommProt.CLIENT_CHAT, pid, msg
 			elif decoded['type'] == 'ingame':
-				obj = self.__process_ingame(decoded)
+				obj, obj2 = self.__process_ingame(decoded)
 				self.EIngame(self, players=obj)    # EVENT CALL
-				return CommProt.INGAME, obj        # TODO: EXtend with returning the Arena, too
+				return CommProt.INGAME, obj, obj2
 			elif decoded['type'] == 'client_ingame':
 				obj = self.__process_client_ingame(decoded)
 				self.EClientIngame(self, player=obj) # EVENT CALL
 				return CommProt.CLIENT_INGAME, obj
 			elif decoded['type'] == 'countdown':
-				return CommProt.COUNTDOWN, self.__process_countdown(decoded)
+				obj = self.__process_countdown(decoded)
+				self.ECountdown(self, seconds=obj)
+				return CommProt.COUNTDOWN, obj
 			elif decoded['type'] == 'revenge':
 				return CommProt.REVENGE, True
 			elif decoded['type'] == 'revenge_ack':
@@ -418,11 +431,13 @@ class JSONComm(CommProt):
 		"""
 		if 'playername' not in msgdict.keys():
 			raise KeyError
-		if 'color' not in msgdict.keys():
-			raise KeyError
-		
+
+		r = msgdict['color_r']
+		g = msgdict['color_g']
+		b = msgdict['color_b']
+
 		# Factor the player by name and color
-		newplayer: Player = Factory.Player(msgdict['playername'], msgdict['color'])
+		newplayer: Player = Factory.Player(msgdict['playername'], (r,g,b))
 		return newplayer
 	
 	def __process_client_ready_ack(self, msgdict: dict) -> int:
@@ -538,8 +553,12 @@ class JSONComm(CommProt):
 
 	def __process_ingame(self, msgdict: dict):
 		"""
-		TODO
-		DOCUMENT THIS FUNCTIOn
+		Process an ingame update of player and the arena
+		Args:
+			msgdict (dict): Dictionary of the received package
+		Returns:
+			list[Player]: List of players
+			Arena:        Updated arena
 		"""
 		# Check for the players instance
 		if 'players' not in msgdict.keys():
@@ -553,13 +572,16 @@ class JSONComm(CommProt):
 
 		for pldata in msgdict['players']:
 			# Fetch data from the dict
-			player = Factory.Player(pldata['playername'], pldata['color'])
+			r = pldata['color_r']
+			g = pldata['color_g']
+			b = pldata['color_b']
+			player = Factory.Player(pldata['playername'], (r,g,b))
 			player.setVelocity(pldata['vx'], pldata['vy'])
 			player.setPosition(pldata['x'], pldata['y'])
 
 			# Add player to the results
 			plarray.append(player)
-		return plarray
+		return plarray, None
 
 	
 	def __process_client_ingame(self, msgdict: dict) -> Player:
@@ -575,10 +597,6 @@ class JSONComm(CommProt):
 			raise KeyError
 
 		# Check for message key
-		if 'color' not in msgdict.keys():
-			raise KeyError
-		
-		# Check for message key
 		if 'x' not in msgdict.keys():
 			raise KeyError
 		
@@ -593,8 +611,10 @@ class JSONComm(CommProt):
 		# Check for message key
 		if 'vy' not in msgdict.keys():
 			raise KeyError
-		
-		pl = Factory.Player(msgdict['playername'], msgdict['color'])
+		r = msgdict['color_r']
+		g = msgdict['color_g']
+		b = msgdict['color_b']
+		pl = Factory.Player(msgdict['playername'], (r,g,b))
 		pl: Player()
 		pl.setPosition(msgdict['x'], msgdict['y'])
 		pl.setVelocity(msgdict['vx'], msgdict['vy'])

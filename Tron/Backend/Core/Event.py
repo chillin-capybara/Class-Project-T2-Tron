@@ -1,5 +1,3 @@
-import logging
-
 class Event(object):
 	"""
 	Event definitions for event based programming in Python
@@ -7,8 +5,10 @@ class Event(object):
 
 	__callables = None
 	__args:list = None
+	__called    = False
 
 	def __init__(self, *args):
+		self.__called =  False
 		self.__args = []
 		self.__callables = []
 
@@ -17,9 +17,33 @@ class Event(object):
 
 		# Check if a pattern is given
 		if len(args) > 0:
+			if 'sender' in args:
+				raise ValueError("Cannot redefine sender. It's mandatory.")
+			if 'self' is args:
+				raise ValueError("Cannot add object-self reference.")
+
 			# Add the prototype arguments to the arg list
 			for carg in args:
 				self.__args.append(carg)
+	
+	def reset_called(self):
+		"""
+		Reset the called status of the event.
+		"""
+		self.__called = False
+
+	def was_called(self):
+		"""
+		Get if the event was called since the call-flag was reset.
+		Returns:
+			bool
+		"""
+		return self.__called
+
+	def __set_called(self):
+		"""
+		"""
+		self.__called = True
 
 	def attach(self, callback):
 		"""
@@ -37,8 +61,6 @@ class Event(object):
 		# If the Event handler prototype is invalid
 		if not self.matches_prototype(callback):
 			raise SyntaxError("Invalid Event Handler. Correct prototype: %s" % self.get_prototype_string())
-		
-		logging.debug("%s attached to Event" % (callback.__name__))
 
 		self.__callables.append(callback)
 	
@@ -60,7 +82,7 @@ class Event(object):
 		
 		# Check arguments in prototype
 		#for arg in callable_args:
-		#	if arg not in self.__args:
+		#	if (arg is not "self") and (arg not in self.__args): # Remove the self parameter
 		#		return False
 
 		return True
@@ -150,6 +172,8 @@ class Event(object):
 
 		for cb in self.__callables:
 			cb(**kwargs)          # Call with values
+		
+		self.__set_called()
 	
 	def __call__(self, sender, *args, **kwargs):
 		"""

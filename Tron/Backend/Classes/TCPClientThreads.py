@@ -5,20 +5,9 @@ import math
 from .Factory import Factory
 from ..Core.Exceptions import MessageError
 from random import randint
-import names
 import logging
 from ..Core.Event import Event
-
-class makros (object):
-	"""
-	makro 
-	"""
-	#TODO: REMOVE THIS
-	#MAKRO for FSM
-	INIT_STATE          = 0
-	CLIENT_READY        = 1
-	CLEINT_READY_ACK    = 2
-	CLIENT_ERROR        = 3
+from .ClientStateMachine import StateMaschine
 
 class SenderClientThread(threading.Thread):
 	"""
@@ -28,8 +17,10 @@ class SenderClientThread(threading.Thread):
 	__sockfd: socket.socket = None # Socket for client communication
 	__player_id = None # Player index of the player on the server
 	__Comm = None
+	__hook = None
+	
 
-	def __init__(self, sockfd, comm):
+	def __init__(self, sockfd, comm, hook):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 
@@ -45,10 +36,11 @@ class SenderClientThread(threading.Thread):
 			raise TypeError
 
 		self.__Comm = comm
-		
+		self.__hook = hook
+		StateMaschine.change(StateMaschine.CLIENT_READY)
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
-    
+
 	def run (self):
 		"""
 		Operation for the running threads
@@ -56,16 +48,19 @@ class SenderClientThread(threading.Thread):
 			sends updates of the in-game state to the server
 			whenewer it is needed
 		"""
-		myplayer = Factory.Player(names.get_first_name(), 1)
-		self.__sockfd.send(self.__Comm.client_ready(myplayer))
+		self.__sockfd.send(self.__Comm.client_ready(self.__hook.me))
+		StateMaschine.change(StateMaschine.CLIENT_WAITING)
 		time.sleep(1)
-		while True:
-			myplayer.setPosition(randint(0,200), randint(0,200))
-			sent_bytes = self.__sockfd.send(self.__Comm.client_ingame(myplayer))
+		if StateMaschine.state == StateMaschine.CLIENT_INGAME:			
+			while True:
+				sent_bytes = self.__sockfd.send(self.__Comm.client_ingame(self.__hook.me))
 
-			#self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
-			time.sleep(0.01)
-		pass
+				#self.__sockfd.send(self.__Comm.client_error("Error CLIENT"))
+				time.sleep(0.01)
+			pass
+		else:
+			pass #TODO: CLIENT NOT IN GAME implementation
+
 
 class ReceiverClientThread(threading.Thread):
 	"""
@@ -78,11 +73,12 @@ class ReceiverClientThread(threading.Thread):
 	__player_id = None # Player index of the player on the server
 	__Comm = None
 	__stateFSM = None
+	__hook = None
 
 	EIngameUpdate = None
 	EServerNotification = None
 
-	def __init__(self, sockfd, comm):
+	def __init__(self, sockfd, comm, hook):
 		"""
 		Initializes a new thread for a client with an accepted new tcp connection
 		
@@ -102,8 +98,8 @@ class ReceiverClientThread(threading.Thread):
 			raise TypeError
 
 		self.__Comm = comm
-		self.__stateFSM = makros.INIT_STATE
-
+		#self.__stateFSM = makros.INIT_STATE
+		self.__hook = hook
 		# Initialize the thread handler
 		threading.Thread.__init__(self)
 	
@@ -124,23 +120,30 @@ class ReceiverClientThread(threading.Thread):
 				self.__Comm.process_response(data)
 			except MessageError:
 				# Invalid message was received / Processed
-				logging.warning("Invalid message received from server")
-
-		# # FSM
-		# 	if self.__stateFSM == makros.INIT_STATE:
-		# 		pass
-
-		# 	elif self.__stateFSM == makros.CLIENT_READY:
-				
-		# 		logging.info ("Ready, waiting for ACK")
-
-		# 	elif self.__stateFSM == makros.CLEINT_READY_ACK:
-		# 		logging.info ("Ready ACK recieved")
-
-		# 	elif self.__stateFSM == makros.CLIENT_ERROR:
-		# 		self.__sockfd.close()
-		# 		logging.info ("Client ERROR")
-
-
-
+				#logging.warning("Invalid message received from server")
+				pass
+			except OSError:
+				# Socket refused / closed
+				logging.error("You got disconnected from the server.")
 		logging.debug("Receiver thread stopped stopped")
+
+	# def clientFSM (self):
+	# 	"""
+	# 	TODO: DOCSTRING
+
+	# 		Args: newState (int) New State
+	# 	"""
+	# 	# FSM
+	# 	if self.__stateFSM == makros.INIT_STATE:
+	# 		pass
+
+	# 	elif self.__stateFSM == makros.CLIENT_READY:
+	# 		logging.info ("Ready, waiting for ACK")
+
+	# 	elif self.__stateFSM == makros.CLEINT_READY_ACK:
+	# 		logging.info ("Ready ACK recieved")
+
+	# 	elif self.__stateFSM == makros.CLIENT_ERROR:
+	# 		self.__sockfd.close()
+	# 		logging.info ("Client ERROR")
+	# 	pass

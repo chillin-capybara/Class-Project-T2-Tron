@@ -1,13 +1,12 @@
+from .TCPClientThreads import SenderClientThread, ReceiverClientThread
+from ..Core.Exceptions import ClientError
+from .Factory import Factory
 from .Client import Client
-from .TCPClientThreads import SenderClientThread, ReceiverClientThread, makros
 from .JSONComm import JSONComm
 from .CommProt import CommProt
-from ..Core.Exceptions import ClientError
 import socket
-import names
 import logging
-
-
+from .ClientStateMachine import StateMaschine
 
 """
 Realisation of TCP Client Interface for TCP Client
@@ -21,38 +20,35 @@ class TCPCLient(Client):
 	__Comm         = None
 	__Player       = None
 	__players      = None
+	__hook = None
 
 
 	__RecieverThread = None
 
-	def __init__(self):
+	def __init__(self, hook):
 		"""
 		Initialize a new TCP Client
 		Details:
 			Initialize collections and Event handlers
 		"""
 		self.__Player = []
+		self.__hook = hook
 
 		self.__Comm: CommProt = JSONComm()
 		#self.__RecieverThread = ReceiverClientThread()
 
 		# Attach client_ready ack handler to event
 		self.__Comm.EClientReadyAck += self.handle_ready_ack
+		self.__Comm.ECountdown += self.handle_countdown
 		self.__Comm.EIngame += self.handle_ingame #+ self.handle_ingame_update
 		self.__Comm.EServerError += self.handle_server_error
 
 
 		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
-		# self.__RecieverThread.EServerNotification += handle_serever_notification
+		#self.__RecieverThread.EServerNotification += handle_serever_notification
 		self.__Comm.EServerNotification += self.handle_serever_notification
 
-
-
-	def attachPlayersUpdated(self, callback):
-		"""
-		TODO: DOC
-		"""
-		raise NotImplementedError
+		super().__init__()
 
 	def Connect(self, server, port):
 		"""
@@ -83,10 +79,11 @@ class TCPCLient(Client):
 			self.__sock.connect ((server, port))
 
 			# Start the client threads
-			self.__create_threads(self.__sock)
+			self.__create_threads(self.__sock, self.__hook)
 
 		except Exception as e:
 			# raise ClientError
+			raise e
 			raise ClientError(str(e))
 		# communicate ACK
 		# communicate
@@ -120,7 +117,7 @@ class TCPCLient(Client):
 		"""
 		raise NotImplementedError
 
-	def __create_threads(self, sock: socket.socket):
+	def __create_threads(self, sock: socket.socket, hook):
 		"""
 		Create send and receive threads for connection to the server
 
@@ -131,8 +128,8 @@ class TCPCLient(Client):
 			TypeError: sock is not a socket
 			ServerError: ???
 		"""
-		senderThread = SenderClientThread(sock, self.__Comm)
-		receiverThread = ReceiverClientThread(sock, self.__Comm)
+		senderThread = SenderClientThread(sock, self.__Comm, hook)
+		receiverThread = ReceiverClientThread(sock, self.__Comm, hook)
 
 		# Start the Threads
 		senderThread.start()
@@ -140,10 +137,20 @@ class TCPCLient(Client):
 
 	def handle_ready_ack(self, sender, player_id):
 		"""
-		TODO: DOCKSTRING
+		Handle client acknowledgement messages.
+		Details:
+			Notify the game, that the player got accepted by the server.
 		"""
+		StateMaschine.change(StateMaschine.CLIENT_WAITING)
 		self.ECClientReadyAck(self, player_id)
 		logging.info("I am accepted with ID: %d" % player_id)
+
+	def handle_countdown(self, sender, seconds):
+		"""
+		Handle countdown Event 
+		"""
+		StateMaschine.change(StateMaschine.CLIENT_COUNTDOWN)
+		logging.info("Recieved the countdwon. %d seconds!" % seconds)
 
 	def handle_ingame(self, sender, players):
 		"""
@@ -152,8 +159,9 @@ class TCPCLient(Client):
 			sender (CommProt): Caller of the event
 			players (list): List of player object with current position.
 		"""
+		StateMaschine.change(StateMaschine.CLIENT_INGAME)
 		self.__players = players
-		#logging.debug("Player data refreshed")
+		logging.info("I am in Game!")
 
 	def handle_server_error(self, sender, msg):
 		"""
@@ -164,6 +172,7 @@ class TCPCLient(Client):
 		"""
 		# TODO: Artem -> behandlung von error messages
 		self.ECClientError(self, msg)
+		StateMaschine.change(StateMaschine.CLIENT_ERROR)
 		self.__sock.close()
 		logging.error("Server ERROR: %s" % msg)
 		logging.info("Connection closed because of Server ERROR")
@@ -185,3 +194,10 @@ class TCPCLient(Client):
 
 		"""
 		logging.info(msg)
+	def requestPause (self, sender):
+		"""
+		Function to handle Pause request 
+
+		"""
+		StateMaschine.change(StateMaschine.CLIENT_PAUSE)
+		logging.info("Client in Pause")

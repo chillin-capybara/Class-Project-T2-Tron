@@ -25,4 +25,4 @@ def main(ip, port, player_nr):
 	server.Start()
 
 if __name__ == '__main__':
-	main("", 9877, 2)
+	main("", 9876, 10)

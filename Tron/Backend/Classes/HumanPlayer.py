@@ -8,7 +8,7 @@ MAX_X_GAME_FIELD = 240
 MAX_Y_GAME_FIELD = 240
 MAX_X_VELOCITY = 10**4
 MAX_Y_VELOCITY = 10**4
-
+MAX_COLOR_NUMBER = 100
 
 class HumanPlayer(Player):
 	"""
@@ -16,7 +16,7 @@ class HumanPlayer(Player):
 	"""
 
 	__Name = ""  # Name of the player
-	__Color = 0  # Color of the player
+	__Color = None  # Color of the player
 	__Position = None
 	__Velocity = None
 	# __Track = #TODO
@@ -27,6 +27,42 @@ class HumanPlayer(Player):
 
 	__track = None
 
+# input check Velocity.x
+	@property
+	def velocityX(self):
+		"""
+		property for Velocity type check
+		"""
+		return self.__Velocity.x
+
+	@velocityX.setter
+	def velocityX(self, new_value):
+		if type(new_value) != int:
+			raise TypeError
+		else:
+			if abs (new_value) > MAX_X_VELOCITY:
+				raise ValueError
+			else:
+				self.__Velocity.x = new_value
+
+# input check Velocity.y
+	@property
+	def velocityY(self):
+		"""
+		property for Velocity type check
+		"""
+		return self.__Velocity.y
+
+	@velocityX.setter
+	def velocityY(self, new_value):
+		if type(new_value) != int:
+			raise TypeError
+		else:
+			if abs (new_value) > MAX_Y_VELOCITY:
+				raise ValueError
+			else:
+				self.__Velocity.y = new_value
+
 
 	def __init__(self):
 		self.__track = LightTrack()
@@ -36,6 +72,9 @@ class HumanPlayer(Player):
 
 	def getTrack(self):
 		return self.__track
+
+	def getLine(self):
+		return self.__track.getLine()
 
 	def getName(self) -> str:
 		"""
@@ -53,7 +92,7 @@ class HumanPlayer(Player):
 		get the player's Color
 
 		Returns:
-		int: player's color
+			(r,g,b): player's color
 
 		"""
 		return self.__Color
@@ -81,7 +120,9 @@ class HumanPlayer(Player):
 		Returns:
 		LightTrack as Track object
 		"""
-		raise NotImplementedError
+
+		return self.__track.getLine()
+
 
 
 	def isAlive(self) -> bool:
@@ -142,24 +183,20 @@ class HumanPlayer(Player):
 			raise TypeError
 
 
-	def setColor(self, color: int):
+	def setColor(self, color: tuple):
 		"""
 		Set the color of the player
 
 		Args:
-		color (int): New color code based on the game specification
+			color (r,g,b): New color code based on the game specification
 
 		Raises:
 		TypeError: The entered value is not an int
 		ValueError: The entered color doesn't exists
 		"""
-		if type(color) == int:
-			if color > 5:  # TODO: adjust maximum number for color
-				raise ValueError
-			else:
-				self.__Color = color
-		else:
+		if type(color) is not tuple:
 			raise TypeError
+		self.__Color = color
 
 
 	def setPosition(self, x: int, y: int):
@@ -198,12 +235,11 @@ class HumanPlayer(Player):
 		Args: 
 		velocity: velocity as Vect2D
 		"""
-		# TODO TYPE CHECKING
 		self.__Velocity.x = x
 		self.__Velocity.y = y
 
 
-	def addTrack(self, track_segment):
+	def addTrack(self, start, end):
 		"""
 		Add a new track element to the pulled "light-track" of the player
 
@@ -216,7 +252,7 @@ class HumanPlayer(Player):
 		Note:
 		TrackError is defined in Core.Exceptions
 		"""
-		LightTrack.addElement(track_segment)
+		self.__track.addElement(start, end)
 
 
 	def enterPause(self):
@@ -230,21 +266,19 @@ class HumanPlayer(Player):
 		#TODO: Error while communicating the pause request
 
 
-	def move(self, time: int):
+	def move(self, time):
 		"""
 		Update the players position based on the velocity and the spent time
 
 		Args:
 		time: Spent time
 		Raises:
-		TypeError: time is not an integer
+			TODO TYPE CHECKING
 		"""
-		if type(time) == int:
-			self.__Position = self.__Position + time*self.__Velocity
-		else:
-			raise TypeError
+		self.__Position.x += self.__Velocity.x * time
+		self.__Position.y += self.__Velocity.y * time
 
-# test Player implementation
-testPlayer = HumanPlayer()
-testPlayer.__Name = "Max Mustermann"
-testPlayer.__Color = 2
+# # test Player implementation
+# testPlayer = HumanPlayer()
+# testPlayer.__Name = "Max Mustermann"
+# testPlayer.__Color = 2

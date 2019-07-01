@@ -1,8 +1,12 @@
 from .Client import Client
 from .Player import Player
 from .Factory import Factory
+from .TCPCLient import TCPCLient
 from .Arena import Arena
+from .TCPServer import TCPServer
 from ..Core.Event import Event
+import logging
+import threading
 
 class Game(object):
 	"""
@@ -18,6 +22,10 @@ class Game(object):
 	__me: Player = None
 
 	__me_id = 0 # Player ID of the current player
+
+	__server_thread : threading.Thread = None
+
+	__server: TCPServer = None
 
 	# EVENTS TO USE BY UI
 	ECountDown = None
@@ -43,13 +51,13 @@ class Game(object):
 
 	def __init__(self):
 		# Create a local player for the current game
-		self.__me = Factory.Player("", 0)
+		self.__me = Factory.Player("", (0,0,0))
 
 		# Initialize the players 
 		self.__Players = []
 
 		# Initialize Client
-		self.__client = Factory.Client()
+		self.__client = TCPCLient(self)
 
 		# Initialize Events
 		self.ECountDown = Event('seconds')
@@ -75,6 +83,7 @@ class Game(object):
 			TypeError: Invalid player name
 		"""
 		self.me.setName(playername)
+		logging.debug("Player name set to %s" % playername)
 	
 	def setColor(self, color: int) -> None:
 		"""
@@ -94,6 +103,30 @@ class Game(object):
 			int
 		"""
 		return self.me.getColor()
+
+	def getVelocity(self):
+		"""
+		Get the velocity of the current player.
+		Returns:
+			Vect2D: Current velocity of the palyer
+		"""
+		return self.me.getVelocity()
+
+	def setVelocity(self, velocity: tuple):
+		"""
+		Set the velocity of the current player.
+		Args:
+			velocity (int, int): New velocity of the player.
+		Raises:
+			TypeError: Invalid argument types
+		NOTE:
+			Only use directions like (0,1), (1,0), (-1,0), (0,-1)
+		"""
+		try:
+			self.me.setVelocity((velocity[0], velocity[1]))
+		except IndexError:
+			# Invalid index -> velocity type error
+			raise TypeError
 	
 	def ConnectToServer(self, server: str, port: int):
 		"""
@@ -105,7 +138,32 @@ class Game(object):
 			TODO: WHAT RAISES???
 		"""
 		self.__client.Connect(server, port)
+		logging.debug("Connectiong to %s on port %d" % (server, port))
+	
+	def CreateServer(self, host: str = "", port: int = 9876, player_number:int = 10) ->  None:
+		"""
+		Create a new server for clients to connect to
+		Args:
+			host (str): IPv4 Adress to run the server on. default=""
+			port (int): Port to listen to.
+		"""
+		# Create a new server object
+		self.__server = TCPServer(host, port)
 
+		# Set the number of maximal players
+		self.__server.setPlayerNumber(player_number)
+
+		# Create a new thread for the server
+		self.__server_thread = threading.Thread(target=self.__server.Start)
+
+		# Start the server
+		self.__server_thread.start()
+	
+	def DestroyServer(self):
+		"""
+		Abort the thread of the running server.
+		"""
+		self.__server.Stop()
 
 	def getPlayers(self) -> list:
 		"""
@@ -116,18 +174,24 @@ class Game(object):
 		"""
 		return self.Players
 
-	def UpdatePlayers(self, players):
+	def UpdatePlayers(self,sender, players):
 		"""
 		Update the players of the current game, based on the receved data from Client
 		Interface
 
 		Args:
+			sender : Caller of the event
 			players (iter): Objects of players
 		
 		Raises:
 			TODO: some game error
 		"""
 		self.__Players = players
+	def RequestPause(self):
+		"""
+		Request a pause from this client.
+		"""
+		
 	
 	def PauseEntered(self):
 		"""
