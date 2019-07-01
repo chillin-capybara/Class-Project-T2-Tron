@@ -120,16 +120,11 @@ class TrackWidget(Widget):
                             
                         allPoints_after_calculation = self.constructMissingPoints(player)
 
-
-
-
-
                     else:
-                        
                         allPoints_after_calculation = self.constructMissingPoints_for_remote(player)
-                
-                    Color(rgba = self.getPlayerColor(player))
 
+                    
+                    Color(rgba = self.getPlayerColor(player))
                     HeadWidget(screen_size = self.size, player = player)
 
                     for point in allPoints_after_calculation:
@@ -255,6 +250,8 @@ class TrackWidget(Widget):
 
             # (14 - 10) + (10 - 10) = 4
             lineLength = abs((endPoint.x - startPoint.x) + (endPoint.y - startPoint.y))
+            if lineLength == 0:
+                lineLength = 1
             if player == self._player and  self.counter_constructMissingPoints == 0:
                 lineLength = 1
                 self.counter_constructMissingPoints += 1

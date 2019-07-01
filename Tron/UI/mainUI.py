@@ -12,7 +12,7 @@ from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.GameClient import GameClient
 from Backend.Classes.Arena import Arena
-
+from Backend.Classes.HumanPlayer import HumanPlayer
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
@@ -38,15 +38,6 @@ Builder.load_string("""
         on_press:
             root.countdown_is_running = True
             countdown.start()
-            
-    Button:
-        id: Pause Button
-        text: "Pause"
-        pos: 500, 500
-        size: 100, 30
-        opacity: 1 if root.game_is_running else 0
-        on_press:
-            root.game_is_running = False
 
 
     # initializes the countdown feature
@@ -75,12 +66,16 @@ Builder.load_string("""
         anchor_x: "right"
         anchor_y: "top"
         PlayerWidget:
-            id: playerWidget0
+            id: playerWidget
             pos: 0, 0
             size: root.getPlayerWidgetSize()
             size_hint: None, None
             playerList: root.playerList
 """)
+
+
+
+
 
 
 ## Static global defined values
@@ -98,26 +93,65 @@ CLIENT.me.setColor((1, 1, 0))
 CLIENT.me.setVelocity(1, 0)
 CLIENT.me.setPosition(20, 20)
 
+GAME = Game()
+GAME.setPlayerName("Its me")
+p1 = HumanPlayer()
+p1.setName("Simon")
+p1.setColor((1, 1, 0))
+p1.setPosition(20, 20)
+p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+# p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+
+p2 = HumanPlayer()
+p2.setName("Lorenz")
+p2.setColor((0, 1, 1))
+p2.setPosition(50, 50)
+p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
+p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+p2.setVelocity(1, 0)
+
+p3 = HumanPlayer()
+p3.setName("Marcell")
+p3.setColor((1, 0, 1))
+p3.setPosition(50, 50)
+p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
+p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
+p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
+p3.setVelocity(0, 1)
+
+players = [p1, p2, p3]
+
+# GAME.__Players = [p1, p2, p3]
+
+
+
+
+
+
+
+
+
 class GameUI(Widget):
+    playerList = ListProperty(players)
+    print(playerList)
+    # print(GameClient.)
+    # playerList = ListProperty([
+    #     {
+    #         "name": "Simon",
+    #         "color": (1, 0, 0, 1)
+    #     },
+    #     {
+    #         "name": "Ludi",
+    #         "color": (0, 1, 0, 1)
 
-    # playerList = ListProperty(CLIENT.getPlayers())
-    
-    playerList = ListProperty([
-        {
-            "name": "Simon",
-            "color": (1, 0, 0, 1)
-        },
-        {
-            "name": "Ludi",
-            "color": (0, 1, 0, 1)
+    #     },
+    #     {
+    #         "name": "Dani",
+    #         "color": (0, 0, 1, 1)
 
-        },
-        {
-            "name": "Dani",
-            "color": (0, 0, 1, 1)
-
-        }
-    ])
+    #     }
+    # ])
 
     ## Values for later use in functions
     countdown_is_running = BooleanProperty(False)
@@ -129,6 +163,7 @@ class GameUI(Widget):
         ## creates update function for all uses, ensures synchronized update trigger
         super(GameUI, self).__init__(**kwargs)
         self.update()
+        
         Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
 
 
