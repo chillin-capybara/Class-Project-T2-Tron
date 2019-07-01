@@ -2,10 +2,15 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
 from Backend.Core.Vect2D import Vect2D
+from kivy.properties import ListProperty
+
 
 
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
+    trackPoints = ListProperty([])
+    
+
 
     def __init__(self, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
@@ -36,9 +41,11 @@ class MyKeyboardListener(Widget):
 
         if keycode[1] == 'a':
             self.press_a_key()
+            self.addingTrack_to_player()
 
         if keycode[1] == 'd':
             self.press_d_key()
+            self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
@@ -83,4 +90,10 @@ class MyKeyboardListener(Widget):
         if self._player.getVelocity().x == 0 and self._player.getVelocity().y == -1:
             self._player.setVelocity(1, 0)
             return
+
+    def addingTrack_to_player(self):
+        self.trackPoints[0] = [self._player.getPosition()]
+        print (self._player.getPosition().x, self.trackPoints[0])
+        #
+        # self._player.addTrack(self._player.getPosition(), self.trackPoints[0]))
 

@@ -70,7 +70,7 @@ class TrackWidget(Widget):
     def __init__(self, **kwargs):
         ## creates update function for all uses, ensures synchronized update trigger
         super(TrackWidget, self).__init__(**kwargs)
-        self._player = UI.mainUI.GAME.me
+        self._player = UI.mainUI.CLIENT.me
         ## adding the me player to the players list
         players.append(self._player)
         
@@ -104,7 +104,8 @@ class TrackWidget(Widget):
                     if player == self._player:
                         allPoints_after_calculation = self.pointCreator()
                     else:
-                        allPoints_from_submission = player.getLine()
+                        print(player.getTrack())
+                        allPoints_from_submission = player.getTrack()
                         allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission, player)
                 
                     Color(rgba = self.getPlayerColor(player))
