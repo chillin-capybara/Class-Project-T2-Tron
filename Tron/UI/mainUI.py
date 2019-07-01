@@ -104,7 +104,7 @@ p1.setName("Simon")
 p1.setColor((1, 1, 0))
 p1.setPosition(10, 10)
 p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
-p1.setVelocity(-1,0)
+p1.setVelocity(0,1)
 p1.move(10)
 
 # p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
@@ -172,7 +172,7 @@ class GameUI(Widget):
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()     
-            p1.move(3)
+            p1.move(2)
             p2.move(2)
             p3.move(1)       
             
