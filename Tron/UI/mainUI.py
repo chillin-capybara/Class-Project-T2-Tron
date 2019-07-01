@@ -91,7 +91,7 @@ Builder.load_string("""
 
 
 ## Static global defined values
-UPDATES_PER_SECOND = 15
+UPDATES_PER_SECOND = 5
 FIELDSIZE = (100, 100)
 HEADSIZE = 1
 TRACKSIZE = 1
@@ -103,7 +103,7 @@ CLIENT.me.setName("Peter")
 CLIENT.me.setColor((1, 1, 0))
 CLIENT.me.setVelocity(1, 0)
 CLIENT.me.setPosition(20, 20)
-
+# ANFANGSPOS = CLIENT.me.getPosition()
 
 class GameUI(Widget):
 

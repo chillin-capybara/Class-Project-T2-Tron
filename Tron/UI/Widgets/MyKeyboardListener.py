@@ -20,10 +20,9 @@ class MyKeyboardListener(Widget):
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
 
         ## needed to implement clone fucntion to create reference to new RAM space
+        
         playerPosVec2D = self._player.getPosition()
         self.trackPoints.append(playerPosVec2D.clone())
-
-        print (self.trackPoints[0].x, self.trackPoints[0].y)
 
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use
@@ -107,6 +106,5 @@ class MyKeyboardListener(Widget):
     def addingTrack_to_player(self):
         self.trackPoints.append(self._player.getPosition().clone())
         self._player.addTrack(self.trackPoints[-2], self.trackPoints[-1])
+        # print(self._player.getTrack())
         
-        
-
