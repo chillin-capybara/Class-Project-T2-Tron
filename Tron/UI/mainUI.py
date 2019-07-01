@@ -104,6 +104,8 @@ CLIENT.me.setVelocity(0,1)
 
 
 class GameUI(Widget):
+
+    # playerList = ListProperty(CLIENT.getPlayers())
     
     playerList = ListProperty([
         {
@@ -156,7 +158,7 @@ class GameUI(Widget):
             self.ids.trackWidget.increaseOpacity()
         
         # TODO -> MOVE HAST TO GO INTO THE SERVER
-        CLIENT.me.step() # Update the player's position 
+        # CLIENT.me.step() # Update the player's position 
             
 
 
