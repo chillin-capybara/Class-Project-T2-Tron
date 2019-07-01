@@ -71,10 +71,12 @@ class TrackWidget(Widget):
         ## creates update function for all uses, ensures synchronized update trigger
         super(TrackWidget, self).__init__(**kwargs)
         self._player = UI.mainUI.GAME.me
+        ## adding the me player to the players list
         players.append(self._player)
         
     
     def update(self):
+        ## main update function initiallizong funcions in the trackWidget
         self.canvas.clear()
         self.updatespeed_factor()
         self.update_players()
@@ -82,8 +84,20 @@ class TrackWidget(Widget):
 
     def update_players(self):
         fieldsize = UI.mainUI.FIELDSIZE
+        tracksize = UI.mainUI.TRACKSIZE
         with self.canvas:
             self.opacity = self.opacityValue
+            if self.game_is_running == False and self.countdown_is_running == True:
+                ## I want to slowly increse the opacity of the Head while countdown is running
+                for player in players:
+                    ## Generates for every player a headWidget a class and handles down some values
+                    HeadWidget(
+                    game_is_running = self.game_is_running,
+                    countdown_is_running = self.countdown_is_running,
+                    opacityValue = self.opacityValue,
+                    screen_size = self.size, 
+                    player = player)
+                    
 
             if self.game_is_running == True:
                 for player in players:   
@@ -92,9 +106,6 @@ class TrackWidget(Widget):
                     else:
                         allPoints_from_submission = player.getLine()
                         allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission, player)
-                    
-                   
-
                 
                     Color(rgba = self.getPlayerColor(player))
 
@@ -104,8 +115,8 @@ class TrackWidget(Widget):
                         xPos2 = (self.size[0]/fieldsize[0]) * point.x
                         yPos2 = (self.size[1]/fieldsize[1]) * point.y
 
-                        xSize = self.size[0]/fieldsize[0]
-                        ySize = self.size[1]/fieldsize[1]
+                        xSize = tracksize * (self.size[0]/fieldsize[0])
+                        ySize = tracksize * (self.size[1]/fieldsize[1])
 
                         Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
@@ -114,11 +125,12 @@ class TrackWidget(Widget):
         ## function for creating an increasing opacity with increasing time
         if self.countdown_is_running == True:
             if self.opacityValue < 1:
-                self.opacityValue += 0.1 / UI.mainUI.UPDATES_PER_SECOND
+                self.opacityValue += 0.5 / UI.mainUI.UPDATES_PER_SECOND
                 
                 return self.opacityValue
 
     def getPlayerColor(self, player):
+        ## function for adding the opacity Value to the rgb -> rgba
         colorId = player.getColor()
         addOpacity = list(colorId)
         addOpacity.append(self.opacityValue)
@@ -202,7 +214,5 @@ class TrackWidget(Widget):
     def detect_outbound(self, xVar, yVar):
         fieldsize = UI.mainUI.FIELDSIZE
 
-        if xVar < 0 or xVar > fieldsize[0]:
-            print ("You hit the right or left border")
-        elif yVar < 0 or yVar > fieldsize[1]:
-            print ("You hit the upper or lower border")
+        if xVar < 0 or xVar > fieldsize[0] or yVar < 0 or yVar > fieldsize[1]:
+            print ("You hit one border")
