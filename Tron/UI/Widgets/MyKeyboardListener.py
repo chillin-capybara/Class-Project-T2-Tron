@@ -2,21 +2,18 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
 from Backend.Core.Vect2D import Vect2D
-from kivy.properties import ListProperty, NumericProperty
-
 
 
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
-   
-    trackPoints = ListProperty([])
-
 
     def __init__(self, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
 
         self._game = UI.mainUI.CLIENT
+        print (UI.mainUI.CLIENT.me.getName)
         self._player = self._game.me
+        print(self._player)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
 
         ## needed to implement clone fucntion to create reference to new RAM space
@@ -50,11 +47,9 @@ class MyKeyboardListener(Widget):
 
         if keycode[1] == 'a':
             self.press_a_key()
-            self.addingTrack_to_player()
 
         if keycode[1] == 'd':
             self.press_d_key()
-            self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
@@ -99,14 +94,4 @@ class MyKeyboardListener(Widget):
         if self._player.getVelocity().x == 0 and self._player.getVelocity().y == -1:
             self._player.setVelocity(1, 0)
             return
-
-    counter = NumericProperty(0)
-    
-    
-
-    def addingTrack_to_player(self):
-        self.trackPoints.append(self._player.getPosition().clone())
-        self._player.addTrack(self.trackPoints[-2], self.trackPoints[-1])
-        
-        
 

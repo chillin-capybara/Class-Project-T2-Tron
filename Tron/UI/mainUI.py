@@ -90,13 +90,12 @@ Builder.load_string("""
 """)
 
 
-## Static global defined values
+
 UPDATES_PER_SECOND = 15
 FIELDSIZE = (100, 100)
-HEADSIZE = 1
-TRACKSIZE = 1
 
-print("GAME CREATED...", flush=True)
+
+print("Client initialized", flush=True)
 # Define global GAME object
 CLIENT = GameClient()
 CLIENT.me.setName("Peter")
@@ -106,8 +105,6 @@ CLIENT.me.setPosition(20, 20)
 
 
 class GameUI(Widget):
-
-    # playerList = ListProperty(CLIENT.getPlayers())
     
     playerList = ListProperty([
         {
@@ -150,13 +147,16 @@ class GameUI(Widget):
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanCountdown()
-            self.ids.trackWidget.increaseOpacity()
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
-            self.ids.trackWidget.setBooleanGame()            
+            self.ids.trackWidget.setBooleanGame()
+            self.ids.trackWidget.increaseOpacity()
+        
+        # TODO -> MOVE HAST TO GO INTO THE SERVER
+        CLIENT.me.step() # Update the player's position 
             
 
 

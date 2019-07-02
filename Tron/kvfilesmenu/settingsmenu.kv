@@ -14,6 +14,7 @@
 
 
 <SettingsMenu>:
+    on_enter: root.loadplayerdata()
     BoxLayout:
         orientation: 'vertical'
         spacing: 10
@@ -22,7 +23,7 @@
             id: displaymenunameLabel
             text: 'Settings Menu'
             size_hint: (1, 0.1)
-            color: 1, 0, 0, 1
+            color: 0, 0, 0, 1
         Label:
             size_hint: (1,1)
         BoxLayout:
@@ -32,10 +33,13 @@
                 id: changenameLabel
                 text: 'Change Player Name:'
                 size_hint: (0.5, 1)
-                color: 1, 0, 0, 1
+                color: 0, 0, 0, 1
             TextInput:
                 id: nameTextInput
-                hint_text: 'Player 1'
+                hint_text: 'Player_1'
+                on_text:
+                    root.validateInput(self.text)
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint: (1,1)
@@ -43,7 +47,7 @@
                 id: changecolorLabel
                 text: 'Change Color:'
                 size_hint: (0.3, 1)
-                color: 1, 0, 0, 1
+                color: 0, 0, 0, 1
             BoxLayout:
                 orientation: 'vertical'
                 size_hint: (0.5, 1)
@@ -53,7 +57,7 @@
                         id: redcolorLabel
                         text: 'Red:'
                         size_hint: (0.4, 1)
-                        color: 1, 0, 0, 1
+                        color: 0, 0, 0, 1
                     Slider:
                         id: redcolorSlider
                         min: 0
@@ -65,7 +69,7 @@
                         id: greencolorLabel
                         text: 'Green:'
                         size_hint: (0.4, 1)
-                        color: 1, 0, 0, 1
+                        color: 0, 0, 0, 1
                     Slider:
                         id: greencolorSlider
                         min: 0
@@ -77,7 +81,7 @@
                         id: bluecolorLabel
                         text: 'Blue:'
                         size_hint: (0.4, 1)
-                        color: 1, 0, 0, 1
+                        color: 0, 0, 0, 1
                     Slider:
                         id: bluecolorSlider
                         min: 0
@@ -90,7 +94,7 @@
                     id: changecolorLabel
                     text: 'Current Color:'
                     size_hint: (1, 1)
-                    color: 1, 0, 0, 1
+                    color: 0, 0, 0, 1
                 ColoredLabel:
                     id: colordisplayLabel
                     text: ''
@@ -98,10 +102,11 @@
                     size_hint: (1, 1.5)
         Label:
             size_hint: (1,2)
+
         Button:
             id: backtomenuButton
             text: 'Back to Main Menu (Save)'
             background_color: (1,0,0,1)
             size_hint: (1, 0.5)
             on_press: root.savechanges(nameTextInput.text, (redcolorSlider.value, greencolorSlider.value, bluecolorSlider.value))
-            on_release: root.manager.current = 'mainmenu'
+            on_release: root.manager.current = 'mainmenufloat'
