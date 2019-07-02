@@ -552,8 +552,8 @@ class BasicComm(CommProt):
 
 			# Return the data
 			return self.CLIENT_READY_ACK, player_id
-		except:
-			raise MessageError("Invalid MATCH_JOINED received.")
+		except Exception as e:
+			raise MessageError("Invalid MATCH_JOINED received. Reason: %s" % str(e))
 
 	def __process_error_incorrect_cmd(self, params: None):
 		"""
