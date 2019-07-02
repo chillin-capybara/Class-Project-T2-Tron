@@ -5,5 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 from UI.mainUI import GameApp
 from Backend.Classes.Game import Game
 
+
 if __name__ == "__main__":
     GameApp().run()
+    

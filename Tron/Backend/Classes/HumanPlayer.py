@@ -121,12 +121,12 @@ class HumanPlayer(Player):
 
 	def getTrack(self):
 		"""
-		Get the track made by the player cruising on the arena.
+			Get the track made by the player cruising on the arena.	
 
-		Returns:
-		LightTrack as Track object
+			Returns:
+			LightTrack as Track object
 		"""
-		raise NotImplementedError
+		return self.__track.getLine()
 
 
 	def isAlive(self) -> bool:
