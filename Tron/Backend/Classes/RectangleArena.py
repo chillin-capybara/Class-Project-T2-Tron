@@ -1,12 +1,15 @@
 from Arena import Arena
 from ..Core.Vect2D import Vect2D
 import logging
+from ..Core.matrix_splitter import MatrixSplitter
 #from dill.source import getname
 
 MAX_ARENA_SIZE = 1000
 MIN_ARENA_SIZE = 4
 MAX_ARENA_NAME_LENGTH = 20
 MIN_ARENA_NAME_LENGTH = 2
+
+SPLITTER = MatrixSplitter()
 
 class DieError(Exception):
 	"""
@@ -143,6 +146,15 @@ class RectangleArena(Arena):
 			self.__matrix[pos.x][pos.y] = player_id
 		else:
 			raise DieError
+	
+	def update_matrix(self, splitted_matrix: list):
+		"""
+		Update the matrix of the aren
+		
+		Args:
+			matrix (list): New matrix
+		"""
+		self.__matrix = SPLITTER.matrix_collapse(splitted_matrix)
 
 
 	def getName(self) -> str:
