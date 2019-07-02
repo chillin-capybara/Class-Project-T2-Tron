@@ -49,11 +49,6 @@ class TrackWidget(Widget):
         ## creates update function for all uses, ensures synchronized update trigger
         super(TrackWidget, self).__init__(**kwargs)
         self._player = UI.mainUI.CLIENT.me
-<<<<<<< HEAD
-        players.append(self._player)
-        
-=======
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
     
     def update(self):
         self.canvas.clear()
@@ -66,8 +61,6 @@ class TrackWidget(Widget):
         fieldsize = UI.mainUI.FIELDSIZE
         with self.canvas:
             self.opacity = self.opacityValue
-<<<<<<< HEAD
-=======
             if self.game_is_running == False and self.countdown_is_running == True:
                 ## I want to slowly increse the opacity of the Head while countdown is running
                 for player in self.playerList:
@@ -80,7 +73,6 @@ class TrackWidget(Widget):
                     screen_size = self.size, 
                     player = player)
                     
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
             if self.game_is_running == True:
                 for player in self.playerList:   
@@ -100,14 +92,6 @@ class TrackWidget(Widget):
                         allPoints_after_calculation = self.constructMissingPoints(player)
 
                     else:
-<<<<<<< HEAD
-                        allPoints_from_submission = player.getLine()
-                        allPoints_after_calculation = self.constructMissingPoints(allPoints_from_submission, player)
-                    
-                   
-
-                
-=======
                         # if self.counter_update_players_remote < len(UI.mainUI.GAME.getPlayers()):
                         if self.counter_update_players_remote < 3:
                             self.counter_update_players_remote += 1
@@ -117,7 +101,6 @@ class TrackWidget(Widget):
                         allPoints_after_calculation = self.constructMissingPoints_for_remote(player)
                         print(player.getPosition())
                     
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
                     Color(rgba = self.getPlayerColor(player))
                     HeadWidget(screen_size = self.size, player = player)
 
@@ -131,22 +114,6 @@ class TrackWidget(Widget):
                         Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
 
-<<<<<<< HEAD
-    def increaseOpacity(self):
-        ## function for creating an increasing opacity with increasing time
-        if self.countdown_is_running == True:
-            if self.opacityValue < 1:
-                self.opacityValue += 0.1 / UI.mainUI.UPDATES_PER_SECOND
-                
-                return self.opacityValue
-
-    def getPlayerColor(self, player):
-        colorId = player.getColor()
-        addOpacity = list(colorId)
-        addOpacity.append(self.opacityValue)
-        return tuple(addOpacity)
-=======
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
     def constructMissingPoints_for_remote(self, player):
         ## function who creates all missing points in between
@@ -273,13 +240,6 @@ class TrackWidget(Widget):
     def detect_outbound(self, xVar, yVar):
         fieldsize = UI.mainUI.FIELDSIZE
 
-<<<<<<< HEAD
-        if xVar < 0 or xVar > fieldsize[0]:
-            print ("You hit the right or left border")
-        elif yVar < 0 or yVar > fieldsize[1]:
-            print ("You hit the upper or lower border")
-=======
         if xVar < 0 or xVar > fieldsize[0] or yVar < 0 or yVar > fieldsize[1]:
             print ("You hit one border")
             
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f

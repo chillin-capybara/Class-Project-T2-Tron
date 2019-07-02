@@ -23,14 +23,9 @@ Builder.load_string("""
 """)
 
 class PlayerWidget(Widget):
-<<<<<<< HEAD
-    playerList = ListProperty()
-
-=======
     playerList = ListProperty([])
     game = ObjectProperty()
     print(game)
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
     def on_playerList(self, instance, value):
         ## function for creating the input for the BoxLayout, capable of printing the text + the color of the player
         self.ids.boxLayout1.clear_widgets()

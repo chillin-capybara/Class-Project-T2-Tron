@@ -2,12 +2,8 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
 from Backend.Core.Vect2D import Vect2D
-<<<<<<< HEAD
-from Backend.Classes.Client import Client
-=======
 from kivy.properties import ListProperty, NumericProperty
 
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
 
 class MyKeyboardListener(Widget):
@@ -58,6 +54,14 @@ class MyKeyboardListener(Widget):
         if keycode[1] == 'd':
             self.press_d_key()
             self.addingTrack_to_player()
+
+        if keycode[1] == 'left':
+            self.press_a_key()
+            self.addingTrack_to_player()
+
+        if keycode[1] == 'right':
+            self.press_d_key()
+            self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
@@ -103,8 +107,7 @@ class MyKeyboardListener(Widget):
             self._player.setVelocity(1, 0)
             return
 
-    counter = NumericProperty(0)
-    
+
     
 
     def addingTrack_to_player(self):

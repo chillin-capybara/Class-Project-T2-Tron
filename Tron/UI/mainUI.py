@@ -10,13 +10,9 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
-<<<<<<< HEAD
-
-=======
 from Backend.Classes.GameClient import GameClient
 from Backend.Classes.Arena import Arena
 from Backend.Classes.HumanPlayer import HumanPlayer
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
@@ -76,84 +72,70 @@ Builder.load_string("""
             size: root.getPlayerWidgetSize()
             size_hint: None, None
             playerList: root.playerList
-            game: root.game
+            # game: root.game
 """)
 
 
 
-<<<<<<< HEAD
-UPDATES_PER_SECOND = 15
-=======
 
 
 
 ## Static global defined values
-UPDATES_PER_SECOND = 3
+UPDATES_PER_SECOND = 15
 # FIELDSIZE = Arena.getSize()
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 FIELDSIZE = (100, 100)
+TRACKSIZE = 1
+HEADSIZE = 1
 
-<<<<<<< HEAD
 
-print("GAME CREATED...", flush=True)
-# Define global GAME object
-CLIENT = Game()
-=======
+
+
 print("GAME CREATED...", flush=True)
 # Define global GAME object
 CLIENT = GameClient()
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 CLIENT.me.setName("Peter")
 CLIENT.me.setColor((1, 1, 0))
 CLIENT.me.setVelocity(1, 0)
 CLIENT.me.setPosition(20, 20)
 
-<<<<<<< HEAD
-=======
 GAME = Game()
 
 
-GAME.setPlayerName("Its me")
-p1 = HumanPlayer()
-p1.setName("Simon")
-p1.setColor((1, 1, 0))
-p1.setPosition(10, 10)
-p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
-p1.setVelocity(0,1)
-p1.move(10)
+# GAME.setPlayerName("Its me")
+# p1 = HumanPlayer()
+# p1.setName("Simon")
+# p1.setColor((1, 1, 0))
+# p1.setPosition(10, 10)
+# p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+# p1.setVelocity(0,1)
 
-# p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+# # p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
 
-p2 = HumanPlayer()
-p2.setName("Lorenz")
-p2.setColor((0, 1, 1))
-p2.setPosition(30, 40)
-p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
-p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
-p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
-p2.setVelocity(1, 0)
-p2.move(5)
+# p2 = HumanPlayer()
+# p2.setName("Lorenz")
+# p2.setColor((0, 1, 1))
+# p2.setPosition(30, 40)
+# p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
+# p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+# p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+# p2.setVelocity(1, 0)
 
-p3 = HumanPlayer()
-p3.setName("Marcell")
-p3.setColor((1, 0, 1))
-p3.setPosition(70, 40)
-p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
-p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
-p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
-p3.setVelocity(0, 1)
-print(p1.getPosition())
+# p3 = HumanPlayer()
+# p3.setName("Marcell")
+# p3.setColor((1, 0, 1))
+# p3.setPosition(70, 40)
+# p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
+# p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
+# p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
+# p3.setVelocity(0, 1)
+players = [CLIENT.me]
 
-print(p1.getPosition())
-
-players = [p1, p2, p3, CLIENT.me]
-
-GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
->>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
+# GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
 
 class GameUI(Widget):
     playerList = ListProperty(players)
-    game = ObjectProperty(GAME)
+    # players.append(GAME.getPlayers())
+    # game = ObjectProperty(GAME)
     # print(GAME.getPlayers())
     
     ## Values for later use in functions
@@ -181,16 +163,16 @@ class GameUI(Widget):
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanCountdown()
+            self.ids.trackWidget.increaseOpacity()
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()     
-            p1.move(2)
-            p2.move(2)
-            p3.move(1)       
-            
+            # p1.move(2)
+            # p2.move(1)
+            # p3.move(1)       
 
 
 
