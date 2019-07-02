@@ -1,7 +1,8 @@
-from Arena import Arena
+from .Arena import Arena
 from ..Core.Vect2D import Vect2D
 import logging
 from ..Core.matrix_splitter import MatrixSplitter
+from typing import List
 #from dill.source import getname
 
 MAX_ARENA_SIZE = 1000

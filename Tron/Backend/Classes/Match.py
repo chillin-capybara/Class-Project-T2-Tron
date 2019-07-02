@@ -10,10 +10,10 @@ import logging
 import socket
 import threading
 import time
-from ..Core.InteropComm import InteropComm
 from ..Core.matrix import *
+from ..Core.matrix_splitter import MatrixSplitter
 
-SPLITTER = InteropComm()
+SPLITTER = MatrixSplitter()
 
 class Match(object):
 	"""
