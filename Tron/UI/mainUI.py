@@ -96,14 +96,16 @@ FIELDSIZE = (100, 100)
 
 print("GAME CREATED...", flush=True)
 # Define global GAME object
-GAME = Game()
-GAME.me.setName("Peter")
-GAME.me.setColor((1, 1, 0))
-GAME.me.setVelocity(1, 0)
-GAME.me.setPosition(20, 20)
+CLIENT = Game()
+CLIENT.me.setName("Peter")
+CLIENT.me.setColor((1, 1, 0))
+CLIENT.me.setVelocity(1, 0)
+CLIENT.me.setPosition(20, 20)
 
 
 class GameUI(Widget):
+
+    # playerList = ListProperty(CLIENT.getPlayers())
     
     playerList = ListProperty([
         {
@@ -153,6 +155,9 @@ class GameUI(Widget):
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()
             self.ids.trackWidget.increaseOpacity()
+        
+        # TODO -> MOVE HAST TO GO INTO THE SERVER
+        # CLIENT.me.step() # Update the player's position 
             
 
 

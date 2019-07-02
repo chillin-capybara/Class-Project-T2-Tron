@@ -11,6 +11,7 @@ from kivy.clock import Clock
 import random
 import math
 
+from Backend.Classes.Client import Client
 from Backend.Classes.HumanPlayer import HumanPlayer
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
@@ -70,7 +71,7 @@ class TrackWidget(Widget):
     def __init__(self, **kwargs):
         ## creates update function for all uses, ensures synchronized update trigger
         super(TrackWidget, self).__init__(**kwargs)
-        self._player = UI.mainUI.GAME.me
+        self._player = UI.mainUI.CLIENT.me
         players.append(self._player)
         
     

@@ -2,6 +2,7 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
 from Backend.Core.Vect2D import Vect2D
+from Backend.Classes.Client import Client
 
 
 class MyKeyboardListener(Widget):
@@ -10,8 +11,7 @@ class MyKeyboardListener(Widget):
     def __init__(self, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
 
-        self._game = UI.mainUI.GAME
-        print (UI.mainUI.GAME.me.getName)
+        self._game = UI.mainUI.CLIENT
         self._player = self._game.me
         print(self._player)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
