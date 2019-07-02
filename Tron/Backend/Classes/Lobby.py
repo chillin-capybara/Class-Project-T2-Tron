@@ -363,7 +363,7 @@ class Lobby(object):
 		"""
 		try:
 			logging.debug("Match listed: %s" % name )
-			self.__matches.append(Match('Tron', name, ['BASIC'])) # // TODO Get features for every match
+			self.__matches.append(Match('Tron', name, ['BASIC'], None, self.__hook_me)) # // TODO Get features for every match
 
 			# Send a request to query match features
 			packet = self.__comm.match_features(name)

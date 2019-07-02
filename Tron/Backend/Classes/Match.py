@@ -256,7 +256,7 @@ class Match(object):
 		self.__clientsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 		while True:
 			vel = self.__hook_me().getVelocity()
-			packet = self.__comm.new_direction()
+			packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
 
 		logging.info("Exiting client sender thread")
 
@@ -277,7 +277,7 @@ class Match(object):
 		except Exception as e:
 			logging.error("Error starting the client threads! Reason: %s" % str(e))
 
-	def handle_update_field(self, sender, keys:tuple, matrix:list):
+	def handle_update_field(self, sender, key:tuple, matrix:list):
 		"""
 		Handler an update of the arena sent from the server
 		
