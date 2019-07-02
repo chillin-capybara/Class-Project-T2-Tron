@@ -118,7 +118,7 @@ def string_to_matrix(string:str) -> list:
 	
 	return out
 
-def getActPos (self, matix, old_matrix, player_id) -> tuple:
+def getActPos (matix, old_matrix, player_id) -> tuple:
 	"""
 	get the actual Positions of the players on the 
 	game field
@@ -147,6 +147,8 @@ def getActPos (self, matix, old_matrix, player_id) -> tuple:
 	playerTrack = np.where (difference == player_id, difference, difference*0) # we assume for now that player Track consist of one tuple
 	actualPosition = np.nonzero(playerTrack)
 
-	actualPositionTuple = (actualPosition[0][0] + 1, actualPosition[1][0] + 1 )
-	#logging.warning("Player %d moved to x: %d, y: %d" %(player_id, actualPositionTuple[0], actualPositionTuple[1]))
+	try:
+		actualPositionTuple = (actualPosition[0][0] + 1, actualPosition[1][0] + 1 )
+	except Exception as e:
+		raise e
 	return actualPositionTuple

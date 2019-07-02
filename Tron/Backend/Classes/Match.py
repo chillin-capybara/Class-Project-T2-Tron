@@ -286,10 +286,12 @@ class Match(object):
 			packet = seq + packet
 			self.__last_direction_seq += 1
 			presock.sendto(packet, (self.__host, self.__port))
+			logging.info("Position info updated!")
 			if ini:
 				self.__clientsock = presock
 				ini = False
 			#logging.info("NEW DIRECTION SEND!")
+			time.sleep(0.01) # Send the 
 
 		logging.info("Exiting client sender thread")
 
@@ -326,14 +328,17 @@ class Match(object):
 			matrix (list): [description]
 		"""
 		if key == (1,1):
-			if len(self.__recv_dict.keys()) > 0 :
+			if len(self.__recv_dict) > 0 :
 				# Update the arena's matrix
 				logging.info("New matrix updated!")
 				matrix = SPLITTER.matrix_collapse(self.__recv_dict)
-				pos = getActPos(matrix, self.__arena.matrix, self.__player_id)
-				x = pos[0]
-				y = pos[1]
-				self.__hook_me().setPosition(x,y) # Update the client position based on the matrix
+				try:
+					pos = getActPos(matrix, self.__arena.matrix, self.__player_id)
+					x = pos[0]
+					y = pos[1]
+					self.__hook_me().setPosition(x,y) # Update the client position based on the matrix
+				except Exception as e:
+					logging.warning("Cannot get position diff.: %s" % str(e))
 				self.__arena.update_matrix(self.__recv_dict)
 
 
@@ -341,6 +346,9 @@ class Match(object):
 			self.__push_to_dict = True
 			self.__recv_dict.clear() #Empty the receive buffer
 
+			self.__recv_dict[key] = matrix
+		else:
+			# Add elements with other then key (1,1)
 			self.__recv_dict[key] = matrix
 	
 	def __receiver_thread(self):
@@ -387,9 +395,11 @@ class Match(object):
 							# Constantly send updates to every client
 							self.__updsock.sendto(packet, conn)
 							self.__seq_send[cindex] += 1 # Increment the sent index
+							logging.debug("Update sent with seq: %s" % str(seq))
 						
 						# Increment the index of the connection
 						cindex += 1
+					
 				except Exception as e:
 					logging.warning("Error while sending. %s" % str(e))
 		except Exception as e:
