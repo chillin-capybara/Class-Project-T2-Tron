@@ -477,7 +477,8 @@ class Lobby(object):
 		"""
 		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(players)))
 		# Connect to the match server via udp and tcp for the control
-
+		# Set the port of the match
+		self.__selected_match.set_port(port)
 		# Start match client
 		self.__selected_match.start_match_client()
 

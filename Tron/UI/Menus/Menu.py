@@ -14,7 +14,6 @@ from kivy.uix.bubble import Bubble
 import re
 import logging
 import time
-from datetime import datetime
 import json
 ##import own modules
 from ..mainUI import GameApp, GameUI
@@ -53,18 +52,14 @@ CLIENT.EError += ErrorPopup
 
 def handle_ematchJoined(sender, matchname):
 
-	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-	logging.info('EMatchJoined received by client %s' % timestamp)
-	# popup = Popup(title='Match Joined', content=Label(text = 'Waiting for %s to start...' % matchname), size_hint=(None, None), size=(400, 400), auto_dismiss=True)
+	popup = Popup(title='Match Joined', content=Label(text = 'Waiting for %s to start...' % matchname), size_hint=(None, None), size=(400, 400), auto_dismiss=True)
 
-	# popup.open()
+	popup.open()
 
 CLIENT.EMatchJoined += handle_ematchJoined
 
 def handle_ematchStarted(sender):
 
-	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-	logging.info('EMatchStarted received by client %s' % timestamp)
 	screen_manager.current = 'gamestartmenu'
 	GameApp().run()
 
@@ -348,7 +343,7 @@ class MainMenu(Screen):
 
 class SettingsMenu(Screen):
 	def loadplayerdata(self):
-		filef = open("Class-Project-T2-Tron/data.json")
+		filef = open("data.json")
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
@@ -370,7 +365,7 @@ class SettingsMenu(Screen):
 		CLIENT.me.setColor(color)
 
 		data = (playername, color)
-		with open('Class-Project-T2-Tron/data.json', 'w', encoding='utf-8') as outfile:
+		with open('data.json', 'w', encoding='utf-8') as outfile:
 			json.dump(data,outfile)
 
 		print("Playername changed to: %s" % playername)
@@ -437,7 +432,7 @@ class GameStartMenu(Screen):
 ##Main Manu New version
 class MainMenuFloat(Screen):
 	def loadplayerdata(self):
-		filef = open("Class-Project-T2-Tron/data.json")
+		filef = open("data.json")
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]

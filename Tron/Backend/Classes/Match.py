@@ -30,6 +30,7 @@ class Match(object):
 
 	__port_lease : LeasableObject = None
 	__port : int = 0
+	__host: str = "" # Host of the match running on
 
 	__count_players : int = 0
 	__count_lifes : int = 0
@@ -69,6 +70,20 @@ class Match(object):
 		Port of the match running on.
 		"""
 		return self.__port
+
+	def set_host(self, host:str):
+		logging.info("Host of the match set to %s" % host)
+		self.__host = host
+
+	def set_port(self, port:int):
+		"""
+		Set the port number of a match, when connection as client.
+		
+		Args:
+			port (int): Port number
+		"""
+		logging.info("Match port set to %d" % port)
+		self.__port = port
 
 	@property
 	def count_players(self) -> int:
@@ -238,6 +253,7 @@ class Match(object):
 		
 		while True:
 			data, conn = self.__clientsock.recvfrom(UDP_RECV_BUFFER_SIZE)
+			logging.info("Received: %s" % str(data))
 			dec = data.decode("UTF-8")
 			seq, message = dec.split(" ", 1)
 			packet = bytes(message, "UTF-8")
@@ -253,10 +269,16 @@ class Match(object):
 		Sender thread for direction changes in client
 		"""
 		logging.info("Starting client sender thread...")
-		self.__clientsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		presock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+		ini = True
 		while True:
 			vel = self.__hook_me().getVelocity()
 			packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
+			presock.sendto(packet, (self.__host, self.__port))
+			if ini:
+				self.__clientsock = presock
+				ini = False
+			logging.info("NEW DIRECTION SEND!")
 
 		logging.info("Exiting client sender thread")
 
@@ -286,7 +308,7 @@ class Match(object):
 			keys (tuple): [description]
 			matrix (list): [description]
 		"""
-		if keys == (1,1):
+		if key == (1,1):
 			if len(self.__recv_dict.keys()) > 0 :
 				# Update the arena's matrix
 				logging.info("New matrix updated!")
@@ -297,7 +319,7 @@ class Match(object):
 			self.__push_to_dict = True
 			self.__recv_dict.clear() #Empty the receive buffer
 
-			self.__recv_dict[keys] = matrix
+			self.__recv_dict[key] = matrix
 	
 	def __receiver_thread(self):
 		"""
