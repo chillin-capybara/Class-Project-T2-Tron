@@ -100,6 +100,13 @@ class Match(object):
 		return self.__count_lifes
 	
 	@property
+	def players(self) -> List[HumanPlayer]:
+		"""
+		List of all players in the game
+		"""
+		return self.__players[1:]
+
+	@property
 	def name(self) -> str:
 		"""
 		Name of the current match
@@ -288,6 +295,10 @@ class Match(object):
 		"""
 		try:
 			logging.info("Starting the client thread of the match")
+			self.__players.append(HumanPlayer()) # Player Zero... -> Dummy protocoll
+			for i in range(1,self.count_players+1):
+				self.__players.append(HumanPlayer())
+			logging.info("All player obejcts created.")
 			senderThread = threading.Thread(target=self.__client_sender)
 			receiverThread = threading.Thread(target=self.__client_receiver)
 

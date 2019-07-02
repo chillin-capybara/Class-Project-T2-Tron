@@ -17,12 +17,15 @@ import time
 from datetime import datetime
 import json
 ##import own modules
-from ..mainUI import GameApp, GameUI
 from Backend.Classes.GameClient import GameClient
+from Backend.Core.globals import CLIENT
+CLIENT: GameClient = GameClient()
+
+
+from ..mainUI import GameApp, GameUI
 from collections import namedtuple
 from Backend.Classes.GameServer import GameServer
 
-CLIENT = GameClient()
 
 Builder.load_file('kvfilesmenu/gameovermenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenu.kv')

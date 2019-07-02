@@ -32,4 +32,11 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "MAIN MENU",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Tron/mainMenu.py",
+            "console": "integratedTerminal"
         }

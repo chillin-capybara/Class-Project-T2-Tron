@@ -18,7 +18,11 @@ from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
 from UI.Widgets.MyKeyboardListener import MyKeyboardListener
 from UI.Widgets.PlayerWidget import PlayerWidget
+from Backend.Core.globals import CLIENT as CLIENT
+from Backend.Classes.GameClient import GameClient
 
+# Just for fun---
+CLIENT : GameClient
 
 # setting display size to 500, 500
 Config.set('graphics', 'resizable', True)
@@ -89,16 +93,13 @@ HEADSIZE = 1
 
 
 
-
 print("GAME CREATED...", flush=True)
 # Define global GAME object
-CLIENT = GameClient()
-CLIENT.me.setName("Peter")
-CLIENT.me.setColor((1, 1, 0))
-CLIENT.me.setVelocity(1, 0)
-CLIENT.me.setPosition(20, 20)
-
-GAME = Game()
+# CLIENT = GameClient()
+# CLIENT.me.setName("Peter")
+# CLIENT.me.setColor((1, 1, 0))
+# CLIENT.me.setVelocity(1, 0)
+# CLIENT.me.setPosition(20, 20)
 
 
 # GAME.setPlayerName("Its me")
@@ -128,7 +129,8 @@ GAME = Game()
 # p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
 # p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
 # p3.setVelocity(0, 1)
-players = [CLIENT.me]
+#players = [CLIENT.me]
+players = []
 
 # GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
 
@@ -144,6 +146,8 @@ class GameUI(Widget):
 
 
     def __init__(self, **kwargs):
+        players = CLIENT.match.players
+        self.playerList = ListProperty(players)
         ## creates update function for all uses, ensures synchronized update trigger
         super(GameUI, self).__init__(**kwargs)
         self.update()
