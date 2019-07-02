@@ -358,7 +358,7 @@ class Match(object):
 				for player in self.__players:
 					try:
 						player.step()
-						self.__arena.player_stepped(player.getPosition())
+						self.__arena.player_stepped(self.__player_id, player.getPosition())
 					except DieError:
 						logging.info("Player %s died" % player.getName())
 			except Exception as e:
@@ -414,7 +414,7 @@ class Match(object):
 			# All slots reserved
 			self.EStart(self, port=self.port, player_ids=player_ids, players=players)
 	
-	def handle_new_direction(self, player_id, direction):
+	def handle_new_direction(self,sender, player_id:int, direction:tuple):
 		"""
 		Handle when a player sets a new direction
 		
