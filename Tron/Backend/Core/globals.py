@@ -13,3 +13,7 @@ SERVER_FEATURES = ['BASIC', 'JSONCOMM'] # List of server features
 
 SERVER_GAMES = ['Tron']
 
+UDP_RECV_BUFFER_SIZE = 1024
+
+MAX_MATRIX_SIZE = (20,20)
+

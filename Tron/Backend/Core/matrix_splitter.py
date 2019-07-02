@@ -1,7 +1,7 @@
 import array
 import numpy as np
 
-class InteropComm(object):
+class MatrixSplitter(object):
 	"""
 	Implements Communication methods and functions for 
 	the Interoperability tests

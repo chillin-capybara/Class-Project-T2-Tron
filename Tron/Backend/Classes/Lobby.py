@@ -407,7 +407,7 @@ class Lobby(object):
 			features (List[str]): List of the features
 		"""
 		# Create a new match object and lease a port from the server's collection
-		new_match = Match(game, name, features, self.__hook_lease_port())
+		new_match = Match(game, name, features, self.__hook_lease_port(), self.__hook_me)
 		new_match.create()
 		self.__matches.append(new_match)
 		logging.info("Match created!")
@@ -457,6 +457,9 @@ class Lobby(object):
 		"""
 		logging.info("The server accepted you to join the game with id=%d" % player_id)
 
+		# Set the player id in the match
+		self.__selected_match.set_current_player_id(player_id)
+
 		# Call the Lobby's event -> With the name of the match
 		self.EMatchJoined(self, matchname=self.__selected_match.name)
 
@@ -474,6 +477,9 @@ class Lobby(object):
 		"""
 		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(players)))
 		# Connect to the match server via udp and tcp for the control
+
+		# Start match client
+		self.__selected_match.start_match_client()
 
 		# Notifty the UI to show the game
 		self.EMatchStarted(self)
