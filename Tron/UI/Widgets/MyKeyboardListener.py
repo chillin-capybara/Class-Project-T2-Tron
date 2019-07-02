@@ -5,18 +5,18 @@ from Backend.Core.Vect2D import Vect2D
 from kivy.properties import ListProperty, NumericProperty
 
 
-
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
    
     trackPoints = ListProperty([])
+    __client = None # Game Client
 
 
     def __init__(self, **kwargs):
-        super(MyKeyboardListener, self).__init__(**kwargs)
-
-        self._game = UI.mainUI.CLIENT
-        self._player = self._game.me
+        self.__client = kwargs['client']
+        self._player = self.__client.me
+        # SET BASIC VELOCITY 
+        self._player.setVelocity(1,0)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
 
         ## needed to implement clone fucntion to create reference to new RAM space
@@ -24,13 +24,14 @@ class MyKeyboardListener(Widget):
         playerPosVec2D = self._player.getPosition()
         self.trackPoints.append(playerPosVec2D.clone())
 
+
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use
             # to change the keyboard layout.
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
-    
 
+        super(MyKeyboardListener, self).__init__(**kwargs)
 
 
     def _keyboard_closed(self):

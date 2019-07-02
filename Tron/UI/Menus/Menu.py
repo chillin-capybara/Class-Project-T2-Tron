@@ -18,7 +18,6 @@ from datetime import datetime
 import json
 ##import own modules
 from Backend.Classes.GameClient import GameClient
-from Backend.Core.globals import CLIENT
 CLIENT: GameClient = GameClient()
 
 
@@ -69,7 +68,7 @@ def handle_ematchStarted(sender):
 	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	logging.info('EMatchStarted received by client %s' % timestamp)
 	screen_manager.current = 'gamestartmenu'
-	GameApp().run()
+	GameApp(client=CLIENT).run()
 
 CLIENT.EMatchStarted += handle_ematchStarted
 

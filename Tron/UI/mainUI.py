@@ -18,11 +18,9 @@ from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
 from UI.Widgets.MyKeyboardListener import MyKeyboardListener
 from UI.Widgets.PlayerWidget import PlayerWidget
-from Backend.Core.globals import CLIENT as CLIENT
 from Backend.Classes.GameClient import GameClient
 
-# Just for fun---
-CLIENT : GameClient
+import logging
 
 # setting display size to 500, 500
 Config.set('graphics', 'resizable', True)
@@ -92,16 +90,6 @@ TRACKSIZE = 1
 HEADSIZE = 1
 
 
-
-print("GAME CREATED...", flush=True)
-# Define global GAME object
-# CLIENT = GameClient()
-# CLIENT.me.setName("Peter")
-# CLIENT.me.setColor((1, 1, 0))
-# CLIENT.me.setVelocity(1, 0)
-# CLIENT.me.setPosition(20, 20)
-
-
 # GAME.setPlayerName("Its me")
 # p1 = HumanPlayer()
 # p1.setName("Simon")
@@ -131,7 +119,7 @@ print("GAME CREATED...", flush=True)
 # p3.setVelocity(0, 1)
 #players = [CLIENT.me]
 players = []
-
+logging.info("GameApp loaded")
 # GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
 
 class GameUI(Widget):
@@ -144,16 +132,27 @@ class GameUI(Widget):
     game_is_running = BooleanProperty(False)
     playPos = ObjectProperty(Vect2D(10, 0))
 
+    __client : GameClient = None
+
 
     def __init__(self, **kwargs):
-        players = CLIENT.match.players
+        self.__client = kwargs['client']
+        players = self.__client.match.players
         self.playerList = ListProperty(players)
+        self.__client.me.setPosition(20,20)
+        self.__client.me.setVelocity(1,0)
+
+        # SET THE STUFF OF the liststs
+        players[1].setPosition(20,20)
+        players[1].setVelocity(1,0)
+
+
         ## creates update function for all uses, ensures synchronized update trigger
         super(GameUI, self).__init__(**kwargs)
         self.update()
         
         Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
-
+        logging.info("GameApp initialized")
 
 
     def update(self, *args):
@@ -202,10 +201,16 @@ class GameUI(Widget):
 
 # Entry Point
 class GameApp(App):
+    __client = None
+    def __init__(self, **kwargs):
+        self.__client = kwargs['client']
+        super().__init__()
+
     # creates the Application
     def build(self):
-        MyKeyboardListener()
-        return GameUI()
+        MyKeyboardListener(client=self.__client)
+        logging.info("GameApp started!")
+        return GameUI(client=self.__client)
 
 if __name__ == "__main__":
     GameApp().run()

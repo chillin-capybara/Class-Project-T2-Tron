@@ -50,6 +50,7 @@ class Match(object):
 
 	__clientsock :socket.socket = None
 	__last_update_seq = 0 # Last update sequence from the server
+	__last_direction_seq = 0
 	__current_seq = 0
 	__recv_dict : dict = None
 	__push_to_dict = False
@@ -260,7 +261,7 @@ class Match(object):
 		
 		while True:
 			data, conn = self.__clientsock.recvfrom(UDP_RECV_BUFFER_SIZE)
-			logging.info("Received: %s" % str(data))
+			#logging.info("Received: %s" % str(data))
 			dec = data.decode("UTF-8")
 			seq, message = dec.split(" ", 1)
 			packet = bytes(message, "UTF-8")
@@ -281,11 +282,14 @@ class Match(object):
 		while True:
 			vel = self.__hook_me().getVelocity()
 			packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
+			seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
+			packet = seq + packet
+			self.__last_direction_seq += 1
 			presock.sendto(packet, (self.__host, self.__port))
 			if ini:
 				self.__clientsock = presock
 				ini = False
-			logging.info("NEW DIRECTION SEND!")
+			#logging.info("NEW DIRECTION SEND!")
 
 		logging.info("Exiting client sender thread")
 
@@ -325,6 +329,11 @@ class Match(object):
 			if len(self.__recv_dict.keys()) > 0 :
 				# Update the arena's matrix
 				logging.info("New matrix updated!")
+				matrix = SPLITTER.matrix_collapse(self.__recv_dict)
+				pos = getActPos(matrix, self.__arena.matrix, self.__player_id)
+				x = pos[0]
+				y = pos[1]
+				self.__hook_me().setPosition(x,y) # Update the client position based on the matrix
 				self.__arena.update_matrix(self.__recv_dict)
 
 
