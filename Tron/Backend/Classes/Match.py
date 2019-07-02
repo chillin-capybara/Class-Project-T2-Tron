@@ -264,15 +264,18 @@ class Match(object):
 		"""
 		Start the client of the match
 		"""
-		logging.info("Starting the client thread of the match")
-		senderThread = threading.Thread(target=self.__client_sender)
-		receiverThread = threading.Thread(target=self.__client_receiver)
+		try:
+			logging.info("Starting the client thread of the match")
+			senderThread = threading.Thread(target=self.__client_sender)
+			receiverThread = threading.Thread(target=self.__client_receiver)
 
-		# Append event listeners
-		self.__comm.EUpdateField += self.handle_update_field
+			# Append event listeners
+			self.__comm.EUpdateField += self.handle_update_field
 
-		receiverThread.start()
-		senderThread.start()
+			receiverThread.start()
+			senderThread.start()
+		except Exception as e:
+			logging.error("Error starting the client threads! Reason: %s" % str(e))
 
 	def handle_update_field(self, sender, keys:tuple, matrix:list):
 		"""

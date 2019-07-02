@@ -180,4 +180,5 @@ class GameClient(object):
 		self.EMatchJoined(self, matchname=matchname)
 	
 	def handle_match_started(self, sender):
+		logging.info("Tell the UI to start the match.")
 		self.EMatchStarted(self)
