@@ -294,6 +294,8 @@ class Match(object):
 		Start the client of the match
 		"""
 		try:
+			self.__players = []
+			self.__players.clear()
 			logging.info("Starting the client thread of the match")
 			self.__players.append(HumanPlayer()) # Player Zero... -> Dummy protocoll
 			for i in range(1,self.count_players+1):
