@@ -10,7 +10,13 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
+<<<<<<< HEAD
 
+=======
+from Backend.Classes.GameClient import GameClient
+from Backend.Classes.Arena import Arena
+from Backend.Classes.HumanPlayer import HumanPlayer
+>>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
@@ -36,15 +42,6 @@ Builder.load_string("""
         on_press:
             root.countdown_is_running = True
             countdown.start()
-            
-    Button:
-        id: Pause Button
-        text: "Pause"
-        pos: 500, 500
-        size: 100, 30
-        opacity: 1 if root.game_is_running else 0
-        on_press:
-            root.game_is_running = False
 
 
     # initializes the countdown feature
@@ -65,6 +62,7 @@ Builder.load_string("""
         TrackWidget:
             id: trackWidget
             size: root.size
+            playerList: root.playerList
 
     # kv file for displaying all ingame players with colors
 
@@ -73,57 +71,91 @@ Builder.load_string("""
         anchor_x: "right"
         anchor_y: "top"
         PlayerWidget:
-            id: playerWidget0
+            id: playerWidget
             pos: 0, 0
             size: root.getPlayerWidgetSize()
             size_hint: None, None
             playerList: root.playerList
-
-    AnchorLayout:
-        size: root.size
-        anchor_x: "center"
-        anchor_y: "center"
-        HeadWidget:
-            id: headWidget
-            size: root.size
+            game: root.game
 """)
 
 
 
+<<<<<<< HEAD
 UPDATES_PER_SECOND = 15
+=======
+
+
+
+## Static global defined values
+UPDATES_PER_SECOND = 3
+# FIELDSIZE = Arena.getSize()
+>>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 FIELDSIZE = (100, 100)
 
+<<<<<<< HEAD
 
 print("GAME CREATED...", flush=True)
 # Define global GAME object
 CLIENT = Game()
+=======
+print("GAME CREATED...", flush=True)
+# Define global GAME object
+CLIENT = GameClient()
+>>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 CLIENT.me.setName("Peter")
 CLIENT.me.setColor((1, 1, 0))
 CLIENT.me.setVelocity(1, 0)
 CLIENT.me.setPosition(20, 20)
 
+<<<<<<< HEAD
+=======
+GAME = Game()
+
+
+GAME.setPlayerName("Its me")
+p1 = HumanPlayer()
+p1.setName("Simon")
+p1.setColor((1, 1, 0))
+p1.setPosition(10, 10)
+p1.addTrack(Vect2D(10, 10), Vect2D(20, 10))
+p1.setVelocity(0,1)
+p1.move(10)
+
+# p1.addTrack(Vect2D(20, 10), Vect2D(20, 20))
+
+p2 = HumanPlayer()
+p2.setName("Lorenz")
+p2.setColor((0, 1, 1))
+p2.setPosition(30, 40)
+p2.addTrack(Vect2D(30, 40), Vect2D(45, 40))
+p2.addTrack(Vect2D(45, 40), Vect2D(45, 45))
+p2.addTrack(Vect2D(45, 45), Vect2D(100, 45))
+p2.setVelocity(1, 0)
+p2.move(5)
+
+p3 = HumanPlayer()
+p3.setName("Marcell")
+p3.setColor((1, 0, 1))
+p3.setPosition(70, 40)
+p3.addTrack(Vect2D(70, 40), Vect2D(80, 40))
+p3.addTrack(Vect2D(80, 40), Vect2D(10, 40))
+p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
+p3.setVelocity(0, 1)
+print(p1.getPosition())
+
+print(p1.getPosition())
+
+players = [p1, p2, p3, CLIENT.me]
+
+GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
+>>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
 class GameUI(Widget):
-
-    # playerList = ListProperty(CLIENT.getPlayers())
+    playerList = ListProperty(players)
+    game = ObjectProperty(GAME)
+    # print(GAME.getPlayers())
     
-    playerList = ListProperty([
-        {
-            "name": "Simon",
-            "color": (1, 0, 0, 1)
-        },
-        {
-            "name": "Ludi",
-            "color": (0, 1, 0, 1)
-
-        },
-        {
-            "name": "Dani",
-            "color": (0, 0, 1, 1)
-
-        }
-    ])
-
     ## Values for later use in functions
     countdown_is_running = BooleanProperty(False)
     game_is_running = BooleanProperty(False)
@@ -134,6 +166,7 @@ class GameUI(Widget):
         ## creates update function for all uses, ensures synchronized update trigger
         super(GameUI, self).__init__(**kwargs)
         self.update()
+        
         Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
 
 
@@ -142,7 +175,7 @@ class GameUI(Widget):
         ## final update function, where I trigger different functuions
         # self.ids.trackWidget.update()
         self.ids.trackWidget.update()
-
+        
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
@@ -153,11 +186,10 @@ class GameUI(Widget):
         if self.game_is_running == True:
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
-            self.ids.trackWidget.setBooleanGame()
-            self.ids.trackWidget.increaseOpacity()
-        
-        # TODO -> MOVE HAST TO GO INTO THE SERVER
-        # CLIENT.me.step() # Update the player's position 
+            self.ids.trackWidget.setBooleanGame()     
+            p1.move(2)
+            p2.move(2)
+            p3.move(1)       
             
 
 

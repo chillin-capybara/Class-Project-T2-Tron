@@ -2,24 +2,39 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 import UI.mainUI
 from Backend.Core.Vect2D import Vect2D
+<<<<<<< HEAD
 from Backend.Classes.Client import Client
+=======
+from kivy.properties import ListProperty, NumericProperty
+
+>>>>>>> 5cd7da4e97c97b4d12fb51499982b74aa3456e2f
 
 
 class MyKeyboardListener(Widget):
     ## keyboard listener, listen to keyboard inputs
+   
+    trackPoints = ListProperty([])
+
 
     def __init__(self, **kwargs):
         super(MyKeyboardListener, self).__init__(**kwargs)
 
         self._game = UI.mainUI.CLIENT
         self._player = self._game.me
-        print(self._player)
         self._keyboard = Window.request_keyboard( self._keyboard_closed, self, 'text')
+
+        ## needed to implement clone fucntion to create reference to new RAM space
+        
+        playerPosVec2D = self._player.getPosition()
+        self.trackPoints.append(playerPosVec2D.clone())
+
         if self._keyboard.widget:
             # If it exists, this widget is a VKeyboard object which you can use
             # to change the keyboard layout.
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
+    
+
 
 
     def _keyboard_closed(self):
@@ -34,13 +49,15 @@ class MyKeyboardListener(Widget):
         # enterPause Menu
         if keycode[1] == 'p':
             print("not Implemented Yet Pause Menu")
-            keyboard.release()
+            UI.mainUI.GAME.RequestPause()
 
         if keycode[1] == 'a':
             self.press_a_key()
+            self.addingTrack_to_player()
 
         if keycode[1] == 'd':
             self.press_d_key()
+            self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
@@ -86,3 +103,11 @@ class MyKeyboardListener(Widget):
             self._player.setVelocity(1, 0)
             return
 
+    counter = NumericProperty(0)
+    
+    
+
+    def addingTrack_to_player(self):
+        self.trackPoints.append(self._player.getPosition().clone())
+        self._player.addTrack(self.trackPoints[-2], self.trackPoints[-1])
+        
