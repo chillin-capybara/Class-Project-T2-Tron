@@ -47,7 +47,7 @@ Builder.load_string("""
         pos: 500, 500
         size: 100, 30
         opacity: 1 
-        # on_press:
+        # on_press: root.getControl
         
 
 
