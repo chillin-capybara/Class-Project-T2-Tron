@@ -290,7 +290,6 @@ class Match(object):
 		ini = True
 		while True:
 			vel = self.__hook_me().getVelocity()
-			logging.info("Sending update with player id %d" % self.__player_id)
 			packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
 			seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
 			packet = seq + packet
@@ -350,7 +349,6 @@ class Match(object):
 					reconstructed_matrix = SPLITTER.matrix_collapse(self.__recv_dict)
 					self.__hook_me().update_player_track(reconstructed_matrix, self.__player_id)
 					newtrack =self.__hook_me().getTrack()
-					logging.info("New track %s" % str(newtrack)) 
 					try:
 						pos = getActPos(reconstructed_matrix, self.__arena.matrix, self.__player_id)
 						x = pos[0]
@@ -508,7 +506,6 @@ class Match(object):
 			player_id (int): ID of the player in the match
 			direction (tuple): New direction
 		"""
-		logging.debug("Update received with pid %d" % player_id)
 		# Get the IP Adress, who is requesting it
 		requester_host = self.__current_conn[0]
 		try:
