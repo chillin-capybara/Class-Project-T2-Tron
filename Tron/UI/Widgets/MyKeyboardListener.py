@@ -31,7 +31,7 @@ class MyKeyboardListener(Widget):
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
-        super(MyKeyboardListener, self).__init__(**kwargs)
+        super(MyKeyboardListener, self).__init__()
 
 
     def _keyboard_closed(self):

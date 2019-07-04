@@ -148,13 +148,6 @@ class GameUI(Widget):
         self.__client = kwargs['client']
         players = self.__client.match.players
         self.playerList = ListProperty(players)
-        self.__client.me.setPosition(20,20)
-        self.__client.me.setVelocity(1,0)
-
-        # SET THE STUFF OF the liststs
-        players[1].setPosition(20,20)
-        players[1].setVelocity(1,0)
-
 
         ## creates update function for all uses, ensures synchronized update trigger
         super(GameUI, self).__init__(**kwargs)
@@ -220,6 +213,3 @@ class GameApp(App):
         MyKeyboardListener(client=self.__client)
         logging.info("GameApp started!")
         return GameUI(client=self.__client)
-
-if __name__ == "__main__":
-    GameApp().run()
