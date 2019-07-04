@@ -76,7 +76,7 @@ class GameClient(object):
 		"""
 		Selected match to enter
 		"""
-		self.lobby.match
+		return self.lobby.match
 	
 	def enter_lobby(self, index: int):
 		"""
