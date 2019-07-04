@@ -50,19 +50,19 @@ class MyKeyboardListener(Widget):
 
         if keycode[1] == 'a':
             self.press_a_key()
-            self.addingTrack_to_player()
+            # self.addingTrack_to_player()
 
         if keycode[1] == 'd':
             self.press_d_key()
-            self.addingTrack_to_player()
+            # self.addingTrack_to_player()
 
         if keycode[1] == 'left':
             self.press_a_key()
-            self.addingTrack_to_player()
+            # self.addingTrack_to_player()
 
         if keycode[1] == 'right':
             self.press_d_key()
-            self.addingTrack_to_player()
+            # self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
         return True
