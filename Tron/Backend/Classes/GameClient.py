@@ -2,6 +2,7 @@ from .BasicComm import BasicComm
 from .Lobby import Lobby
 from ..Core.globals import *
 from .HumanPlayer import HumanPlayer
+from .Match import Match
 from ..Core.Event import Event
 
 import logging
