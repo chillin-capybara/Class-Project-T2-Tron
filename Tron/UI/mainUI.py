@@ -41,6 +41,15 @@ Builder.load_string("""
             root.countdown_is_running = True
             countdown.start()
 
+    Button:
+        id: ControlButton
+        text: "Control Others"
+        pos: 500, 500
+        size: 100, 30
+        opacity: 1 
+        # on_press:
+        
+
 
     # initializes the countdown feature
     CountdownWidget:
