@@ -75,31 +75,33 @@ class TrackWidget(Widget):
                     
 
             if self.game_is_running == True:
+                
                 for player in self.playerList:   
-                    if player == self._player:
-                        if self.counter_update_players == 0:
-                            self.counter_update_players += 1
-                            # firstPoint = self.pointCreator_special_case()
-                            firstPoint = player.getPosition().clone()
-                            self.pointCreator(player)
-                            player.addTrack(firstPoint, player.getPosition().clone())
+                    player.getTrack()
+                #     if player == self._player:
+                #         if self.counter_update_players == 0:
+                #             self.counter_update_players += 1
+                #             # firstPoint = self.pointCreator_special_case()
+                #             firstPoint = player.getPosition().clone()
+                #             self.pointCreator(player)
+                #             player.addTrack(firstPoint, player.getPosition().clone())
 
-                        self.pointCreator(player)
+                #         self.pointCreator(player)
                         
-                        # if len(player.getTrack()) > 0:
-                        #     allPoints_from_submission = player.getTrack()
+                #         # if len(player.getTrack()) > 0:
+                #         #     allPoints_from_submission = player.getTrack()
                             
-                        allPoints_after_calculation = self.constructMissingPoints(player)
+                #         allPoints_after_calculation = self.constructMissingPoints(player)
 
-                    else:
-                        # if self.counter_update_players_remote < len(UI.mainUI.GAME.getPlayers()):
-                        if self.counter_update_players_remote < 3:
-                            self.counter_update_players_remote += 1
-                            # firstPoint = self.pointCreator_special_case()
-                            player.addTrack(player.getPosition().clone(), player.getPosition().clone())
+                #     else:
+                #         # if self.counter_update_players_remote < len(UI.mainUI.GAME.getPlayers()):
+                #         if self.counter_update_players_remote < 3:
+                #             self.counter_update_players_remote += 1
+                #             # firstPoint = self.pointCreator_special_case()
+                #             player.addTrack(player.getPosition().clone(), player.getPosition().clone())
 
-                        allPoints_after_calculation = self.constructMissingPoints_for_remote(player)
-                        print(player.getPosition())
+                #         allPoints_after_calculation = self.constructMissingPoints_for_remote(player)
+                #         print(player.getPosition())
                     
                     Color(rgba = self.getPlayerColor(player))
                     HeadWidget(screen_size = self.size, player = player)
