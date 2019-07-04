@@ -1,6 +1,8 @@
 from .Player import Player
 from .Track import Track, LightTrack
 from ..Core.Vect2D import Vect2D
+from typing import List
+from ..Core.matrix import *
 
 # todo: Implement the Human player according to the UML
 #TODO: Makros definition
@@ -25,7 +27,7 @@ class HumanPlayer(Player):
 	__IsConnected = False
 	__IsInPause = False
 
-	__track = None
+	__track : List[Vect2D] = None
 	__last_velocity : Vect2D = None
 
 # input check Velocity.x
@@ -66,7 +68,7 @@ class HumanPlayer(Player):
 
 
 	def __init__(self):
-		self.__track = LightTrack()
+		self.__track = []
 		self.__Position = Vect2D(0,0)
 		self.__Velocity = Vect2D(0,0)
 		self.__last_velocity = Vect2D(0,0)
@@ -76,7 +78,20 @@ class HumanPlayer(Player):
 		self.__Color = (0,0,0)
 
 
-	def getTrack(self):
+	def getTrack(self) -> List[Vect2D]:
+		"""
+		Get the track points of the current player via a list of Vect2D
+		
+		Returns:
+			List[Vect2D]: Track of the current player
+		"""
+		return self.__track
+	
+	@property
+	def track(self) -> List[Vect2D]:
+		"""
+		Track points of the current player via a list of Vect2D
+		"""
 		return self.__track
 
 	def getLine(self):
@@ -117,17 +132,6 @@ class HumanPlayer(Player):
 		TODO: Artem -> DOKU
 		"""
 		return self.__Velocity
-
-
-	def getTrack(self):
-		"""
-			Get the track made by the player cruising on the arena.	
-
-			Returns:
-			LightTrack as Track object
-		"""
-		return self.__track.getLine()
-
 
 	def isAlive(self) -> bool:
 		"""
@@ -248,22 +252,6 @@ class HumanPlayer(Player):
 		self.__Velocity.y = y
 
 
-	def addTrack(self, start, end):
-		"""
-		Add a new track element to the pulled "light-track" of the player
-
-		Args:
-		track (track_segment): New track element to be added
-
-		Raises:
-		TrackError: The given track is invalid
-
-		Note:
-		TrackError is defined in Core.Exceptions
-		"""
-		self.__track.addElement(start, end)
-
-
 	def enterPause(self):
 		"""
 		Starts a process to enter the user -> and the game in pause state
@@ -273,7 +261,6 @@ class HumanPlayer(Player):
 		"""
 		self.__IsInPause = True
 		#TODO: Error while communicating the pause request
-
 
 	def move(self, time):
 		"""
@@ -293,6 +280,17 @@ class HumanPlayer(Player):
 		"""
 		self.__Position.x += self.__Velocity.x
 		self.__Position.y += self.__Velocity.y
+	
+	def update_player_track(self, matrix: list, player_id: int):
+		"""
+		Update the track of the current player
+		
+		Args:
+			matrix (list): Matrix of the game field
+			player_id (int): ID of the current player on the server
+		"""
+		self.__track = get_player_track(matrix, player_id)
+
 
 # # test Player implementation
 # testPlayer = HumanPlayer()
