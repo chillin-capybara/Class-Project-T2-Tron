@@ -144,6 +144,7 @@ class RectangleArena(Arena):
 		
 		if self.__matrix[pos.x][pos.y] == 0:
 			# Field is still free, you can step on it
+			logging.debug("PID % d stepped on (%d,%d)" % (player_id, pos.x, pos.y))
 			self.__matrix[pos.x][pos.y] = player_id
 		else:
 			raise DieError

@@ -20,6 +20,7 @@ class LobbyThread(threading.Thread):
 	__hook_get_games : Hook = None
 	__hook_get_matches : Hook = None
 
+	__connection = None # Addr() struct, that contains the connection details
 	__sock : socket.socket = None
 
 	__comm : BasicComm = None
@@ -29,7 +30,7 @@ class LobbyThread(threading.Thread):
 	__hello_name :str = "JoeWorkingman" # Name of the player to be stored after the hello message
 	__leased_player_id : LeasableObject = None
 
-	def __init__(self, sock:socket.socket, hook_get_games, hook_get_matches):
+	def __init__(self, sock:socket.socket, conn, hook_get_games, hook_get_matches):
 		"""
 		Create a new lobbythread for a client
 		
@@ -42,8 +43,9 @@ class LobbyThread(threading.Thread):
 		self.__hook_get_games = Hook(hook_get_games)
 		self.__hook_get_matches = Hook(hook_get_matches) # (game=)
 
-		# Set the socket
+		# Set the socket and the connection
 		self.__sock = sock
+		self.__connection = conn
 
 		# Initialize the communication
 		self.__comm = BasicComm()
@@ -256,6 +258,9 @@ class LobbyThread(threading.Thread):
 				# Found the match
 				self.__leased_player_id = match.lease_player_id()
 				pid: int = self.__leased_player_id.getObj() # Get the id of the player
+
+				# NOTE BIND THE PLAYER ID TO THE HOST
+				match.bind_host_to_player_id(self.__connection[0], pid)
 
 				# Tell the client the player id and the success of the join
 				packet = self.__comm.match_joined(pid)

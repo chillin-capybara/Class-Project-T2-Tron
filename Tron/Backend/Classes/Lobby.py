@@ -180,19 +180,20 @@ class Lobby(object):
 			while True:
 				# Wait for incoming connections
 				thread_sock, addr = self.__server_sock.accept()
-				self.__create_thread(thread_sock)
+				self.__create_thread(thread_sock, addr)
 		except Exception as e:
 			logging.error(str(e))
 	
-	def __create_thread(self, sock: socket.socket):
+	def __create_thread(self, sock: socket.socket, conn):
 		"""
 		Create a thread on the server to handle client requests and responses simultaniously
 		Args:
 			sock (socket): Socket of the connection to handle
+			conn (Addr):   Address struct of the connection
 		"""
 		# Initialzie all the thread hooks
 		thread = LobbyThread(
-							sock,
+							sock, conn,
 							hook_get_games=self.hook_get_games,
 							hook_get_matches=self.hook_get_matches
 							)

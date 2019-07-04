@@ -52,9 +52,14 @@ class Match(object):
 	__last_update_seq = 0 # Last update sequence from the server
 	__last_direction_seq = 0
 	__current_seq = 0
+	__current_matrix_seq : int = 0 # Current sequence the client is processing
 	__recv_dict : dict = None
+	__recv_seq_start : int = 0 # Starting sequence number of the received data
 	__push_to_dict = False
 	__player_id = 0
+
+	__player_bindings : dict = None
+	__current_conn = None # Current connection, the packet is received from
 
 	def set_current_player_id(self, pid: int):
 		"""
@@ -152,6 +157,9 @@ class Match(object):
 
 		# Initialize an empty list of player adresses
 		self.__player_addresses = []
+
+		# Create a new dictionary for the player <-> host bindings
+		self.__player_bindings = {}
 
 		# Hook to the current player in client mode
 		if hook_me != None:
@@ -268,6 +276,7 @@ class Match(object):
 			self.__comm.process_response(packet)
 
 			seq = int(seq)
+			self.__current_matrix_seq = seq # Set the current sequence the client is processing
 			self.__current_seq = int(seq)
 
 		logging.info("Exiting client receiver thread")
@@ -281,12 +290,13 @@ class Match(object):
 		ini = True
 		while True:
 			vel = self.__hook_me().getVelocity()
+			logging.info("Sending update with player id %d" % self.__player_id)
 			packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
 			seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
 			packet = seq + packet
 			self.__last_direction_seq += 1
 			presock.sendto(packet, (self.__host, self.__port))
-			logging.info("Position info updated!")
+			#logging.info("Position info updated!")
 			if ini:
 				self.__clientsock = presock
 				ini = False
@@ -329,27 +339,38 @@ class Match(object):
 		"""
 		if key == (1,1):
 			if len(self.__recv_dict) > 0 :
-				# Update the arena's matrix
-				logging.info("New matrix updated!")
-				matrix = SPLITTER.matrix_collapse(self.__recv_dict)
-				try:
-					pos = getActPos(matrix, self.__arena.matrix, self.__player_id)
-					x = pos[0]
-					y = pos[1]
-					self.__hook_me().setPosition(x,y) # Update the client position based on the matrix
-				except Exception as e:
-					logging.warning("Cannot get position diff.: %s" % str(e))
-				self.__arena.update_matrix(self.__recv_dict)
+				# Check if we have a complete message
+				dict_len    = len(self.__recv_dict)
+				awaited_len = self.__current_matrix_seq - self.__recv_seq_start
+
+				if dict_len == awaited_len:
+					# Update the arena's matrix
+					#logging.info("New matrix updated!")
+					reconstructed_matrix = SPLITTER.matrix_collapse(self.__recv_dict)
+					try:
+						pos = getActPos(reconstructed_matrix, self.__arena.matrix, self.__player_id)
+						x = pos[0]
+						y = pos[1]
+						self.__hook_me().setPosition(x,y) # Update the client position based on the matrix
+					except Exception as e:
+						#logging.warning("Cannot get position diff.: %s" % str(e))
+						pass
+					self.__arena.update_matrix(self.__recv_dict)
 
 
 			logging.debug("New matrix update start")
 			self.__push_to_dict = True
 			self.__recv_dict.clear() #Empty the receive buffer
+			#logging.info("DICT STATUS: %s" % str(self.__recv_dict))
 
 			self.__recv_dict[key] = matrix
+
+			# Set the starting sequence number of the receiver
+			self.__recv_seq_start = self.__current_matrix_seq
 		else:
-			# Add elements with other then key (1,1)
-			self.__recv_dict[key] = matrix
+			if self.__push_to_dict:
+				# Add elements with other then key (1,1)
+				self.__recv_dict[key] = matrix
 	
 	def __receiver_thread(self):
 		"""
@@ -363,6 +384,7 @@ class Match(object):
 
 			while True:
 				data, conn = self.__updsock.recvfrom(UDP_RECV_BUFFER_SIZE)
+				self.__current_conn = conn # For validating the player id
 				if conn not in self.__player_addresses:
 					self.__player_addresses.append(conn)
 				
@@ -386,7 +408,7 @@ class Match(object):
 						matrix = self.__arena.matrix
 
 						# Split the matrix -> Send every part as an update request to the client
-						splitted = SPLITTER.matrix_split(matrix, MAX_MATRIX_SIZE)
+						splitted = matrix_split(matrix, MAX_MATRIX_SIZE[0], MAX_MATRIX_SIZE[1])
 						for key in splitted.keys():
 							packet = self.__comm.update_field(key, splitted[key])
 							seq = bytes("%d " % self.__seq_send[cindex], "UTF-8")
@@ -395,7 +417,7 @@ class Match(object):
 							# Constantly send updates to every client
 							self.__updsock.sendto(packet, conn)
 							self.__seq_send[cindex] += 1 # Increment the sent index
-							logging.debug("Update sent with seq: %s" % str(seq))
+							#logging.debug("Update sent with seq: %s" % str(seq))
 						
 						# Increment the index of the connection
 						cindex += 1
@@ -412,12 +434,15 @@ class Match(object):
 		logging.info("Starting stepper thread, to update the player positions...")
 		while True:
 			try:
+				pid = 0
 				for player in self.__players:
 					try:
 						player.step()
-						self.__arena.player_stepped(self.__player_id, player.getPosition())
+						self.__arena.player_stepped(pid, player.getPosition())
 					except DieError:
 						logging.info("Player %s died" % player.getName())
+					finally:
+						pid += 1
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 			
@@ -479,5 +504,43 @@ class Match(object):
 			player_id (int): ID of the player in the match
 			direction (tuple): New direction
 		"""
-		logging.info("Player ID=%d has a new direction %s" % (player_id, str(direction)))
-		self.__players[player_id].setVelocity(direction[0], direction[1])
+		logging.debug("Update received with pid %d" % player_id)
+		# Get the IP Adress, who is requesting it
+		requester_host = self.__current_conn[0]
+		try:
+			#requester_player = self.get_bound_player(requester_host)
+			# TODO Implement IP Adress checking
+			requester_player = self.__players[player_id]
+
+			vel = requester_player.getVelocity() # Vect2D
+			if vel.x != direction[0] and vel.y != direction[1]:
+				# Log when a player really changes the direction
+				logging.info("Player ID=%d, NAME=%s has a new direction %s" % (player_id, requester_player.getName(), str(direction)))
+
+			requester_player.setVelocity(direction[0], direction[1])
+		except Exception as e:
+			#logging.warning("The host %s is not allowed to take actions in this game! Reason: %s" % (requester_host, str(e)))
+			logging.warning(str(e))
+	
+	def bind_host_to_player_id(self, host:str, player_id: int):
+		"""
+		Binds an ip adress to a player id. From then, the host can only update its own player.
+		
+		Args:
+			host (str): IP adress of the host
+			player_id (int): ID of the player
+		"""
+		self.__player_bindings[host] = player_id
+		logging.info("Player id %d is bound to %s" % (player_id, host))
+	
+	def get_bound_player(self, host: str) -> HumanPlayer:
+		"""
+		Get the player the host is bound to in the match
+		
+		Args:
+			host (str): IP adress of the host
+		
+		Returns:
+			HumanPlayer: Player the host is bound to
+		"""
+		return self.__players[self.__player_bindings[host]]
