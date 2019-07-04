@@ -346,7 +346,11 @@ class Match(object):
 				if dict_len == awaited_len:
 					# Update the arena's matrix
 					#logging.info("New matrix updated!")
+					# Update the track of the player
 					reconstructed_matrix = SPLITTER.matrix_collapse(self.__recv_dict)
+					self.__hook_me().update_player_track(reconstructed_matrix, self.__player_id)
+					newtrack =self.__hook_me().getTrack()
+					logging.info("New track %s" % str(newtrack)) 
 					try:
 						pos = getActPos(reconstructed_matrix, self.__arena.matrix, self.__player_id)
 						x = pos[0]
