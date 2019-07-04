@@ -427,6 +427,7 @@ class Lobby(object):
 			for match in self.__matches:
 				if match.game == game and match.name == name:
 					match.set_features(features)
+					match.set_host(self.__host) # set the host of the match, in client mode
 					logging.debug("Match %s has the features: %s" % (name, features))
 					return
 			
