@@ -77,7 +77,7 @@ class TrackWidget(Widget):
             if self.game_is_running == True:
                 
                 for player in self.playerList:   
-                    player.getTrack()
+                    self.allPoints_from_submission = player.getTrack()
                 #     if player == self._player:
                 #         if self.counter_update_players == 0:
                 #             self.counter_update_players += 1
@@ -106,7 +106,7 @@ class TrackWidget(Widget):
                     Color(rgba = self.getPlayerColor(player))
                     HeadWidget(screen_size = self.size, player = player)
 
-                    for point in allPoints_after_calculation:
+                    for point in self.allPoints_from_submission:
                         xPos2 = (self.size[0]/fieldsize[0]) * point.x
                         yPos2 = (self.size[1]/fieldsize[1]) * point.y
 
