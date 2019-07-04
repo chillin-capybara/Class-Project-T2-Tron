@@ -71,6 +71,13 @@ class GameClient(object):
 		"""
 		return self.__entered_lobby
 	
+	@property
+	def match(self) -> Match:
+		"""
+		Selected match to enter
+		"""
+		self.lobby.match
+	
 	def enter_lobby(self, index: int):
 		"""
 		Index of the lobby in the list of the lobbies to enter.

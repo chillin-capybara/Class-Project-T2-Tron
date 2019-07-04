@@ -137,17 +137,16 @@ class RectangleArena(Arena):
 		"""
 		# If anything bad happens, you die
 		if pos.x < 0 or pos.y < 0:
-			raise DieError
+			raise DieError("Player out of border")
 		
 		if pos.x > self.sizeX or pos.y > self.sizeY:
-			raise DieError
+			raise DieError("Player out of border")
 		
 		if self.__matrix[pos.x][pos.y] == 0:
 			# Field is still free, you can step on it
-			logging.debug("PID % d stepped on (%d,%d)" % (player_id, pos.x, pos.y))
 			self.__matrix[pos.x][pos.y] = player_id
 		else:
-			raise DieError
+			raise DieError("Player crossed a track")
 	
 	def update_matrix(self, splitted_matrix: list):
 		"""
