@@ -2,10 +2,10 @@ class Hook(object):
 	"""
 	Callback wrapper class for creating Hooks to parent instances.
 	"""
-	
+
 	__hook = None
 
-	def __init__(self, hook = None):
+	def __init__(self, hook=None):
 		"""
 		Intialize an empty hook.
 
@@ -15,9 +15,9 @@ class Hook(object):
 		self.__hook = None
 
 		# When there is a callback presented, delegate it
-		if hook != None:
+		if hook is not None:
 			self.delegate(hook)
-	
+
 	def delegate(self, function):
 		"""
 		Set the deletage method of the hook.
@@ -30,11 +30,11 @@ class Hook(object):
 
 		if callable(function):
 			self.__hook = function
-	
+
 	def override(self, function):
 		"""
 		Override an exixsting delegated hook.
-		
+
 		Args:
 			function (callable): Function to call
 		"""
@@ -45,15 +45,19 @@ class Hook(object):
 				raise TypeError("The passed argument is not callble")
 		else:
 			raise SyntaxError("The hook was not yet delegated")
-	
+
 	def is_delegated(self) -> bool:
 		"""
 		Get if the hook is already delegated, or not.
-		
+
 		Returns:
 			bool: True = Valid callback is presented, False = Not yet delegated
 		"""
-	
+		if self.__hook is None:
+			return False
+		else:
+			return True
+
 	def __call__(self, *args, **kwargs):
 		"""
 		Call the delegated hook function with any parameters

@@ -158,11 +158,11 @@ def getActPos (matix, old_matrix, player_id) -> tuple:
 def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
 	"""
 	Get the list of points a player already visited
-	
+
 	Args:
 		matrix (list): Matrix representation of the game fields
 		player_id (int): ID of the player
-	
+
 	Returns:
 		List[Vect2D]: list of positions on the arena, the player already visited
 	"""
@@ -173,6 +173,5 @@ def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
 			# Go through the columns of the matrix
 			if matrix[row][col] == player_id:
 				mylist.append(Vect2D(row, col))
-	
-	return mylist
 
+	return mylist

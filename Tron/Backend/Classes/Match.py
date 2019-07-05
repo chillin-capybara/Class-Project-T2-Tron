@@ -15,7 +15,7 @@ from ..Core.matrix_splitter import MatrixSplitter
 
 SPLITTER = MatrixSplitter()
 
-class Match(object):
+class Match:
 	"""
 	Match object on the server to serve a game
 	"""
@@ -64,7 +64,7 @@ class Match(object):
 	def set_current_player_id(self, pid: int):
 		"""
 		Set the player id of the player on the server
-		
+
 		Args:
 			pid (int): Player id
 		"""
@@ -84,7 +84,7 @@ class Match(object):
 	def set_port(self, port:int):
 		"""
 		Set the port number of a match, when connection as client.
-		
+
 		Args:
 			port (int): Port number
 		"""
@@ -97,14 +97,14 @@ class Match(object):
 		Number of player slots available in the match
 		"""
 		return self.__count_players
-	
+
 	@property
 	def count_lifes(self) -> int:
 		"""
 		Get the numner of lifes for a player in the match.
 		"""
 		return self.__count_lifes
-	
+
 	@property
 	def players(self) -> List[HumanPlayer]:
 		"""
@@ -118,7 +118,7 @@ class Match(object):
 		Name of the current match
 		"""
 		return self.__name
-	
+
 	@property
 	def game(self) -> str:
 		"""
@@ -129,7 +129,7 @@ class Match(object):
 	def __init__(self, game:str, name: str, features : List[str], port_lease : LeasableObject = None, hook_me = None):
 		"""
 		Create a match with name and features
-		
+
 		Args:
 			name (str): Name of the match
 			features (List[str]): List of the features
@@ -139,7 +139,7 @@ class Match(object):
 		# initialize the match parameters
 		self.__game = game
 		self.__name = name
-		
+
 		# Distinguish between server and client
 		if port_lease != None: # SERVER MODE
 			self.__port_lease = port_lease
@@ -170,11 +170,11 @@ class Match(object):
 		logging.debug(
 			"Match %s initialized in port %d for %d players with %d lifes" %
 			 (self.name, self.port, self.count_players, self.count_lifes))
-	
+
 	def set_features(self, features: List[str]):
 		"""
 		Update the features of the match
-		
+
 		Args:
 			features (List[str]): Features
 		"""
@@ -202,27 +202,27 @@ class Match(object):
 	def get_features(self) -> List[str]:
 		"""
 		List the features of the match
-		
+
 		Returns:
 			List[str]: List of features
 		"""
 		features = ['BASIC', 'Players', self.count_players, 'Lifes', self.count_lifes]
 		return features
-	
+
 	def get_feature_string(self) -> str:
 		"""
 		Get the features of the match as a string.
-		
+
 		Returns:
 			str: Features
 		"""
 		string = "BASIC || Players: %d || Lifes: %d" % (self.count_players, self.count_lifes)
 		return string
-	
+
 	def get_feature_int(self, name: str, features: List[str]) -> int:
 		"""
 		Get an integer parameter from the features list
-		
+
 		Args:
 			name (str): Name of the feature to get
 			features (List[str]): List of the features
@@ -233,11 +233,11 @@ class Match(object):
 		for feature in features:
 			if feature == name:
 				take_next = True
-			elif take_next == True:
+			elif take_next:
 				return int(feature)
-		
+
 		raise KeyError
-	
+
 	def create(self):
 		"""
 		Create a match from the pre-initialzied object
@@ -266,7 +266,7 @@ class Match(object):
 		# Create client socket
 		while self.__clientsock == None: # Wait until socket OK
 			pass
-		
+
 		while True:
 			data, conn = self.__clientsock.recvfrom(UDP_RECV_BUFFER_SIZE)
 			#logging.info("Received: %s" % str(data))
@@ -280,7 +280,7 @@ class Match(object):
 			self.__current_seq = int(seq)
 
 		logging.info("Exiting client receiver thread")
-	
+
 	def __client_sender(self):
 		"""
 		Sender thread for direction changes in client
@@ -300,7 +300,7 @@ class Match(object):
 				self.__clientsock = presock
 				ini = False
 			#logging.info("NEW DIRECTION SEND!")
-			time.sleep(0.01) # Send the 
+			time.sleep(0.01) # Send the
 
 		logging.info("Exiting client sender thread")
 
@@ -330,7 +330,7 @@ class Match(object):
 	def handle_update_field(self, sender, key:tuple, matrix:list):
 		"""
 		Handler an update of the arena sent from the server
-		
+
 		Args:
 			sender ([type]): [description]
 			keys (tuple): [description]
@@ -373,7 +373,7 @@ class Match(object):
 			if self.__push_to_dict:
 				# Add elements with other then key (1,1)
 				self.__recv_dict[key] = matrix
-	
+
 	def __receiver_thread(self):
 		"""
 		Receive the direction updates from players, and the game start request
@@ -389,13 +389,13 @@ class Match(object):
 				self.__current_conn = conn # For validating the player id
 				if conn not in self.__player_addresses:
 					self.__player_addresses.append(conn)
-				
+
 				seq, msg = data.decode("UTF-8").split(" ", 1) # Split the sequence number and the message
 				packet = bytes(msg, "UTF-8") # Convert the packet back to bytes
 				self.__comm.process_response(packet) # Process the response of the packet
 		except Exception as e:
 			logging.error("Match handler stopped. Reason: %s" % str(e))
-	
+
 	def __sender_thread(self):
 		"""
 		Send the updates of the matrix to every player that is in the list of addresses
@@ -420,15 +420,15 @@ class Match(object):
 							self.__updsock.sendto(packet, conn)
 							self.__seq_send[cindex] += 1 # Increment the sent index
 							#logging.debug("Update sent with seq: %s" % str(seq))
-						
+
 						# Increment the index of the connection
 						cindex += 1
-					
+
 				except Exception as e:
 					logging.warning("Error while sending. %s" % str(e))
 		except Exception as e:
 			logging.error("Game updater has stopped. Reason: %s" % str(e))
-	
+
 	def __field_updater_thread(self):
 		"""
 		Update the field with stepping the players to the current direction
@@ -447,9 +447,9 @@ class Match(object):
 						pid += 1
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
-			
+
 			time.sleep(0.5) # 2 Updates per second
-	
+
 	def serve_match(self):
 		"""
 		Start the server-side of the match
@@ -467,19 +467,28 @@ class Match(object):
 		receiverThread.start()
 		updaterThread.start()
 
+	def close(self):
+		"""
+		Close the server threads of the match, and deconstruct the object
+		"""
+		logging.info("Closing the match %s" % self.name)
 
-		
+		# Close the server socket
+		self.__updsock.close()
+
+
+
 	def lease_player_id(self) -> LeasableObject:
 		"""
 		Lease a player ID from the list of player_ids
-		
+
 		NOTE
 			The Player ID has to be freed, when the connnection is broken
 		Returns:
 			LeasableObject: Wrapped object of the playerid
 		"""
 		return self.__player_slots.lease()
-	
+
 	def check_for_start(self):
 		"""
 		Check if the match can be started or not
@@ -497,11 +506,11 @@ class Match(object):
 
 			# All slots reserved
 			self.EStart(self, port=self.port, player_ids=player_ids, players=players)
-	
+
 	def handle_new_direction(self,sender, player_id:int, direction:tuple):
 		"""
 		Handle when a player sets a new direction
-		
+
 		Args:
 			player_id (int): ID of the player in the match
 			direction (tuple): New direction
@@ -522,25 +531,25 @@ class Match(object):
 		except Exception as e:
 			#logging.warning("The host %s is not allowed to take actions in this game! Reason: %s" % (requester_host, str(e)))
 			logging.warning(str(e))
-	
+
 	def bind_host_to_player_id(self, host:str, player_id: int):
 		"""
 		Binds an ip adress to a player id. From then, the host can only update its own player.
-		
+
 		Args:
 			host (str): IP adress of the host
 			player_id (int): ID of the player
 		"""
 		self.__player_bindings[host] = player_id
 		logging.info("Player id %d is bound to %s" % (player_id, host))
-	
+
 	def get_bound_player(self, host: str) -> HumanPlayer:
 		"""
 		Get the player the host is bound to in the match
-		
+
 		Args:
 			host (str): IP adress of the host
-		
+
 		Returns:
 			HumanPlayer: Player the host is bound to
 		"""
