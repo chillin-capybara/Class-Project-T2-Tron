@@ -30,9 +30,9 @@ Builder.load_file('kvfilesmenu/createservermenufloat.kv')
 Builder.load_file('kvfilesmenu/searchforlobbiesmenufloat.kv')
 Builder.load_file('kvfilesmenu/lobbymenufloat.kv')
 Builder.load_file('kvfilesmenu/creatematchmenufloat.kv')
-Builder.load_file('kvfilesmenu/settingsmenu.kv')
-Builder.load_file('kvfilesmenu/statisticsmenu.kv')
-Builder.load_file('kvfilesmenu/aboutmenu.kv')
+Builder.load_file('kvfilesmenu/settingsmenufloat.kv')
+Builder.load_file('kvfilesmenu/statisticsmenufloat.kv')
+Builder.load_file('kvfilesmenu/aboutmenufloat.kv')
 Builder.load_file('kvfilesmenu/gamestartmenu.kv')
 Builder.load_file('kvfilesmenu/pausemenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
@@ -273,7 +273,7 @@ class CreateMatchMenuFloat(Screen):
 	# 	time.sleep(1)
 	# 	self.bubble.clear_widgets()
 
-class SettingsMenu(Screen):
+class SettingsMenuFloat(Screen):
 	def loadplayerdata(self) -> None:
 		"""
 		Load the Player Name from data.json
@@ -345,7 +345,7 @@ class SettingsMenu(Screen):
 		except Exception as e:
 			logging.warning(str(e))
 
-class StatisticsMenu(Screen):
+class StatisticsMenuFloat(Screen):
 	def loadplayerdata(self) -> None:
 		"""
 		Load the Player Name from data.json
@@ -367,7 +367,7 @@ class StatisticsMenu(Screen):
 		self.ids.colorLabel.text = sol
 		self.ids.showcolorLabel.background_color = playercolor
 
-class AboutMenu(Screen):
+class AboutMenuFloat(Screen):
     pass
 
 class GameStartMenu(Screen):
@@ -570,9 +570,9 @@ screen_manager.add_widget(CreateServerMenuFloat(name='createservermenufloat'))
 screen_manager.add_widget(SearchForLobbiesMenuFloat(name='searchforlobbiesmenufloat'))
 screen_manager.add_widget(LobbyMenuFloat(name='lobbymenufloat'))
 screen_manager.add_widget(CreateMatchMenuFloat(name='creatematchmenufloat'))
-screen_manager.add_widget(SettingsMenu(name='settingsmenu'))
-screen_manager.add_widget(StatisticsMenu(name='statisticsmenu'))
-screen_manager.add_widget(AboutMenu(name='aboutmenu'))
+screen_manager.add_widget(SettingsMenuFloat(name='settingsmenufloat'))
+screen_manager.add_widget(StatisticsMenuFloat(name='statisticsmenufloat'))
+screen_manager.add_widget(AboutMenuFloat(name='aboutmenufloat'))
 screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))

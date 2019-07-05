@@ -1,0 +1,49 @@
+# Display Name
+# Display Wincount
+# Display Time Lived
+# Reset Statistics
+
+<StatisticsMenu>:
+    on_pre_enter: 
+        root.loadplayerdata()
+        padding: 10
+    HeaderLabel:
+        text: 'Statistics Menu'
+        pos_hint: {"x": .01, "y": .94}
+    Label:
+        id: nameLabel
+        text: "Name: "
+        pos_hint: {"x": .01, "y": .76}
+        size_hint: ( .98, .16)
+    BoxLayout:
+        orientation: 'horizontal'
+        pos_hint: {"x": .01, "y": .51}
+        size_hint: ( .98, .16)
+        Label:
+            id: colorLabel
+            text: "Color: "
+            size_hint: (1.5, 1)
+        ColoredLabel:
+            id: showcolorLabel
+            size_hint:(1,1)
+            background_color: (0, 0, 0, 1)
+    Label:
+        id: wincountLabel
+        text: 'Wincount: (not yet implemented)'
+        pos_hint: {"x": .01, "y": .28}
+        size_hint: ( .98, .08)
+    Label:
+        id: timelivedLabel
+        text: 'Time lived: (not yet implemented)'
+        pos_hint: {"x": .01, "y": .19}
+        size_hint: ( .98, .08)
+    Button:
+        id: resetButton
+        text: 'Reset Statistics (not yet implemented)'
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {"x": .01, "y": .1}
+        size_hint: ( .98, .08)
+        #on_release: root.reset_statistics()
+
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}
