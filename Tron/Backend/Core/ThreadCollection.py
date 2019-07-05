@@ -1,7 +1,14 @@
 import threading
 from typing import List
 
+
 class ThreadCollection:
+	"""
+	Collection of threads to automatically handle.
+	This class provides functions to automatically track the threads of the
+	collection and wait them to stop in the caller thread.
+	"""
+	
 	__collection: List[threading.Thread] = None
 
 	def __init__(self):
@@ -47,8 +54,8 @@ class ThreadCollection:
 
 	def join_all(self, timeout: float = None):
 		"""
-		Wait for all threads in the collection to finish. This function blocks the current
-		thread until all the threads are closed.
+		Wait for all threads in the collection to finish. This function blocks
+		the current	thread until all the threads are closed.
 		Args:
 			timeout (float, optional): Timeout for the thread.join(). Defaults to None.
 		"""

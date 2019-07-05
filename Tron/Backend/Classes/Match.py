@@ -6,6 +6,7 @@ from .RectangleArena import DieError, RectangleArena
 from .HumanPlayer import HumanPlayer
 from ..Core.globals import *
 from ..Core.Hook import Hook
+from ..Core.ThreadCollection import ThreadCollection
 import logging
 import socket
 import threading
@@ -60,6 +61,8 @@ class Match:
 
 	__player_bindings : dict = None
 	__current_conn = None # Current connection, the packet is received from
+
+	__threadcollection: ThreadCollection = None # Collection of threads to track
 
 	def set_current_player_id(self, pid: int):
 		"""
@@ -160,6 +163,9 @@ class Match:
 
 		# Create a new dictionary for the player <-> host bindings
 		self.__player_bindings = {}
+
+		# Initialize the list of threads
+		self.__threadcollection = ThreadCollection()
 
 		# Hook to the current player in client mode
 		if hook_me != None:
@@ -322,6 +328,10 @@ class Match:
 			# Append event listeners
 			self.__comm.EUpdateField += self.handle_update_field
 
+			# Add the threads to the collection
+			self.__threadcollection.append(senderThread)
+			self.__threadcollection.append(receiverThread)
+
 			receiverThread.start()
 			senderThread.start()
 		except Exception as e:
@@ -463,6 +473,11 @@ class Match:
 		# Append the event handlers for the server side
 		self.__comm.ENewDirection += self.handle_new_direction
 
+		# Add the threads to the thread collection
+		self.__threadcollection.append(senderThread)
+		self.__threadcollection.append(receiverThread)
+		self.__threadcollection.append(updaterThread)
+
 		senderThread.start()
 		receiverThread.start()
 		updaterThread.start()
@@ -471,12 +486,13 @@ class Match:
 		"""
 		Close the server threads of the match, and deconstruct the object
 		"""
-		logging.info("Closing the match %s" % self.name)
+		logging.info("Closing the match %s with all the open threads" % self.name)
 
 		# Close the server socket
 		self.__updsock.close()
 
-
+		self.__threadcollection.join_all()
+		logging.info("All threads were successfully stopped")
 
 	def lease_player_id(self) -> LeasableObject:
 		"""
