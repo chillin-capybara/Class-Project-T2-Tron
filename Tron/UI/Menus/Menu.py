@@ -22,6 +22,7 @@ CLIENT: GameClient = GameClient()
 from ..mainUI import GameApp, GameUI
 from collections import namedtuple
 from Backend.Classes.GameServer import GameServer
+datapath = "Class-Project-T2-Tron/data.json"
 
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
@@ -40,8 +41,15 @@ Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
 
 ######## Class Definitions of the Screens ############################
 class MainMenuFloat(Screen):
-	def loadplayerdata(self):
-		filef = open("Class-Project-T2-Tron/data.json")
+	def loadplayerdata(self) -> None:
+		"""
+		Load the Player Name from data.json
+		Load the Player Color from data.json
+
+		Args: -
+		Return: -
+		"""
+		filef = open(datapath)
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
@@ -50,7 +58,7 @@ class MainMenuFloat(Screen):
 		CLIENT.me.setColor(playercolor)
 
 
-	def quit(self):
+	def quit(self) -> None:
 		#CreateServerMenuFloat.statusServer(self, False, 0)
 		#self.server.Stop()
 		#self.client.Stop()
@@ -266,8 +274,15 @@ class CreateMatchMenuFloat(Screen):
 	# 	self.bubble.clear_widgets()
 
 class SettingsMenu(Screen):
-	def loadplayerdata(self):
-		filef = open("Class-Project-T2-Tron/data.json")
+	def loadplayerdata(self) -> None:
+		"""
+		Load the Player Name from data.json
+		Load the Player Color from data.json
+
+		Args: -
+		Return: -
+		"""
+		filef = open(datapath)
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
@@ -275,36 +290,54 @@ class SettingsMenu(Screen):
 		self.ids.nameTextInput.hint_text=("Current Playername: %s" % playername)
 		self.ids.colordisplayLabel.background_color=playercolor
 		
-	def savechanges(self, playername: str, color: tuple):
+	def savechanges(self, playername: str, color: tuple) -> None:
 		"""
-		Set the Player Name 
+		Saves the Player Name to backend and data.json
+		Saves the Player Color to backend and data.json 
 
 		Args:
-			playername (str): new playername
-		Return:
-			-
+			playername (str): new playername / old playername from data.json
+			color (tuple): new color / old color from data.json
+		Return: -
 		"""
-		#Save the name and the color
-		CLIENT.me.setName(playername)
-		CLIENT.me.setColor(color)
+		# sends playername and color to backend, but if ist wasnt changed, it sends the data of data.json to backend
+		filef = open(datapath)
+		loaddata = json.load(filef)
+		if playername == "":
+			playername = loaddata[0]
+			CLIENT.me.setName(playername)
+			print("Playername stayed: %s" % playername)
+		else:
+			CLIENT.me.setName(playername)
+			print("Playername changed to: %s" % playername)
 
-		data = (playername, color)
-		with open('Class-Project-T2-Tron/data.json', 'w', encoding='utf-8') as outfile:
-			json.dump(data,outfile)
+		if color == (0, 0, 0):
+			playercolor = loaddata[1]
+			color = (playercolor[0], playercolor[1], playercolor[2])
+			CLIENT.me.setColor(color)
+			print("Color stayed: %s" % str(color))
+		else:
+			CLIENT.me.setColor(color)
+			print("Color changed to: %s" % str(color))
 
-		print("Playername changed to: %s" % playername)
-		print("Color changed to %s" % str(color))
-	
-	def validateInput(self, inpt):
+		#saves the current playername and color in the json file data.json
+		savedata = (playername, color)
+		with open(datapath, 'w', encoding='utf-8') as outfile:
+			json.dump(savedata,outfile)
 
+	def validateInput(self, inpt: str) -> None:
+		"""
+		Validates the input of the playername text field
+
+		Args: input (str): the playername
+		Return: -
+		"""
 		self.inpt = inpt
-
 		try:
 			lastcharacter = self.inpt[-1:]
 			x = re.findall("[a-zA-Z0-9_]", lastcharacter)
 			if len(x) == 1:
 				self.ids.nameTextInput.text = inpt
-
 			else:
 				rightstring = self.inpt[:-1]
 				self.ids.nameTextInput.text = rightstring
@@ -313,8 +346,15 @@ class SettingsMenu(Screen):
 			logging.warning(str(e))
 
 class StatisticsMenu(Screen):
-	def loadplayerdata(self):
-		filef = open("data.json")
+	def loadplayerdata(self) -> None:
+		"""
+		Load the Player Name from data.json
+		Load the Player Color from data.json
+
+		Args: -
+		Return: -
+		"""
+		filef = open(datapath)
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
@@ -324,23 +364,8 @@ class StatisticsMenu(Screen):
 
 		sol = "Color: %s" % str(color)
 		playercolor = (color[0], color[1], color[2], 1)
-		self.ids.colorLabel.text=sol
-		self.ids.showcolorLabel.background_color=playercolor
-
-	#def refreshstats(self,test):
-		# print("Updating screen... %s" % test)
-		# print("PLAYERNAME: %s" % CLIENT.me.getName())
-
-		# outputname = 'Name: %s' % (CLIENT.me.getName())
-		# print(outputname, flush= True)
-		# self.ids.nameLabel.text = outputname
-
-		# color = CLIENT.me.getColor()
-		# sol = "Color: %s" % str(color)
-		# print(sol)
-		# playercolor = (color[0], color[1], color[2], 1)
-		# self.ids.colorLabel.text=sol
-		# self.ids.showcolorLabel.background_color=playercolor
+		self.ids.colorLabel.text = sol
+		self.ids.showcolorLabel.background_color = playercolor
 
 class AboutMenu(Screen):
     pass
