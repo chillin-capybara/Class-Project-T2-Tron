@@ -2,6 +2,7 @@ from ..Core.globals import *
 from ..Core.Hook import Hook
 from ..Core.Event import Event
 from .BasicComm import BasicComm
+from .MatchServer import MatchServer
 from .HumanPlayer import HumanPlayer
 from .LobbyThread import LobbyThread
 from .Match import Match
@@ -40,7 +41,7 @@ class Lobby(object):
 	ELobbyStop : Event = None # Event to spread, when the server gets stopped
 	EMatchStarted : Event = None
 
-	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None):
+	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None, parent=None):
 		"""
 		Initialize a lobby on the server, to create games in
 		
@@ -64,6 +65,8 @@ class Lobby(object):
 
 		self.__host = host
 		self.__port = port
+
+		self.__parent__ = parent
 
 		# Initialize the array of matches
 		self.__matches = []
@@ -93,6 +96,10 @@ class Lobby(object):
 			# Only for servers
 			self.__hook_lease_port = Hook(hook_lease_port)
 	
+	@property
+	def parent(self):
+		return self.__parent__
+
 	@property
 	def port(self) -> int:
 		"""
@@ -408,8 +415,7 @@ class Lobby(object):
 			features (List[str]): List of the features
 		"""
 		# Create a new match object and lease a port from the server's collection
-		new_match = Match(game, name, features, self.__hook_lease_port(), self.__hook_me)
-		new_match.create()
+		new_match = MatchServer(self.parent.available_ports, name, features)
 		self.__matches.append(new_match)
 		logging.info("Match created!")
 

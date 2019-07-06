@@ -7,6 +7,7 @@ from typing import List
 from ..Core.Hook import Hook
 from ..Core.Event import Event
 from .BasicComm import BasicComm
+from .MatchServer import MatchServer
 from ..Core.globals import *
 from ..Core.leasable_collections import *
 from .Match import Match
@@ -204,11 +205,13 @@ class LobbyThread(threading.Thread):
 			game (str): Name of the game to list matches of
 		"""
 		logging.info("Sending list of matches for %s" % game)
-		list_matches : List[Match] = self.__hook_get_matches()
+		list_matches : List[MatchServer] = self.__hook_get_matches()
 		str_list = []
 
 		for m in list_matches:
 			str_list.append(m.name)
+
+		logging.debug("List of matches: %s", str(str_list))
 
 		# Generate protocoll message, SEND	
 		packet = self.__comm.games(game, str_list)

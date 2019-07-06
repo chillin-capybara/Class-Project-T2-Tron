@@ -51,6 +51,13 @@ class ThreadCollection:
 	def __isub__(self, thread: threading.Thread):
 		self.remove(thread)
 		return self
+	
+	def start_all(self):
+		"""
+		Call the start function on all the threads that is in the collection
+		"""
+		for each_thread in self.__collection:
+			each_thread.start()
 
 	def join_all(self, timeout: float = None):
 		"""

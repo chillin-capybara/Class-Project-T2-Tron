@@ -1,12 +1,20 @@
 from .AbstractMatch import AbstractMatch
 from .HumanPlayer import HumanPlayer
-from .Broadcaster import BasicComm
+from .BasicComm import BasicComm
 from ..Core.leasable_collections import LeasableObject, LeasableList, LeaseError
 from typing import List
 from ..Core.Exceptions import ServerError
 from ..Core.ThreadCollection import ThreadCollection
 from .BasicComm import BasicComm
+from .RectangleArena import RectangleArena, DieError
+from ..Core.Event import Event
+from ..Core.Hook import Hook
+from ..Core.globals import *
+from ..Core.matrix import matrix_split
+import threading
 import logging
+import socket
+import time
 
 class MatchServer(AbstractMatch):
 	"""
@@ -15,8 +23,19 @@ class MatchServer(AbstractMatch):
 	"""
 	_comm: BasicComm = None
 
+	__player_slots : LeasableList = None # Slots of available player_ids
+
 	__port_lease: LeasableObject = None
 	__threadcollection: ThreadCollection = None
+
+	# Server UDP socket to send and receive data
+	__udpsock: socket.socket = None
+	__player_addresses: list = None
+	__current_conn = None # Current connection address, to validate, which player sends it
+
+	__seq_send: List[int] = None # List to track which sequence number to send for which client
+
+	EStart: Event = None
 
 	def __init__(self, available_ports: LeasableList, name: str, features: List[str]):
 		"""
@@ -36,14 +55,30 @@ class MatchServer(AbstractMatch):
 			self.__port_lease = available_ports.lease()
 			self._port = self.__port_lease.getObj()
 
+			# Create the player slots (ID=0 is reserved for an empty player)
+			self.__player_slots = LeasableList(list(range(1,self._feat_players+1)))
+
+			# Create the list to store the connections to the players
+			self.__player_addresses = []
+
+			# Initialize the array to track the sequence numbers
+			self.__seq_send = []
+			for i in range(0, self.feat_players+1):
+				self.__seq_send.append(0)
+
 			# Initialize the communication protocoll
 			self._comm = BasicComm()
 
 			# Add event handlers
-			self._comm.ENewDirection = self.handle_new_direction
+			self._comm.ENewDirection += self.handle_new_direction
 
 			# Create a collection of thread to maintain
 			self.__threadcollection = ThreadCollection()
+
+			# Initialize the local events of the match
+			# Event to notify the joined playes to that the match is starting
+			self.EStart = Event('port', 'player_ids', 'players')
+
 		except LeaseError as err_lease:
 			err_msg = "Cannot create match, the server has run out of ports. %s" % str(err_lease)
 			logging.error(err_msg)
@@ -57,8 +92,18 @@ class MatchServer(AbstractMatch):
 		"""
 		Open a match for clients to join. Initialize threads and start the UDP game server
 		"""
-		pass
+		logging.info("Starting the udp game server on port %d" % self.port)
+		sender = threading.Thread(target=self.__sender_thread)
+		receiver = threading.Thread(target=self.__receiver_thread)
+		updater = threading.Thread(target=self.__field_updater_thread)
 
+		# Add all the threads to the thread collection
+		self.__threadcollection.append(sender)
+		self.__threadcollection.append(receiver)
+		self.__threadcollection.append(updater)
+
+		# Start all the threads
+		self.__threadcollection.start_all()
 
 	def close(self):
 		"""
@@ -74,6 +119,96 @@ class MatchServer(AbstractMatch):
 
 		logging.info("Match %s is successfully close.", self.name)
 	
+	def __receiver_thread(self):
+		"""
+		Receive the direction updates from players, and the game start request
+		"""
+		try:
+			logging.info("Initializing UPD Game server on port %d" % self.port)
+			# Create and bind the socket onto the match's port
+			self.__updsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+			self.__updsock.bind(("", self.port))
+
+			while True:
+				data, conn = self.__updsock.recvfrom(UDP_RECV_BUFFER_SIZE)
+				self.__current_conn = conn # For validating the player id
+				if conn not in self.__player_addresses:
+					self.__player_addresses.append(conn)
+
+				seq, msg = data.decode("UTF-8").split(" ", 1) # Split the sequence number and the message
+				packet = bytes(msg, "UTF-8") # Convert the packet back to bytes
+				self._comm.process_response(packet) # Process the response of the packet
+		except Exception as e:
+			logging.error("Match handler stopped. Reason: %s" % str(e))
+	
+	def __sender_thread(self):
+		"""
+		Send the updates of the matrix to every player that is in the list of addresses
+		"""
+		logging.info("Starting sender thread to keep the clients updated")
+		try:
+			while True:
+				try:
+					cindex = 0
+					for conn in self.__player_addresses:
+						# Get the matrix to send: Always get a freash matrix
+						matrix = self._arena.matrix
+
+						# Split the matrix -> Send every part as an update request to the client
+						splitted = matrix_split(matrix, MAX_MATRIX_SIZE[0], MAX_MATRIX_SIZE[1])
+						for key in splitted.keys():
+							packet = self._comm.update_field(key, splitted[key])
+							seq = bytes("%d " % self.__seq_send[cindex], "UTF-8")
+							packet = seq + packet
+
+							# Constantly send updates to every client
+							self.__updsock.sendto(packet, conn)
+							self.__seq_send[cindex] += 1 # Increment the sent index
+							#logging.debug("Update sent with seq: %s" % str(seq))
+
+						# Increment the index of the connection
+						cindex += 1
+
+				except Exception as e:
+					logging.warning("Error while sending. %s" , str(e))
+		except Exception as e:
+			logging.error("Game updater has stopped. Reason: %s" , str(e))
+	
+	def __field_updater_thread(self):
+		"""
+		Update the field with stepping the players to the current direction
+		"""
+		logging.info("Starting stepper thread, to update the player positions...")
+		while True:
+			try:
+				pid = 0
+				for player in self._players:
+					try:
+						player.step()
+						self._arena.player_stepped(pid, player.getPosition())
+					except DieError:
+						logging.info("Player %s died" % player.getName())
+					finally:
+						pid += 1
+			except Exception as e:
+				logging.warning("Error while updating player positions. Reason: %s" % str(e))
+
+			time.sleep(0.5) # 2 Updates per second
+	
+	def check_for_start(self):
+		if self.__player_slots.count_free() == 0:
+			logging.info("Match %s is full, starting the match..." % self.name)
+
+			# Start the match server
+			self.open()
+
+			# Generate the params string from the players
+			player_ids = list(range(1,self.feat_players+1))
+			players = self._players[1:] # Ignore player 0
+
+			# All slots reserved
+			self.EStart(self, port=self.port, player_ids=player_ids, players=players) 
+
 	def handle_new_direction(self, sender, player_id:int, direction:tuple):
 		"""
 		Handle when a player sets a new direction

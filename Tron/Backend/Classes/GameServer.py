@@ -53,6 +53,10 @@ class GameServer(object):
 
 		self.EStop = Event()
 	
+	@property
+	def available_ports(self) -> LeasableList:
+		return self.__available_ports
+
 	def hook_lease_port(self) -> LeasableObject:
 		"""
 		Lease a port from the collections of ports on the server.
@@ -69,7 +73,7 @@ class GameServer(object):
 		leased_port = self.__available_ports.lease()
 		host : str = "" # On the server, lobbys have empty host
 		port: int = leased_port.getObj()
-		self.__lobbies.append(Lobby(host, port, hook_lease_port=self.hook_lease_port))
+		self.__lobbies.append(Lobby(host, port, hook_lease_port=self.hook_lease_port, parent=self))
 	
 	def get_lobbies(self) -> List[Lobby]:
 		"""

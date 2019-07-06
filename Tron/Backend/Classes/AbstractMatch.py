@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .HumanPlayer import HumanPlayer
 from typing import List
+from .RectangleArena import RectangleArena, DieError
 
 class AbstractMatch(ABC):
 	"""
@@ -12,8 +13,11 @@ class AbstractMatch(ABC):
 	_host: str = "" # Host of the match
 	_port: int = 0  # Port of the match
 	_name: str = "" # Name of the current match
+	_game: str = 'Tron'
 
 	_players: List[HumanPlayer] = None # list of player in the match
+
+	_arena: RectangleArena = None # Arena of the match
 
 	# Match features
 	_feat_lifes: int   = 0
@@ -31,14 +35,22 @@ class AbstractMatch(ABC):
 		Raises:
 			TypeError, ValueError, KeyError
 		"""
+		self._host = host
+		self._name = name
+
 		# Try to fetch the features
 		self._feat_players = self.get_feature_value_int('Players', features)
 		self._feat_lifes = self.get_feature_value_int('Lifes', features)
 
-		# Initialize the list of players with player objects
-		for player in self._players:
-			pass
-			
+		self._players = [] # Create an empty list
+
+		# Initialize the list of players with default player objects
+		for i in range(0, self.feat_players):
+			self._players.append(HumanPlayer())
+
+		# TODO Initialize the arena based on lobby property
+		self._arena = RectangleArena("Testname", (100,100), 0, 0)
+
 	@property
 	def host(self) -> str:
 		"""
@@ -52,7 +64,15 @@ class AbstractMatch(ABC):
 		Port of the match is running on. Alays 0 in client mode
 		"""
 		return self._port
+	
+	@property
+	def game(self) -> str:
+		"""
+		Name of the game the match belongs to (Tron/Pong)
+		"""
+		return self._game
 
+	@property
 	def name(self) -> str:
 		"""
 		Name of the match
@@ -72,6 +92,13 @@ class AbstractMatch(ABC):
 		Number of lifes available for a player in the match
 		"""
 		return self._feat_lifes
+	
+	@property
+	def features(self) -> str:
+		"""
+		Features of the match as a string list
+		"""
+		return self.get_features()
 
 	def get_feature_string(self) -> str:
 		"""
@@ -82,6 +109,19 @@ class AbstractMatch(ABC):
 		"""
 		string = "BASIC || Players: %d || Lifes: %d" % (self.feat_players, self.feat_lifes)
 		return string
+	
+	def get_features(self):
+		"""
+		Get the a string list of match features
+		Returns:
+			str: Features of the created match
+		"""
+		flist = ['BASIC']
+		flist.append('Players')
+		flist.append(self.feat_players)
+		flist.append('lifes')
+		flist.append(self.feat_lifes)
+		return flist
 
 	def get_feature_value_int(self, name: str, features: List[str]) -> int:
 		"""
