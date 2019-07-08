@@ -22,7 +22,7 @@ CLIENT: GameClient = GameClient()
 from ..mainUI import GameApp, GameUI
 from collections import namedtuple
 from Backend.Classes.GameServer import GameServer
-datapath = "Class-Project-T2-Tron/data.json"
+datapath = "data.json"
 
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
@@ -36,7 +36,7 @@ Builder.load_file('kvfilesmenu/aboutmenufloat.kv')
 Builder.load_file('kvfilesmenu/gamestartmenu.kv')
 Builder.load_file('kvfilesmenu/pausemenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
-Builder.load_file('kvfilesmenu/gameovermenu.kv')
+Builder.load_file('kvfilesmenu/gameovermenufloat.kv')
 Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
 
 ######## Class Definitions of the Screens ############################
@@ -49,13 +49,18 @@ class MainMenuFloat(Screen):
 		Args: -
 		Return: -
 		"""
-		filef = open(datapath)
-		data = json.load(filef)
-		playername = data[0]
-		color = data[1]
-		playercolor = (color[0], color[1], color[2])
-		CLIENT.me.setName(playername)
-		CLIENT.me.setColor(playercolor)
+		try:
+			filef = open(datapath)
+			data = json.load(filef)
+			playername = data[0]
+			color = data[1]
+			playercolor = (color[0], color[1], color[2])
+			CLIENT.me.setName(playername)
+			CLIENT.me.setColor(playercolor)
+		except:
+			savedata = ("Enter_Name", (0,0,0))
+			with open(datapath, 'w', encoding='utf-8') as outfile:
+				json.dump(savedata,outfile)
 
 
 	def quit(self) -> None:
@@ -416,7 +421,7 @@ class PauseMenu(Screen):
 class ConnectionLostMenuFloat(Screen):
 	pass
 
-class GameOverMenu(Screen):
+class GameOverMenuFloat(Screen):
 
 	def getplayedTime(self):
 		"""
@@ -576,7 +581,7 @@ screen_manager.add_widget(AboutMenuFloat(name='aboutmenufloat'))
 screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
-screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
+screen_manager.add_widget(GameOverMenuFloat(name='gameovermenufloat'))
 
 class MenuApp(App):
 
@@ -611,6 +616,9 @@ def handle_ematchStarted(sender):
 	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	logging.info('EMatchStarted received by client %s' % timestamp)
 	screen_manager.current = 'gamestartmenu'
-	GameApp(client=CLIENT).run()
+	try:
+		GameApp(client=CLIENT).run()
+	except Exception as e:
+		print(getattr(e, 'message', repr(e)))
 
 CLIENT.EMatchStarted += handle_ematchStarted

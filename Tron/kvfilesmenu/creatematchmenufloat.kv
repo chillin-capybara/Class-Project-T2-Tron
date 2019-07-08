@@ -10,7 +10,7 @@
 <CreateMatchMenuFloat>:
 
     HeaderLabel:
-        text: 'create Match Menu'
+        text: 'Create Match Menu'
         pos_hint: {"x": .01, "y": .94}
 
     ColoredLabel:
@@ -72,6 +72,7 @@
         id: creatematchButton
         size_hint: (.98, .08)
         pos_hint: {'x': .01, 'y': .1}
+        background_color: (0.1,0.3,0.7,1)
         text: 'Create Match'
         on_release:
             root.manager.current = 'lobbymenufloat'
@@ -79,5 +80,14 @@
         #    root.connecttoServer(ipTextInput.text, portTextInput.text)
         #    root.startGame()
 
-    BackToMenuButton:
-        pos_hint: {"x": .01, "y": .01}
+    Button:
+        id: backtolobbymenuButton
+        size_hint: (.98, .08)
+        pos_hint: {'x': .01, 'y': .01}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Return to Lobby Menu'
+        on_release:
+            root.manager.current = 'lobbymenufloat'
+
+    # BackToMenuButton:
+    #     pos_hint: {"x": .01, "y": .01}

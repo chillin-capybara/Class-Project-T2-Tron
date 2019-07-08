@@ -8,6 +8,8 @@ from kivy.animation import Animation
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty, ObjectProperty, ListProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
+from kivy.uix.button import Button
+
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.GameClient import GameClient
@@ -127,31 +129,23 @@ HEADSIZE = 1
 # p3.addTrack(Vect2D(10, 60), Vect2D(30, 60))
 # p3.setVelocity(0, 1)
 #players = [CLIENT.me]
-players = []
+#players = []
 logging.info("GameApp loaded")
 # GAME.UpdatePlayers("TMP_TESTING", [p1, p2, p3])
 
 class GameUI(Widget):
-    playerList = ListProperty(players)
-    # game = ObjectProperty(GAME)
-    # print(GAME.getPlayers())
-    
-    ## Values for later use in functions
+    playerList = ListProperty([])
     countdown_is_running = BooleanProperty(False)
     game_is_running = BooleanProperty(False)
     playPos = ObjectProperty(Vect2D(10, 0))
 
-    __client : GameClient = None
-
-
-    def __init__(self, **kwargs):
-        self.__client = kwargs['client']
-        players = self.__client.match.players
-        self.playerList = ListProperty(players)
-
-        ## creates update function for all uses, ensures synchronized update trigger
+    def __init__(self, client, **kwargs):
         super(GameUI, self).__init__(**kwargs)
-        self.update()
+
+        self.__client = client
+        self.playerList = self.__client.match.players
+        # ## creates update function for all uses, ensures synchronized update trigger
+        # self.update()
         
         Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
         logging.info("GameApp initialized")
@@ -159,7 +153,6 @@ class GameUI(Widget):
 
     def update(self, *args):
         ## final update function, where I trigger different functuions
-        # self.ids.trackWidget.update()
         self.ids.trackWidget.update()
         
         ## functions should only be started after special event is triggered
@@ -177,8 +170,6 @@ class GameUI(Widget):
             # p1.move(2)
             # p2.move(1)
             # p3.move(1)       
-
-
 
 
     def getPlayerWidgetSize(self):
@@ -203,13 +194,13 @@ class GameUI(Widget):
 
 # Entry Point
 class GameApp(App):
-    __client = None
-    def __init__(self, **kwargs):
-        self.__client = kwargs['client']
+    def __init__(self, client, **kwargs):
         super().__init__()
+        self.__client = client
 
     # creates the Application
     def build(self):
-        MyKeyboardListener(client=self.__client)
-        logging.info("GameApp started!")
-        return GameUI(client=self.__client)
+        return Label(text="I'm not doing anything!")
+        #MyKeyboardListener(client=self.__client)
+        #logging.info("GameApp started!")
+        #return GameUI(self.__client)

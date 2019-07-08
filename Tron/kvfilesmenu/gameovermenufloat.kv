@@ -1,0 +1,69 @@
+#
+#attributs:
+#Name_Winner: str
+#time: int
+#revenge_Button
+#revenge_Button
+#Back_to_menu_Button
+#Waiting_for_other_player_if_waiting_Anzeige
+#Player_left_if other player left_Anzeige
+#Game_or_Menu: boolean ??????
+
+#operations:
+#   revenge()
+#   exitgame()
+
+<GameOverMenuFloat>:
+    HeaderLabel:
+        text: 'Game Over Menu'
+        pos_hint: {"x": .01, "y": .94}
+    Label:
+        id: displaywinnernameLabel
+        text: 'Chuck Norris f**ked you! (not implemented yet)'
+        pos_hint: {"x": .01, "y": .82}
+        size_hint: ( .98, .08)
+    Label:
+        id: displayplayedtimeLabel
+        text: '42 times already... (not implemented yet)'
+        pos_hint: {"x": .01, "y": .64}
+        size_hint: ( .98, .08)
+    Label:
+        id: statusenemiesLabel
+        text: 'Other players will grab a coffee. Wanna join? (not implemented yet)'
+        pos_hint: {"x": .01, "y": .46}
+        size_hint: ( .98, .08)
+        #if root.counter == 0 else str(round(root.counter, 1)) -> with boolean and enemies left -> point to variable
+    Button:
+        id: revengeButton
+        text: 'Press for revenge'
+        pos_hint: {"x": .01, "y": .28}
+        size_hint: ( .98, .08)
+        on_release:
+            root.manager.current = 'gamestartmenu'
+            root.startGame()
+
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .1}
+    Button:
+        id: quitButton
+        text: 'Quit the Game (Not implemented yet)'
+        pos_hint: {"x": .01, "y": .01}
+        size_hint: ( .98, .08)
+        #on_release: root.exitGame()
+
+        # BoxLayout:
+        #     Button:
+        #         text: 'Game Over Menu'
+        #         on_release: root.manager.current = 'gameovermenu'
+        #     Button:
+        #         text: 'Connection Lost Menu'
+        #         on_release: root.manager.current = 'connectionlostmenu'
+        #     Button:
+        #         text: 'Search For Server Menu'
+        #         on_release: root.manager.current = 'searchforservermenu'
+        #     Button:
+        #         text: 'Create Server Menu'
+        #         on_release: root.manager.current = 'createservermenu'
+        #     Button:
+        #         text: 'Pause Menu'
+        #         on_release: root.manager.current = 'pausemenu'
