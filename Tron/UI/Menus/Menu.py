@@ -36,7 +36,7 @@ Builder.load_file('kvfilesmenu/aboutmenufloat.kv')
 Builder.load_file('kvfilesmenu/gamestartmenu.kv')
 Builder.load_file('kvfilesmenu/pausemenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
-Builder.load_file('kvfilesmenu/gameovermenu.kv')
+Builder.load_file('kvfilesmenu/gameovermenufloat.kv')
 Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
 
 ######## Class Definitions of the Screens ############################
@@ -421,7 +421,7 @@ class PauseMenu(Screen):
 class ConnectionLostMenuFloat(Screen):
 	pass
 
-class GameOverMenu(Screen):
+class GameOverMenuFloat(Screen):
 
 	def getplayedTime(self):
 		"""
@@ -581,7 +581,7 @@ screen_manager.add_widget(AboutMenuFloat(name='aboutmenufloat'))
 screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
-screen_manager.add_widget(GameOverMenu(name='gameovermenu'))
+screen_manager.add_widget(GameOverMenuFloat(name='gameovermenufloat'))
 
 class MenuApp(App):
 

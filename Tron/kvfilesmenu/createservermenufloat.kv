@@ -49,5 +49,14 @@
             on_active:
                 root.statusServer(self.active, numberlobbiesSlider.value)
 
+    Button:
+        id: searchforlobbiesButton
+        size_hint: (.98, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .01, 'y': .1}
+        text: 'Search for lobbies'
+        on_release:
+            root.manager.current = 'searchforlobbiesmenufloat'
+
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
