@@ -5,6 +5,7 @@ from .BasicComm import BasicComm
 from .MatchServer import MatchServer
 from .HumanPlayer import HumanPlayer
 from .LobbyThread import LobbyThread
+from .MatchClient import MatchClient
 from .Match import Match
 import socket
 import logging
@@ -21,15 +22,14 @@ class Lobby(object):
 	__port = 0 # Change is not allowed after initialization
 
 	__games : list   = None # List of games Here only Tron
-	__matches : List[Match] = None # List of matches in the Lobby 
+	__matches : List[MatchClient] = None # List of matches in the Lobby 
 
 	__sock : socket.socket = None # Socket connection to the lobby
 	__comm : BasicComm = None
 
 	__hook_me : Hook = None
 
-	__selected_match : Match = None # Selected match to join
-
+	__selected_match : MatchClient = None # Selected match to join
 
 	__hook_lease_port : Hook = None
 	__server_thread : threading.Thread = None
@@ -371,7 +371,7 @@ class Lobby(object):
 		"""
 		try:
 			logging.debug("Match listed: %s" % name )
-			self.__matches.append(Match('Tron', name, ['BASIC'], None, self.__hook_me)) # // TODO Get features for every match
+			self.__matches.append(MatchClient(self.__host, name, self, self.__hook_me)) # // TODO Get features for every match
 
 			# Send a request to query match features
 			packet = self.__comm.match_features(name)
@@ -416,8 +416,19 @@ class Lobby(object):
 		"""
 		# Create a new match object and lease a port from the server's collection
 		new_match = MatchServer(self.parent.available_ports, name, features)
+		new_match.EClose += self.handle_match_close #Add event call back to remove the match
 		self.__matches.append(new_match)
 		logging.info("Match created!")
+	
+	def handle_match_close(self, sender: MatchServer):
+		"""
+		Handle, when a match is closed on the server and remove it from the collection
+		
+		Args:
+			sender (MatchServer): Caller of the event
+		"""
+		self.__matches.remove(sender)
+		logging.info("The match %s was removed from the server.", sender.name)
 
 	def handle_match(self, sender, game:str, name:str, features: List[str]):
 		"""
@@ -433,7 +444,6 @@ class Lobby(object):
 			for match in self.__matches:
 				if match.game == game and match.name == name:
 					match.set_features(features)
-					match.set_host(self.__host) # set the host of the match, in client mode
 					logging.debug("Match %s has the features: %s" % (name, features))
 					return
 			
@@ -487,8 +497,9 @@ class Lobby(object):
 		# Connect to the match server via udp and tcp for the control
 		# Set the port of the match
 		self.__selected_match.set_port(port)
+
 		# Start match client
-		self.__selected_match.start_match_client()
+		self.__selected_match.open()
 
 		# Notifty the UI to show the game
 		self.EMatchStarted(self)

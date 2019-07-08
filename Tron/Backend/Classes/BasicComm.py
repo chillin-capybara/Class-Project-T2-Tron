@@ -865,6 +865,9 @@ class BasicComm(CommProt):
 			game, str_matches = params.split(' ', 1)
 			matches = str_matches.split(',')
 
+			if matches == ['']: # Replace the array with empty string to an empty array
+				matches = []
+
 			self.EGames.reset_called()
 			self.EGames(self, game=game, matches=matches)
 

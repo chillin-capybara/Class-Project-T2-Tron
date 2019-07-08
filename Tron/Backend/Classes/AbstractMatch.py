@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from .HumanPlayer import HumanPlayer
 from typing import List
 from .RectangleArena import RectangleArena, DieError
+from ..Core.Event import Event
+import logging
 
 class AbstractMatch(ABC):
 	"""
@@ -22,6 +24,9 @@ class AbstractMatch(ABC):
 	# Match features
 	_feat_lifes: int   = 0
 	_feat_players: int = 0
+
+	EInit: Event = None   # Event which is called, when the match is initialzed
+	EClose: Event = None  # Event which is called, when the match is closed
 
 	def __init__(self, host: str, name: str, features:List[str]):
 		"""
@@ -45,11 +50,25 @@ class AbstractMatch(ABC):
 		self._players = [] # Create an empty list
 
 		# Initialize the list of players with default player objects
-		for i in range(0, self.feat_players):
+		for i in range(0, self.feat_players + 1): # Player zero is reserved for empty space
 			self._players.append(HumanPlayer())
 
 		# TODO Initialize the arena based on lobby property
 		self._arena = RectangleArena("Testname", (100,100), 0, 0)
+
+		# Initialize events
+		self.EInit  = Event()
+		self.EClose = Event()
+
+		# Call the init event
+		self.EInit(self)
+
+	@property
+	def arena(self) -> RectangleArena:
+		"""
+		Arena of the current match
+		"""
+		return self._arena
 
 	@property
 	def host(self) -> str:
@@ -99,6 +118,17 @@ class AbstractMatch(ABC):
 		Features of the match as a string list
 		"""
 		return self.get_features()
+	
+	@property
+	def players(self) -> List[HumanPlayer]:
+		"""
+		List of players in the match. Player ZERO is ignored
+		"""
+		logging.info("Original:")
+		logging.info(self._players)
+		logging.info("Trimmed:")
+		logging.info(self._players[1:])
+		return self._players[1:]
 
 	def get_feature_string(self) -> str:
 		"""
@@ -136,7 +166,11 @@ class AbstractMatch(ABC):
 		"""
 		take_next = False
 		for feature in features:
-			if feature == name or feature.lower() == name.lower():
+			if feature == name:
+				# Case sensitive take
+				take_next = True
+			elif type(feature) is str and feature.lower() == name.lower():
+				# Case insensitive take
 				take_next = True
 			elif take_next:
 				return int(feature)

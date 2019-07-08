@@ -34,6 +34,7 @@ class MatchServer(AbstractMatch):
 	__current_conn = None # Current connection address, to validate, which player sends it
 
 	__seq_send: List[int] = None # List to track which sequence number to send for which client
+	__last_activity = None # Clock time, when the last direction update was performed
 
 	EStart: Event = None
 
@@ -87,7 +88,7 @@ class MatchServer(AbstractMatch):
 			err_msg = "Cannot create match. Reason: %s" % str(err)
 			logging.error(err_msg)
 			raise ServerError(err_msg)
-	
+
 	def open(self):
 		"""
 		Open a match for clients to join. Initialize threads and start the UDP game server
@@ -105,7 +106,7 @@ class MatchServer(AbstractMatch):
 		# Start all the threads
 		self.__threadcollection.start_all()
 
-	def close(self):
+	def close(self, join=True):
 		"""
 		Close the match, and clean up the leases and sockets after the processes.
 		"""
@@ -115,10 +116,14 @@ class MatchServer(AbstractMatch):
 		self.__port_lease.free()
 
 		logging.debug("Waiting for all the match threads to finish...")
-		self.__threadcollection.join_all()
+		if join:
+			self.__threadcollection.join_all()
 
 		logging.info("Match %s is successfully close.", self.name)
-	
+
+		# Call the close event
+		self.EClose(self)
+
 	def __receiver_thread(self):
 		"""
 		Receive the direction updates from players, and the game start request
@@ -140,7 +145,7 @@ class MatchServer(AbstractMatch):
 				self._comm.process_response(packet) # Process the response of the packet
 		except Exception as e:
 			logging.error("Match handler stopped. Reason: %s" % str(e))
-	
+
 	def __sender_thread(self):
 		"""
 		Send the updates of the matrix to every player that is in the list of addresses
@@ -173,7 +178,7 @@ class MatchServer(AbstractMatch):
 					logging.warning("Error while sending. %s" , str(e))
 		except Exception as e:
 			logging.error("Game updater has stopped. Reason: %s" , str(e))
-	
+
 	def __field_updater_thread(self):
 		"""
 		Update the field with stepping the players to the current direction
@@ -187,14 +192,21 @@ class MatchServer(AbstractMatch):
 						player.step()
 						self._arena.player_stepped(pid, player.getPosition())
 					except DieError:
-						logging.info("Player %s died" % player.getName())
+						logging.info("Player ID=%d '%s' died" % (pid, player.getName()))
 					finally:
 						pid += 1
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
 			time.sleep(0.5) # 2 Updates per second
-	
+
+			# Check if the match is in idle, when yes -> Close it
+			if self.is_idle():
+				break # Stop the updater thread loop
+
+		# Close automatically everything, when the main thread stops
+		self.close(join=False)
+
 	def check_for_start(self):
 		if self.__player_slots.count_free() == 0:
 			logging.info("Match %s is full, starting the match..." % self.name)
@@ -207,7 +219,7 @@ class MatchServer(AbstractMatch):
 			players = self._players[1:] # Ignore player 0
 
 			# All slots reserved
-			self.EStart(self, port=self.port, player_ids=player_ids, players=players) 
+			self.EStart(self, port=self.port, player_ids=player_ids, players=players)
 
 	def handle_new_direction(self, sender, player_id:int, direction:tuple):
 		"""
@@ -232,3 +244,32 @@ class MatchServer(AbstractMatch):
 			requester_player.setVelocity(direction[0], direction[1])
 		except Exception as exc: #pylint: disable=broad-except
 			logging.warning(str(exc))
+		finally:
+			# Update the last activity time
+			self.__last_activity = time.perf_counter()
+
+	def lease_player_id(self) -> LeasableObject:
+		"""
+		Lease a player if, from the collection of player IDs.
+
+		NOTE
+			The Lease has to be freed, when a player disconnects
+
+		Returns:
+			LeasableObject: Leased player id, wrapped in a LeaseableObject
+		"""
+		return self.__player_slots.lease()
+
+	def is_idle(self):
+		"""
+		Check if the players were in idle for MATCH_IDLE_TIMEOUT seconds, and
+		close the match, if yes.
+		"""
+		if self.__last_activity is not None:
+			# Only when there was an activity in the match before
+			if time.perf_counter() - self.__last_activity > MATCH_IDLE_TIMEOUT:
+				return True
+			else:
+				return False
+		else:
+			return False

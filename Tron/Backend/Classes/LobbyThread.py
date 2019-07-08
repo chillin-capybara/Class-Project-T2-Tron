@@ -263,7 +263,7 @@ class LobbyThread(threading.Thread):
 				pid: int = self.__leased_player_id.getObj() # Get the id of the player
 
 				# NOTE BIND THE PLAYER ID TO THE HOST
-				match.bind_host_to_player_id(self.__connection[0], pid)
+				#match.bind_host_to_player_id(self.__connection[0], pid)
 
 				# Tell the client the player id and the success of the join
 				packet = self.__comm.match_joined(pid)

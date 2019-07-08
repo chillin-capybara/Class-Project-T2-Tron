@@ -187,27 +187,27 @@ class LobbyMenuFloat(Screen):
 		count_matches = listmatches.__len__()
 		for i in range(0,count_matches):
 			match = listmatches[i]
-			print("%s %s %s " % (match.name, match.game, match.featureString))
+			print("%s %s %s " % (match.name, match.game, match.get_feature_string()))
 			if i == 0:
 				self.ids.match1nameLabel.text = match.name
 				self.ids.match1gameLabel.text = match.game
-				self.ids.match1featureLabel.text = match.featureString
+				self.ids.match1featureLabel.text = match.get_feature_string()
 			elif i == 1:
 				self.ids.match2nameLabel.text = match.name
 				self.ids.match2gameLabel.text = match.game
-				self.ids.match2featureLabel.text = match.featureString
+				self.ids.match2featureLabel.text = match.get_feature_string()
 			elif i == 2:
 				self.ids.match3nameLabel.text = match.name
 				self.ids.match3gameLabel.text = match.game
-				self.ids.match3featureLabel.text = match.featureString
+				self.ids.match3featureLabel.text = match.get_feature_string()
 			elif i == 3:
 				self.ids.match4nameLabel.text = match.name
 				self.ids.match4gameLabel.text = match.game
-				self.ids.match4featureLabel.text = match.featureString
+				self.ids.match4featureLabel.text = match.get_feature_string()
 			elif i == 4:
 				self.ids.match5nameLabel.text = match.name
 				self.ids.match5gameLabel.text = match.game
-				self.ids.match5featureLabel.text = match.featureString
+				self.ids.match5featureLabel.text = match.get_feature_string()
 			else:
 				pass
 	def updatechosenMatch(self, currentmatch):
