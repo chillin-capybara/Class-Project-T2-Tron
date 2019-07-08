@@ -22,7 +22,7 @@ CLIENT: GameClient = GameClient()
 from ..mainUI import GameApp, GameUI
 from collections import namedtuple
 from Backend.Classes.GameServer import GameServer
-datapath = "Tron/data.json"
+datapath = "data.json"
 
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
@@ -616,6 +616,9 @@ def handle_ematchStarted(sender):
 	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	logging.info('EMatchStarted received by client %s' % timestamp)
 	screen_manager.current = 'gamestartmenu'
-	GameApp(client=CLIENT).run()
+	try:
+		GameApp(client=CLIENT).run()
+	except Exception as e:
+		print(getattr(e, 'message', repr(e)))
 
 CLIENT.EMatchStarted += handle_ematchStarted

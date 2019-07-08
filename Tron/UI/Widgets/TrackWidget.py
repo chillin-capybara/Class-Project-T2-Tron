@@ -39,17 +39,10 @@ class TrackWidget(Widget):
     counter_update_players = NumericProperty(0)
     counter_update_players_remote = NumericProperty(0)
     playerList = ListProperty([])
-
-
     allPoints_from_submission = ListProperty([])
     allPoints = ListProperty([])
-    allPoints_from_pointCreator = []
-
-    def __init__(self, **kwargs):
-        ## creates update function for all uses, ensures synchronized update trigger
-        super(TrackWidget, self).__init__(**kwargs)
-        self._player = UI.mainUI.CLIENT.me
     
+
     def update(self):
         self.canvas.clear()
         self.updatespeed_factor()
