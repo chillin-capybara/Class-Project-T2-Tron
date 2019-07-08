@@ -22,7 +22,7 @@ CLIENT: GameClient = GameClient()
 from ..mainUI import GameApp, GameUI
 from collections import namedtuple
 from Backend.Classes.GameServer import GameServer
-datapath = "Class-Project-T2-Tron/data.json"
+datapath = "Tron/data.json"
 
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
@@ -49,13 +49,18 @@ class MainMenuFloat(Screen):
 		Args: -
 		Return: -
 		"""
-		filef = open(datapath)
-		data = json.load(filef)
-		playername = data[0]
-		color = data[1]
-		playercolor = (color[0], color[1], color[2])
-		CLIENT.me.setName(playername)
-		CLIENT.me.setColor(playercolor)
+		try:
+			filef = open(datapath)
+			data = json.load(filef)
+			playername = data[0]
+			color = data[1]
+			playercolor = (color[0], color[1], color[2])
+			CLIENT.me.setName(playername)
+			CLIENT.me.setColor(playercolor)
+		except:
+			savedata = ("Enter_Name", (0,0,0))
+			with open(datapath, 'w', encoding='utf-8') as outfile:
+				json.dump(savedata,outfile)
 
 
 	def quit(self) -> None:
