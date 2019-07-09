@@ -305,7 +305,7 @@ class SettingsMenuFloat(Screen):
 			color (tuple): new color / old color from data.json
 		Return: -
 		"""
-		# sends playername and color to backend, but if ist wasnt changed, it sends the data of data.json to backend
+		# sends playername and color to backend, but if it wasnt changed, it sends the data of data.json to backend
 		filef = open(datapath)
 		loaddata = json.load(filef)
 		if playername == "":
