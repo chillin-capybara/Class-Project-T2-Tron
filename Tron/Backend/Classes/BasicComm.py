@@ -103,7 +103,9 @@ class BasicComm(CommProt):
 			'MATCH_STARTED'            : self.__process_match_started,
 			'MATCH_FEATURES'           : self.__process_match_features,
 			'UPDATE_FIELD'             : self.__process_update_field,
-			'NEW_DIRECTION'            : self.__process_new_direction
+			'NEW_DIRECTION'            : self.__process_new_direction,
+			'LIFE_UPDATE'              : self.__process_life_update,
+			'I_AM_READY'               : self.__process_i_am_ready
 			}
 		
 		# Initialize the events, and the abstract class
@@ -490,9 +492,19 @@ class BasicComm(CommProt):
 			direction (tuple): New direction as x,y
 		
 		Returns:
-			str: Message strin
+			str: Message string
 		"""
 		return "NEW_DIRECTION %d %d,%d" % (player_id, direcion[0], direcion[1])
+
+	@c2b
+	def i_am_ready(self) -> str:
+		"""
+		Get an I'm ready message to send to the server to start updating the client
+
+		Returns:
+			str: Message string
+		"""
+		return "I_AM_READY"
 
 	def process_response(self, response: bytes):
 		"""
@@ -980,3 +992,37 @@ class BasicComm(CommProt):
 		self.ENewDirection(self, player_id = pid, direction=(x,y))
 
 		return self.NEW_DIRECTION, pid, (x,y)
+	
+	def __process_i_am_ready(self, params:str):
+		"""
+		Process an I_AM_READY request on the server side
+		
+		Args:
+			params (str): Ignored, empty string
+		Returns:
+			int: Commprot.CLIENT_READY
+			str: I_AM_READY
+		"""
+		self.EClientReady(self)
+
+		return self.CLIENT_READY, 'I_AM_READY'
+
+		#LIFE_UPDATE [PLAYER] [SCORE]
+
+	def __process_life_update(self, params:str):
+		"""
+		Process a life update message on the client side
+		
+		Args:
+			params (str): player_id lifes
+		"""
+		str_pid, str_lifes = params.split(' ', 1)
+
+		# Parse the parameters from integer
+		pid = int(str_pid)
+		lifes = int(str_lifes)
+
+		# Make the event call
+		self.ELifeUpdate(self, player_id=pid, lifes=lifes)
+
+		return self.LIFE_UPDATE, pid, lifes

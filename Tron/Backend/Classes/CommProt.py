@@ -36,6 +36,8 @@ class CommProt:
 	MATCH_STARTED          = 28
 	UPDATE_FIELD           = 29
 	NEW_DIRECTION          = 30
+	CLIENT_READY           = 31
+	LIFE_UPDATE            = 32
 
 
 	# Create events for processing responsees
@@ -69,6 +71,8 @@ class CommProt:
 	EMatchStarted          : Event    = None
 	EUpdateField           : Event    = None
 	ENewDirection          : Event    = None
+	EClientReady           : Event    = None
+	ELifeUpdate            : Event    = None
 
 
 	def __init__(self):
@@ -107,6 +111,8 @@ class CommProt:
 		self.EMatchStarted          = Event('port', 'players') # the list is formatted as (id, r, g, b)
 		self.EUpdateField           = Event('key', 'matrix')
 		self.ENewDirection          = Event('player_id', 'direction')
+		self.EClientReady           = Event() # Event to call when a client is ready
+		self.ELifeUpdate            = Event('player_id', 'lifes')
 
 	def client_ready(self, player):
 		"""

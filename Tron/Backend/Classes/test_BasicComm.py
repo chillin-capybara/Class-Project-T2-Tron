@@ -443,11 +443,6 @@ class test_BasicComm(unittest.TestCase):
 			utf8("LOBBY 54100")
 		)
 
-		# Test invalid port range
-		with self.assertRaises(ValueError):
-			COMM.lobby(54009)
-		with self.assertRaises(ValueError):
-			COMM.lobby(54101)
 
 		# Test invalid port type
 		with self.assertRaises(TypeError):
@@ -963,6 +958,32 @@ class test_BasicComm(unittest.TestCase):
 		self.assertEqual(mtype, COMM.NEW_DIRECTION)
 		self.assertEqual(pid, 90)
 		self.assertEqual(mdir, (2,7))
+	
+	def test_i_am_ready(self):
+		"""
+		Test the I am ready message generation
+		"""
+		# JUST 1 signle test
+		packet = COMM.i_am_ready()
+		self.assertEqual(
+			packet,
+			utf8("I_AM_READY")
+		)
+	
+	def test_process_i_am_ready(self):
+		"""
+		Test the message processing from i am ready
+		"""
+		packet = COMM.i_am_ready()
+		ptype,__ = COMM.process_response(packet)
+		self.assertEqual(ptype, COMM.CLIENT_READY)
+
+	def test_life_update(self):
+		"""
+		Test the life update message generation
+		"""
+		pass
+		# TODO Continue coding here
 	
 if __name__ == '__main__':
 	unittest.main()
