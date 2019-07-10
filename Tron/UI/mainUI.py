@@ -8,7 +8,7 @@ from kivy.animation import Animation
 from kivy.properties import StringProperty, NumericProperty, BooleanProperty, ObjectProperty, ListProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kivy.uix.button import Button
+# from kivy.uix.button import Button
 
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
