@@ -21,8 +21,9 @@ class HumanPlayer(Player):
 	__Color = None  # Color of the player
 	__Position = None
 	__Velocity = None
+	__Lifes = 0 # Number of lifes, the player has
 	# __Track = #TODO
-	__IsAlive = False
+
 	__IpAdress = None
 	__IsConnected = False
 	__IsInPause = False
@@ -93,6 +94,55 @@ class HumanPlayer(Player):
 		Track points of the current player via a list of Vect2D
 		"""
 		return self.__track
+	
+	@property
+	def lifes(self) -> int:
+		"""
+		Lifes of the player has
+		"""
+		return self.__Lifes
+	
+	@lifes.setter
+	def lifes(self, value:int):
+		"""
+		Setter for player's life
+		"""
+		self.set_lifes(value)
+	
+	def set_lifes(self, value:int):
+		"""
+		Set the lifes of the current player based on the match properties
+		
+		Args:
+			value (int): Life of the player
+		Raises:
+			TypeError: Invalid value type
+			ValueError: Negative life
+		"""
+		if type(value) is int:
+			if value >= 0:
+				self.__Lifes = value
+			else:
+				raise ValueError
+		else:
+			raise TypeError
+	
+	def die(self):
+		"""
+		Negate 1 from the lifes of the player, until it's zero
+		"""
+		if self.is_alive:
+			# Only negate when the player is still alive
+			self.__Lifes -= 1
+	
+	def is_alive(self):
+		"""
+		Check if the player is alive or not
+		
+		Returns:
+			int: True = Alive, False = Dead
+		"""
+		return self.__Lifes > 0
 
 	def getLine(self):
 		return self.__track.getLine()
@@ -132,16 +182,6 @@ class HumanPlayer(Player):
 		TODO: Artem -> DOKU
 		"""
 		return self.__Velocity
-
-	def isAlive(self) -> bool:
-		"""
-		Get if the Player is alive
-
-		Returns:
-		True or False
-		"""
-		return self.__IsAlive
-
 
 	def isInPause(self) -> bool:
 		"""
@@ -260,7 +300,7 @@ class HumanPlayer(Player):
 		CommError: Error while communicating the pause request
 		"""
 		self.__IsInPause = True
-		#TODO: Error while communicating the pause request
+		#TODO Error while communicating the pause request
 
 	def move(self, time):
 		"""

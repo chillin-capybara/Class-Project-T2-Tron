@@ -51,7 +51,8 @@ class AbstractMatch(ABC):
 
 		# Initialize the list of players with default player objects
 		for i in range(0, self.feat_players + 1): # Player zero is reserved for empty space
-			self._players.append(HumanPlayer())
+			player = HumanPlayer()
+			self._players.append(player)
 
 		# TODO Initialize the arena based on lobby property
 		self._arena = RectangleArena("Testname", (100,100), 0, 0)
@@ -124,10 +125,6 @@ class AbstractMatch(ABC):
 		"""
 		List of players in the match. Player ZERO is ignored
 		"""
-		logging.info("Original:")
-		logging.info(self._players)
-		logging.info("Trimmed:")
-		logging.info(self._players[1:])
 		return self._players[1:]
 
 	def get_feature_string(self) -> str:

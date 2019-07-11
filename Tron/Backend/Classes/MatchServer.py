@@ -15,6 +15,30 @@ import threading
 import logging
 import socket
 import time
+import random
+
+def generate_random_player_data(sizeX, sizeY, feat_players, directions):
+	# Randomly position the players
+
+	# Don't put players at the very end of the arena: Apply padding
+	padding = 10 # 10% Padding
+	xmin = int(sizeX/padding)
+	ymin = int(sizeY/padding)
+	xmax = int(sizeX - xmin)
+	ymax = int(sizeY - ymin)
+
+	# Create a list of game coordinates
+	list_x = list(range(xmin,xmax))
+	list_y = list(range(ymin,ymax))
+
+	# Choose random staring points and coordinates for every player
+	chx = random.choices(list_x, k=feat_players+1)
+	chy = random.choices(list_y, k=feat_players+1)
+	pos = []
+	for i in range(0,feat_players+1):
+		pos = (chx[i], chy[i])
+		direct = random.choice(directions)
+		yield pos, direct # Generate a new value
 
 class MatchServer(AbstractMatch):
 	"""
@@ -37,6 +61,7 @@ class MatchServer(AbstractMatch):
 	__last_activity = None # Clock time, when the last direction update was performed
 
 	EStart: Event = None
+	ELifeUpdate: Event = None # Event to call when a player's life has to be updated
 
 	def __init__(self, available_ports: LeasableList, name: str, features: List[str]):
 		"""
@@ -76,9 +101,21 @@ class MatchServer(AbstractMatch):
 			# Create a collection of thread to maintain
 			self.__threadcollection = ThreadCollection()
 
+			# Use the generator to create new player data and set the players starting
+			ini_data = generate_random_player_data(self.arena.sizeX, self.arena.sizeY,
+														self.feat_players, MATCH_PLAYER_DIRECTIONS)
+			iter_ini_data = iter(ini_data)
+
+			for player in self.players: # self.players property already ignores player zero
+				pos, vel = next(iter_ini_data)
+				# Set the default values for the players
+				player.setPosition(pos[0], pos[1])
+				player.setVelocity(vel[0], vel[1])
+
 			# Initialize the local events of the match
 			# Event to notify the joined playes to that the match is starting
 			self.EStart = Event('port', 'player_ids', 'players')
+			self.ELifeUpdate = Event('player_id', 'score')
 
 		except LeaseError as err_lease:
 			err_msg = "Cannot create match, the server has run out of ports. %s" % str(err_lease)
@@ -187,12 +224,14 @@ class MatchServer(AbstractMatch):
 		while True:
 			try:
 				pid = 0
-				for player in self._players:
+				for player in self.players:
 					try:
 						player.step()
 						self._arena.player_stepped(pid, player.getPosition())
 					except DieError:
-						logging.info("Player ID=%d '%s' died" % (pid, player.getName()))
+						player.die() # Call the die function on the player
+						self.ELifeUpdate(self, player_id=pid, score=player.lifes) # Call the life update event
+						logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
 						pid += 1
 			except Exception as e:

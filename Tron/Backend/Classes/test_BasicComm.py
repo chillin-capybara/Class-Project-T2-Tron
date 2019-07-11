@@ -983,7 +983,57 @@ class test_BasicComm(unittest.TestCase):
 		Test the life update message generation
 		"""
 		pass
-		# TODO Continue coding here
+		# Test for randum sampe data
+		packet = COMM.life_update(1, 2)
+		self.assertEqual(
+			packet,
+			utf8("LIFE_UPDATE 1 2")
+		)
+
+		packet = COMM.life_update(9, 12)
+		self.assertEqual(
+			packet,
+			utf8("LIFE_UPDATE 9 12")
+		)
+
+		# Test some error cases
+		with self.assertRaises(TypeError):
+			COMM.life_update("asd", "aSd")
+
+		with self.assertRaises(TypeError):
+			COMM.life_update(2.3, 2+6j)
+		
+	def test_process_life_update(self):
+		"""
+		Test the processing of life update messages
+		"""
+		# Test with random data
+		packet = COMM.life_update(1,2)
+		COMM.ELifeUpdate.reset_called()
+		mmtype, pid, score = COMM.process_response(packet)
+		self.assertEqual(
+			mmtype,
+			COMM.LIFE_UPDATE
+		)
+		self.assertEqual(
+			pid, 1
+		)
+		self.assertEqual(score, 2)
+		self.assertTrue(COMM.ELifeUpdate.was_called())
+
+		# Test with random data
+		packet = COMM.life_update(12,99)
+		COMM.ELifeUpdate.reset_called()
+		mmtype, pid, score = COMM.process_response(packet)
+		self.assertEqual(
+			mmtype,
+			COMM.LIFE_UPDATE
+		)
+		self.assertEqual(
+			pid, 12
+		)
+		self.assertEqual(score, 99)
+		self.assertTrue(COMM.ELifeUpdate.was_called())
 	
 if __name__ == '__main__':
 	unittest.main()

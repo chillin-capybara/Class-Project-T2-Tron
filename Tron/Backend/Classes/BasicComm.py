@@ -505,6 +505,20 @@ class BasicComm(CommProt):
 			str: Message string
 		"""
 		return "I_AM_READY"
+	
+	@c2b
+	def life_update(self, player_id:int, score:int)->str:
+		"""
+		Get a life update message with player id and the amount of lives the player has
+		
+		Args:
+			player_id (int): Player ID of the player in the match
+			score (int): Amount of lifes the player has
+		
+		Returns:
+			str: Generated message
+		"""
+		return "LIFE_UPDATE %d %d" % (player_id, score)
 
 	def process_response(self, response: bytes):
 		"""

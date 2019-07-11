@@ -238,6 +238,19 @@ class LobbyThread(threading.Thread):
 		logging.warning("Match %s not found on the server" % name)
 		packet = self.__comm.game_not_exists(name)
 		self.send(packet)
+	
+	def handle_OnLifeUpdate(self, sender:MatchServer, player_id:int, score:int):
+		"""
+		Handle a life update event of a specific match and notify all the joined players
+		
+		Args:
+			sender (MatchServer): Caller Match of the event
+			player_id (int): ID of the player in the match
+			score ([type]): Number of lives the player still hast
+		"""
+		# Generate a message according to the protocoll and send it to the client
+		packet = self.__comm.life_update(player_id, score)
+		self.send(packet)
 
 	def handle_join_match(self, sender, name: str, player: HumanPlayer):
 		"""
@@ -256,7 +269,7 @@ class LobbyThread(threading.Thread):
 		# Check if the match exists
 		ex_matches = self.__hook_get_matches()
 		for match in ex_matches:
-			match: Match
+			match: MatchServer
 			if match.name == name:
 				# Found the match
 				self.__leased_player_id = match.lease_player_id()
@@ -270,6 +283,8 @@ class LobbyThread(threading.Thread):
 				self.send(packet)
 
 				match.EStart += self.handle_match_started
+
+				match.ELifeUpdate += self.handle_OnLifeUpdate # Event to send away life updates
 				# Check for the Event to start
 				match.check_for_start()
 				return

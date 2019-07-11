@@ -106,6 +106,12 @@ class GameServer(object):
 
 		thread = threading.Thread(target=self.__keepalive)
 		thread.start()
+
+		try:
+			while True:
+				time.sleep(1)
+		except KeyboardInterrupt:
+			self.Stop() # Close up all the stuff
 	
 	def __keepalive(self):
 		"""

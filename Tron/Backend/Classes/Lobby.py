@@ -6,11 +6,14 @@ from .MatchServer import MatchServer
 from .HumanPlayer import HumanPlayer
 from .LobbyThread import LobbyThread
 from .MatchClient import MatchClient
+from ..Core.ThreadCollection import ThreadCollection
 from .Match import Match
 import socket
 import logging
 import threading
 from typing import List
+import queue
+
 
 class Lobby(object):
 	"""
@@ -35,6 +38,10 @@ class Lobby(object):
 	__server_thread : threading.Thread = None
 	__server_sock : socket.socket = None
 	__server_threads : List[threading.Thread] = None
+
+	__sendQ: queue.Queue() = None
+	__recvQ: queue.Queue() = None
+	__threadcollection : ThreadCollection = None
 
 	EError : Event = None
 	EMatchJoined : Event = None
@@ -70,6 +77,13 @@ class Lobby(object):
 
 		# Initialize the array of matches
 		self.__matches = []
+
+		# Initialize the collection of threads
+		self.__threadcollection = ThreadCollection()
+
+		# Initialize send und receiver queues
+		self.__sendQ = queue.Queue()
+		self.__recvQ = queue.Queue()
 
 		# Initialize own events
 		self.EError = Event('msg')
@@ -216,6 +230,62 @@ class Lobby(object):
 		thread.start()
 
 
+	def __client_receiver_thread(self):
+		"""
+		Receiver thread, that receives message from the server asynchronously
+		"""
+		logging.info("Starting the receiver thread for the control protocoll...")
+		try:
+			while True:
+				# Receive the data and forward it to the message processor
+				packet = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
+				self.__recvQ.put(packet) # Enqueue the packet for processing
+		except OSError:
+			logging.info("Closing down the client's receiver")
+		except Exception as exc:
+			logging.error("Error occured while asynchronous receive. Reasor: %s", str(exc))
+	
+	def __client_sender_thread(self):
+		"""
+		Sender thread to send requests asynchronously
+		"""
+		try:
+			logging.info("Client sender thread started")
+			while True:
+				if not self.__sendQ.empty():
+					self.__sock.send(self.__sendQ.get())
+		except OSError:
+			logging.info("Stopping the clients lobby sender thread.")
+		except Exception as exc:
+			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+	
+	def __message_processor(self):
+		"""
+		Process messages that are received by the client thread.
+		NOTE:
+			This is the caller thread of every Client operation in the Lobby!
+		"""
+		try:
+			logging.info("Lobby client message processor thread started!")
+			while True:
+				if not self.__recvQ.empty():
+					# Block this thread, until there is anything in the queue
+					self.__comm.process_response(self.__recvQ.get())
+		except Exception as exc:
+			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+	
+	def send(self, packet:bytes):
+		"""
+		Send a message over the client's socket to the server
+		NOTE:
+			This enqueues the packet for a send by the sender thread
+		
+		Args:
+			packet (bytes): Message as bytes
+		"""
+		logging.info("Packet enqueued: %s", str(packet))
+		self.__sendQ.put(packet)
+
 	def say_hello(self):
 		"""
 		Connect to a lobby on the server
@@ -230,14 +300,23 @@ class Lobby(object):
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.connect((self.host, self.port))
 
+			# Here to start the receiver thread
+			# TODO Make a Stop client threads function
+			receiver = threading.Thread(target=self.__client_receiver_thread)
+			sender = threading.Thread(target=self.__client_sender_thread)
+			processor = threading.Thread(target=self.__message_processor)
+			self.__threadcollection += receiver
+			self.__threadcollection += sender
+			self.__threadcollection += processor
+
+
+			# Start all the threads
+			self.__threadcollection.start_all()
+
 			# Send Hello message
 			packet = self.__comm.hello(self.__hook_me(), CLIENT_FEATURES)
-			self.__sock.send(packet)
+			self.send(packet)
 
-			# Receive the answer
-			resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
-			self.__comm.process_response(resp)
-			logging.info(resp)
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
 
@@ -248,12 +327,8 @@ class Lobby(object):
 		try:
 			# Create and send the request
 			packet = self.__comm.list_games()
-			self.__sock.send(packet)
+			self.send(packet)
 
-			# Process the response
-			resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
-			logging.debug(resp)
-			self.__comm.process_response(resp)
 		except Exception as e:
 			logging.error(str(e))
 	
@@ -278,10 +353,8 @@ class Lobby(object):
 			packet = self.__comm.create_match(game, name, features)
 
 			# Send the request to the server
-			self.__sock.send(packet)
+			self.send(packet)
 
-			# Wait and process response
-			self.__process_response()
 		except Exception as e:
 			logging.error("Error creating match: %s" % str(e))
 	
@@ -297,10 +370,10 @@ class Lobby(object):
 
 		logging.info("Listing matches for %s" % game)
 		packet = self.__comm.list_matches(game)
-		self.__sock.send(packet)
+		self.send(packet)
 
-		# Wait and process the response
-		self.__process_response()
+		# Wait until the server lists the matches
+		self.__comm.EMatch.wait_clear(0.3)
 	
 	def join_match(self, index: int):
 		"""
@@ -312,22 +385,10 @@ class Lobby(object):
 		# Send a request to join the game
 		logging.info("joining the match %s ..." % self.matches[index].name)
 		packet = self.__comm.join_match(self.matches[index].name, self.__hook_me())
-		self.__sock.send(packet)
+		self.send(packet)
 
 		# Set the selected match
 		self.__selected_match = self.matches[index]
-		
-		# Automatically handle the response from the server
-		self.__process_response()
-
-	def __process_response(self):
-		"""
-		Get and process the response of the server
-		"""
-		# Process the response
-		resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
-		logging.debug(resp)
-		self.__comm.process_response(resp)
 	
 	def handle_welcome(self, sender, features: list):
 		"""
@@ -375,8 +436,7 @@ class Lobby(object):
 
 			# Send a request to query match features
 			packet = self.__comm.match_features(name)
-			self.__sock.send(packet)
-			self.__process_response()
+			self.send(packet)
 		except Exception as e:
 			logging.error("Error appending match %s. Reason: %s" % (name, str(e)))
 	
@@ -480,9 +540,6 @@ class Lobby(object):
 
 		# Call the Lobby's event -> With the name of the match
 		self.EMatchJoined(self, matchname=self.__selected_match.name)
-
-		# Wait for the start message -> let the fun begin
-		self.__process_response()
 	
 	def handle_match_started(self, sender, port:int, players:list):
 		"""
