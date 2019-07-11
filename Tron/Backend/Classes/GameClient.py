@@ -190,3 +190,10 @@ class GameClient(object):
 	def handle_match_started(self, sender):
 		logging.info("Tell the UI to start the match.")
 		self.EMatchStarted(self)
+	
+	def close(self):
+		"""
+		Close the game client with closing all the lobby threads
+		"""
+		# Close the lobby
+		self.lobby.close()

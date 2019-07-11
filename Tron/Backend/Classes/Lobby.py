@@ -15,6 +15,8 @@ from typing import List
 import queue
 
 
+# TODO Call UI Events only from the UI Thread
+
 class Lobby(object):
 	"""
 	Game lobby object for the Tron Game
@@ -42,6 +44,8 @@ class Lobby(object):
 	__sendQ: queue.Queue() = None
 	__recvQ: queue.Queue() = None
 	__threadcollection : ThreadCollection = None
+
+	__require_close = False
 
 	EError : Event = None
 	EMatchJoined : Event = None
@@ -236,7 +240,7 @@ class Lobby(object):
 		"""
 		logging.info("Starting the receiver thread for the control protocoll...")
 		try:
-			while True:
+			while not self.__require_close:
 				# Receive the data and forward it to the message processor
 				packet = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
 				self.__recvQ.put(packet) # Enqueue the packet for processing
@@ -244,6 +248,8 @@ class Lobby(object):
 			logging.info("Closing down the client's receiver")
 		except Exception as exc:
 			logging.error("Error occured while asynchronous receive. Reasor: %s", str(exc))
+		
+		logging.info("Control receiver thread closed.")
 	
 	def __client_sender_thread(self):
 		"""
@@ -251,13 +257,15 @@ class Lobby(object):
 		"""
 		try:
 			logging.info("Client sender thread started")
-			while True:
+			while not self.__require_close:
 				if not self.__sendQ.empty():
 					self.__sock.send(self.__sendQ.get())
 		except OSError:
 			logging.info("Stopping the clients lobby sender thread.")
 		except Exception as exc:
 			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+
+		logging.info("Control sender thread closed.")
 	
 	def __message_processor(self):
 		"""
@@ -267,12 +275,14 @@ class Lobby(object):
 		"""
 		try:
 			logging.info("Lobby client message processor thread started!")
-			while True:
+			while not self.__require_close: # For active thread
 				if not self.__recvQ.empty():
 					# Block this thread, until there is anything in the queue
 					self.__comm.process_response(self.__recvQ.get())
 		except Exception as exc:
 			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+
+		logging.info("Control message processor thread closed.")
 	
 	def send(self, packet:bytes):
 		"""
@@ -319,6 +329,21 @@ class Lobby(object):
 
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
+	
+	def close(self):
+		"""
+		Event handler for closing the client with all it's threads
+		"""
+		logging.info("Closing the Lobby client...")
+
+		# Destroying the socket will close the receiver thread
+		self.__sock.close()
+
+		# Set the close flag -> Stop the sender and the processor threads
+		self.__require_close = True
+
+		self.__threadcollection.join_all()
+		logging.info("Lobby all lobby client threads closed!")
 
 	def list_games(self):
 		"""
