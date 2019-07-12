@@ -101,6 +101,7 @@ class LobbyThread(threading.Thread):
 			logging.error("Connection to the client stopped: %s" % str(e))
 		finally:
 			try:
+				# Free the leased player ID
 				self.__leased_player_id.free()
 				logging.debug("Giving the player id free: %d" % self.__leased_player_id.getObj())
 			except:
@@ -308,6 +309,4 @@ class LobbyThread(threading.Thread):
 		# Generate match started package for every player in their thread
 		packet = self.__comm.match_started(port, player_ids, players)
 		self.send(packet)
-		logging.info("Packet sent...")
-
 

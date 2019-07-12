@@ -84,6 +84,10 @@ class MatchServer(AbstractMatch):
 			# Create the player slots (ID=0 is reserved for an empty player)
 			self.__player_slots = LeasableList(list(range(1,self._feat_players+1)))
 
+			# Add slot updater for the server
+			self._feat_slots = self.feat_players
+			self.__player_slots.OnUpdate += self.on_update_slots
+
 			# Create the list to store the connections to the players
 			self.__player_addresses = []
 
@@ -125,6 +129,16 @@ class MatchServer(AbstractMatch):
 			err_msg = "Cannot create match. Reason: %s" % str(err)
 			logging.error(err_msg)
 			raise ServerError(err_msg)
+
+	def on_update_slots(self, sender:LeasableList):
+		"""
+		Update the available slots on the server
+		
+		Args:
+			sender (LeasableList): Caller object of the event
+		"""
+		self._feat_slots = sender.count_free()
+		logging.debug("Server available slots updated to %d" % self._feat_slots)
 
 	def open(self):
 		"""
@@ -223,14 +237,20 @@ class MatchServer(AbstractMatch):
 		logging.info("Starting stepper thread, to update the player positions...")
 		while True:
 			try:
-				pid = 0
+				pid = 1 # IGNORE PLAYER ZERO
 				for player in self.players:
 					try:
 						player.step()
 						self._arena.player_stepped(pid, player.getPosition())
 					except DieError:
 						player.die() # Call the die function on the player
-						self.ELifeUpdate(self, player_id=pid, score=player.lifes) # Call the life update event
+						try:
+							self.ELifeUpdate(self, player_id=pid, score=player.lifes) # Call the life update event
+						except OSError:
+							# BROKEN PIPE -> KICK PLAYER
+							# NOTE The player ID should be freed by the lobby thread
+							self.kick_player(pid)
+
 						logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
 						pid += 1
@@ -245,6 +265,17 @@ class MatchServer(AbstractMatch):
 
 		# Close automatically everything, when the main thread stops
 		self.close(join=False)
+
+	def kick_player(self, player_id:int):
+		"""
+		Kick a player from the match by the player ID
+		
+		Args:
+			player_id (int): Player ID of the player
+		"""
+		# NOTE This should make possible that another client can later continue from this status
+		player = self._players[player_id]
+		player.setVelocity(0,0) # Set the velocity of the player to zero
 
 	def check_for_start(self):
 		if self.__player_slots.count_free() == 0:

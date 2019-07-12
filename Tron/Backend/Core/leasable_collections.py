@@ -1,3 +1,5 @@
+from .Event import Event
+
 class LeaseError(Exception):
 	"""
 	Exception for signing that an object is already leased.
@@ -147,6 +149,43 @@ class LeasableList(object):
 	__collection: list = None
 	__orig_list: list = None
 
+	__OnLease: Event  = None
+	__OnFree: Event   = None
+	__OnUpdate: Event = None
+
+	@property
+	def OnLease(self):
+		"""
+		Event when a new lease from the collection happens
+		"""
+		return self.__OnLease
+
+	@OnLease.setter
+	def OnFree(self, new):
+		self.__OnLease = new
+
+	@property
+	def OnFree(self):
+		"""
+		Event when an element is freed in the collection
+		"""
+		return self.__OnFree
+
+	@OnFree.setter
+	def OnFree(self, new):
+		self.__OnFree = new
+
+	@property
+	def OnUpdate(self):
+		"""
+		Event when a lease or a free action occures
+		"""
+		return self.__OnUpdate
+
+	@OnUpdate.setter
+	def OnUpdate(self, new):
+		self.__OnUpdate = new
+
 	def __init__(self, init_list:list):
 		"""
 		"""
@@ -155,6 +194,10 @@ class LeasableList(object):
 			raise TypeError
 
 		self.__collection = []
+
+		self.__OnFree   = Event()
+		self.__OnLease  = Event()
+		self.__OnUpdate = Event()
 
 		# Store a copy of the original list, to avoid changes by refefence
 		self.__orig_list = init_list.copy()
@@ -201,6 +244,11 @@ class LeasableList(object):
 		for obj in self.__collection:
 			obj: LeasableObject
 			if obj.is_free():
+
+				# Call the events
+				self.OnLease(self)
+				self.OnUpdate(self)
+
 				return obj.lease() # Set the lease of the object
 
 		# No instances found
@@ -218,6 +266,11 @@ class LeasableList(object):
 		for obj in self.__collection:
 			obj: LeasableObject
 			if obj.is_free():
+
+				# Call the events
+				self.OnLease(self)
+				self.OnUpdate(self)
+
 				return obj.lease_lock(locker) # Set the lease of the object
 
 		# No instances found
@@ -239,6 +292,11 @@ class LeasableList(object):
 
 		# Check if the object is in the collection
 		if obj in self.__collection:
+
+			# Call the events
+			self.OnFree(self)
+			self.OnUpdate(self)
+
 			obj.free()
 		else:
 			raise ValueError("The object is not part of this collection")
@@ -260,6 +318,11 @@ class LeasableList(object):
 
 		# Check if the object is in the collection
 		if obj in self.__collection:
+
+			# Call the events
+			self.OnFree(self)
+			self.OnUpdate(self)
+
 			obj.free()
 		else:
 			raise ValueError("The object is not part of this collection")
@@ -279,10 +342,14 @@ class LeasableList(object):
 	def free_all(self):
 		"""
 		Free all the leased elements in the collection.
-		WARNING
+		WARNING:
 			Only works, when all objects are self-locked
 			Only use this function, if you're sure that you have no object references left.
 		"""
 		for obj in self.__collection:
 			obj: LeasableObject
 			obj.free()
+		
+		# Call the events
+		self.OnFree(self)
+		self.OnUpdate(self)

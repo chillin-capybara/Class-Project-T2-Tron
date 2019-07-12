@@ -142,7 +142,7 @@ class HumanPlayer(Player):
 		Returns:
 			int: True = Alive, False = Dead
 		"""
-		return self.__Lifes > 0
+		return (self.__Lifes > 0)
 
 	def getLine(self):
 		return self.__track.getLine()

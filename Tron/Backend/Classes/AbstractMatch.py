@@ -24,6 +24,7 @@ class AbstractMatch(ABC):
 	# Match features
 	_feat_lifes: int   = 0
 	_feat_players: int = 0
+	_feat_slots: int = 0
 
 	EInit: Event = None   # Event which is called, when the match is initialzed
 	EClose: Event = None  # Event which is called, when the match is closed
@@ -46,6 +47,12 @@ class AbstractMatch(ABC):
 		# Try to fetch the features
 		self._feat_players = self.get_feature_value_int('Players', features)
 		self._feat_lifes = self.get_feature_value_int('Lifes', features)
+		
+		try:
+			# Try to set the feature slots
+			self._feat_slots = self.get_feature_value_int('Slots', features)
+		except:
+			pass
 
 		self._players = [] # Create an empty list
 
@@ -112,6 +119,13 @@ class AbstractMatch(ABC):
 		Number of lifes available for a player in the match
 		"""
 		return self._feat_lifes
+
+	@property
+	def feat_slots(self) -> int:
+		"""
+		Number of available slots on the server
+		"""
+		return self._feat_slots
 	
 	@property
 	def features(self) -> str:
@@ -134,7 +148,10 @@ class AbstractMatch(ABC):
 		Returns:
 			str: Features
 		"""
-		string = "BASIC || Players: %d || Lifes: %d" % (self.feat_players, self.feat_lifes)
+		if self.feat_slots > 0:
+			string = "BASIC || Players: %d || Lifes: %d || Slots: %d" % (self.feat_players, self.feat_lifes, self.feat_slots)
+		else:
+			string = "BASIC || Players: %d || Lifes: %d" % (self.feat_players, self.feat_lifes)
 		return string
 	
 	def get_features(self):
@@ -148,6 +165,10 @@ class AbstractMatch(ABC):
 		flist.append(self.feat_players)
 		flist.append('lifes')
 		flist.append(self.feat_lifes)
+
+		if self.feat_slots > 0: # If the slots feature is recodnized
+			flist.append("Slots")
+			flist.append(self.feat_slots)
 		return flist
 
 	def get_feature_value_int(self, name: str, features: List[str]) -> int:

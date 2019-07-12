@@ -12,7 +12,7 @@ DEFAULT_CONTROL_PROTOCOL_PORT = 54001
 CONTROL_PROTOCOL_RECV_SIZE = 1024
 CLIENT_FEATURES = ['BASIC', 'JSONCOMM'] # LIST of the client features
 # Feature DIMS,10,10,50,50 is obligatory
-SERVER_FEATURES = ['BASIC', 'DIMS', 10,10,50,50, 'JSONCOMM'] # List of server features
+SERVER_FEATURES = ['BASIC', 'DIMS', 10,10,50,50, 'JSONCOMM', 'SLOTS'] # List of server features
 
 SERVER_GAMES = ['Tron']
 

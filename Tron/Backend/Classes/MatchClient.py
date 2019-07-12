@@ -83,6 +83,12 @@ class MatchClient(AbstractMatch):
 		self._feat_players = self.get_feature_value_int('Players', features)
 		self._feat_lifes   = self.get_feature_value_int('lifes', features)
 
+		try:
+			# Try to set the feature slots
+			self._feat_slots = self.get_feature_value_int('Slots', features)
+		except:
+			pass
+
 	def set_current_player_id(self, pid:int):
 		"""
 		Set the player ID of the current player to the ID the server gives
@@ -141,6 +147,7 @@ class MatchClient(AbstractMatch):
 			seq, message = dec.split(" ", 1)
 			packet = bytes(message, "UTF-8")
 			self.__comm.process_response(packet)
+			logging.info("FIeld update!")
 
 			seq = int(seq)
 			self.__current_matrix_seq = seq # Set the current sequence the client is processing
@@ -217,3 +224,16 @@ class MatchClient(AbstractMatch):
 			if self.__push_to_dict:
 				# Add elements with other then key (1,1)
 				self.__recv_dict[key] = matrix
+
+	def life_udpate(self, player_id:int, score:int):
+		"""
+		Update the life of the player with the selected player id
+		
+		Args:
+			player_id (int): Player ID
+			score (int): Lifes remaining
+		Raises:
+			IndexError: Player ID does not exists
+			ValueError: Lifes smaller than 0
+		"""
+		self._players[player_id].set_lifes(score)

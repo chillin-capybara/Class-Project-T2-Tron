@@ -105,6 +105,7 @@ class Lobby(object):
 		self.__comm.EServerError += self.handle_server_error
 		self.__comm.EMatchStarted += self.handle_match_started
 		self.__comm.EMatchJoined += self.handle_match_joined
+		self.__comm.ELifeUpdate += self.handle_life_update
 
 		# Initialize hook : Only for clients
 		if hook_me != None:
@@ -140,7 +141,7 @@ class Lobby(object):
 		return self.__matches
 	
 	@property
-	def match(self) -> Match:
+	def match(self) -> MatchClient:
 		"""
 		Selected match for waiting to start...
 		"""
@@ -585,3 +586,14 @@ class Lobby(object):
 
 		# Notifty the UI to show the game
 		self.EMatchStarted(self)
+	
+	def handle_life_update(self, sender, player_id:int, lifes:int):
+		"""
+		Handle life updates for every player in the current match.
+		
+		Args:
+			sender (CommProt): Caller of the event
+			player_id (int): ID of the player in the game
+			score (int): Lives of the player left.
+		"""
+		self.match.life_udpate(player_id, lifes)
