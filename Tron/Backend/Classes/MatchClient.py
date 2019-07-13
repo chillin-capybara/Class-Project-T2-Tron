@@ -147,7 +147,6 @@ class MatchClient(AbstractMatch):
 			seq, message = dec.split(" ", 1)
 			packet = bytes(message, "UTF-8")
 			self.__comm.process_response(packet)
-			logging.info("FIeld update!")
 
 			seq = int(seq)
 			self.__current_matrix_seq = seq # Set the current sequence the client is processing

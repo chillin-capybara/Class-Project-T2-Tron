@@ -241,6 +241,7 @@ class MatchServer(AbstractMatch):
 				for player in self.players:
 					try:
 						player.step()
+						logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
 						self._arena.player_stepped(pid, player.getPosition())
 					except DieError:
 						player.die() # Call the die function on the player
@@ -257,7 +258,7 @@ class MatchServer(AbstractMatch):
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
-			time.sleep(0.5) # 2 Updates per second
+			time.sleep(2) # 2 Updates per second
 
 			# Check if the match is in idle, when yes -> Close it
 			if self.is_idle():
