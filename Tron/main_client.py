@@ -1,10 +1,12 @@
 # Client for Tron game
 import sys
+import os
 sys.path.append('/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron')
 
 # IMPORT LOGGING AND MAIN FRAMEWORKS
 import click # Click for command framework
 import logging, coloredlogs
+import time
 
 logger = logging.getLogger()
 coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s', level='DEBUG', hostname=False)
@@ -12,26 +14,38 @@ coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(messa
 # Import dependencies
 from Tron.Backend.Classes.GameClient import GameClient
 
+def draw_matrix(matrix):
+	os.system('clear')
+	linestr = ""
+	for row in matrix:
+		for col in row:
+			linestr += "%d " % col
+		print(linestr, flush=True)
+		linestr = ""
+
 if __name__ == '__main__':
 	client = GameClient()
+
+	logging.info("Discovering Lobbies")
+	client.discover_lobby()
+	time.sleep(1)
+
+	logging.info("Entering lobby 1")
+	client.enter_lobby(0)
+	time.sleep(1)
+
+	# Create a new game
+	logging.info("Creating match")
+	client.lobby.create_match("Tron", "Testmatch", {'Players': 1, 'Lifes': 10})
+	time.sleep(1)
+
+	# Join  the match
+	logging.info("Joining the match")
+	client.lobby.list_matches('Tron')
+	client.join_match(0)
+
 	while True:
-		print("(1) Discover lobbies")
-		print("(2) Enter the first lobby")
-
-		user_in = input("Select an option: ")
-		if user_in == "1":
-			client.discover_lobby()
-		elif user_in == "2":
-			client.lobbies[0].say_hello()
-			while True:
-				print("(1) List available games")
-				print("(2) Create sample match Tron/CoolMatch Players,3,Lifes,2")
-				print("(3) List matches")
-				user_in = input("Select an option:")
-
-				if user_in == "1":
-					client.lobbies[0].list_games()
-				elif user_in == "2":
-					client.lobbies[0].create_match('Tron', 'CoolMatch', {'Players': 3, 'Lifes' : 2})
-				elif user_in == "3":
-					client.lobbies[0].list_matches('Tron')
+		time.sleep(0.5)
+		# TODO Update the game matrix every second
+		matrix = client.match.arena.matrix
+		draw_matrix(matrix)

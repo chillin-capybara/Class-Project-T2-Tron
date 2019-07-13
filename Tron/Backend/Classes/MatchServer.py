@@ -16,6 +16,17 @@ import logging
 import socket
 import time
 import random
+import os
+
+# TODO REMOVE THIS
+def draw_matrix(matrix):
+	os.system('clear')
+	linestr = ""
+	for row in matrix:
+		for col in row:
+			linestr += "%d " % col
+		print(linestr, flush=True)
+		linestr = ""
 
 def generate_random_player_data(sizeX, sizeY, feat_players, directions):
 	# Randomly position the players
@@ -224,6 +235,7 @@ class MatchServer(AbstractMatch):
 
 						# Increment the index of the connection
 						cindex += 1
+					time.sleep(0.5)
 
 				except Exception as e:
 					logging.warning("Error while sending. %s" , str(e))
@@ -240,9 +252,11 @@ class MatchServer(AbstractMatch):
 				pid = 1 # IGNORE PLAYER ZERO
 				for player in self.players:
 					try:
+						player.setVelocity(1,0)
 						player.step()
-						logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
+						#logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
 						self._arena.player_stepped(pid, player.getPosition())
+						draw_matrix(self.arena.matrix)
 					except DieError:
 						player.die() # Call the die function on the player
 						try:
@@ -252,7 +266,7 @@ class MatchServer(AbstractMatch):
 							# NOTE The player ID should be freed by the lobby thread
 							self.kick_player(pid)
 
-						logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
+						#logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
 						pid += 1
 			except Exception as e:

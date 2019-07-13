@@ -2,7 +2,7 @@ from .BasicComm import BasicComm
 from .Lobby import Lobby
 from ..Core.globals import *
 from .HumanPlayer import HumanPlayer
-from .Match import Match
+from .MatchClient import MatchClient
 from ..Core.Event import Event
 
 import logging
@@ -73,7 +73,7 @@ class GameClient(object):
 		return self.__entered_lobby
 	
 	@property
-	def match(self) -> Match:
+	def match(self) -> MatchClient:
 		"""
 		Selected match to enter
 		"""

@@ -209,9 +209,8 @@ class MatchClient(AbstractMatch):
 						#logging.warning("Cannot get position diff.: %s" % str(e))
 						pass
 					self._arena.update_matrix(self.__recv_dict)
+					logging.debug("NEW MATRIX")
 
-
-			logging.debug("New matrix update start")
 			self.__push_to_dict = True
 			self.__recv_dict.clear() #Empty the receive buffer
 			#logging.info("DICT STATUS: %s" % str(self.__recv_dict))

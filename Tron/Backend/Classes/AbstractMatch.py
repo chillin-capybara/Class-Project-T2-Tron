@@ -62,7 +62,7 @@ class AbstractMatch(ABC):
 			self._players.append(player)
 
 		# TODO Initialize the arena based on lobby property
-		self._arena = RectangleArena("Testname", (100,100), 0, 0)
+		self._arena = RectangleArena("Testname", (20,20), 0, 0)
 
 		# Initialize events
 		self.EInit  = Event()
