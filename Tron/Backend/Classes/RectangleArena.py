@@ -10,8 +10,6 @@ MIN_ARENA_SIZE = 4
 MAX_ARENA_NAME_LENGTH = 20
 MIN_ARENA_NAME_LENGTH = 2
 
-SPLITTER = MatrixSplitter()
-
 class DieError(Exception):
 	"""
 	Exception for signaling when a player dies
@@ -142,20 +140,20 @@ class RectangleArena(Arena):
 		if pos.x > self.sizeX or pos.y > self.sizeY:
 			raise DieError("Player out of border")
 		
-		if self.__matrix[self.sizeY - pos.y][pos.x] == 0:
+		if self.__matrix[self.sizeY - 1 - pos.y][pos.x] == 0:
 			# Field is still free, you can step on it
-			self.__matrix[self.sizeY - pos.y][pos.x] = player_id
+			self.__matrix[self.sizeY - 1 - pos.y][pos.x] = player_id
 		else:
 			raise DieError("Player crossed a track")
 	
-	def update_matrix(self, splitted_matrix: list):
+	def update_matrix(self, reconstructed_matrix: list):
 		"""
 		Update the matrix of the aren
 		
 		Args:
-			matrix (list): New matrix
+			reconstructed_matrix (list): New matrix
 		"""
-		self.__matrix = SPLITTER.matrix_collapse(splitted_matrix)
+		self.__matrix = reconstructed_matrix
 
 
 	def getName(self) -> str:

@@ -235,7 +235,7 @@ class MatchServer(AbstractMatch):
 
 						# Increment the index of the connection
 						cindex += 1
-					time.sleep(0.5)
+					time.sleep(0.1)
 
 				except Exception as e:
 					logging.warning("Error while sending. %s" , str(e))

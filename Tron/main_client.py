@@ -47,7 +47,6 @@ if __name__ == '__main__':
 	client.me.setVelocity(1,0)
 
 	while True:
-		time.sleep(0.5)
 		# TODO Update the game matrix every second
 		matrix = client.match.arena.matrix
 		#draw_matrix(matrix)

@@ -1,7 +1,7 @@
 from .AbstractMatch import AbstractMatch
 from .BasicComm import BasicComm
 from .HumanPlayer import HumanPlayer
-from ..Core.matrix import getActPos, getActDirection
+from ..Core.matrix import getActPos, getActDirection, matrix_collapse_opt
 from ..Core.matrix_splitter import MatrixSplitter
 from ..Core.Hook import Hook
 from ..Core.globals import *
@@ -11,10 +11,6 @@ import logging
 import socket
 import time
 import threading
-
-# SECTION TOP
-
-SPLITTER = MatrixSplitter()
 
 class MatchClient(AbstractMatch):
 
@@ -198,7 +194,7 @@ class MatchClient(AbstractMatch):
 					# Update the arena's matrix
 					#logging.info("New matrix updated!")
 					# Update the track of the player
-					reconstructed_matrix = SPLITTER.matrix_collapse(self.__recv_dict)
+					reconstructed_matrix = matrix_collapse_opt(self.__recv_dict)
 
 					# Update the tracks for all the players
 					pid = 1
@@ -227,7 +223,7 @@ class MatchClient(AbstractMatch):
 
 						pid +=1
 
-					self._arena.update_matrix(self.__recv_dict)
+					self._arena.update_matrix(reconstructed_matrix)
 
 			self.__push_to_dict = True
 			self.__recv_dict.clear() #Empty the receive buffer

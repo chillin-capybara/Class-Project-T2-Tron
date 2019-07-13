@@ -174,14 +174,13 @@ def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
 		List[Vect2D]: list of positions on the arena, the player already visited
 	"""
 	mylist = []
-	sizeX = len(matrix)
-	sizeY = len(matrix[0])
+	maxY = len(matrix[0]) - 1
 	for row in range(0, len(matrix)):
 		# Go through all the rows and find the indexes
 		for col in range(0, len(matrix[0])):
 			# Go through the columns of the matrix
 			if matrix[row][col] == player_id:
-				mylist.append(Vect2D(col, sizeX - row))
+				mylist.append(Vect2D(col, maxY - row))
 
 	return mylist
 
@@ -216,3 +215,41 @@ def getActDirection (actualPos:tuple, old_position: tuple) -> tuple:
 		raise ValueError  # No direction possible
 
 	return xdir, ydir
+
+def matrix_collapse_opt(splitted_matrix: dict) -> list:
+	"""
+	collapse splitted matrices "childes" to the mother matrix
+	using numpy
+		Args:
+			splitted_matrix: dict - input splits as a dictionary
+		Returns:
+			motherMatrix: list - resulting matrix as a nested list
+		Raises:
+			TODO
+	"""
+	allKeysList = list(splitted_matrix.keys())
+	lastKey = allKeysList[len(allKeysList) - 1]  # fetch matrix dimensions
+
+	motherMatrix = np.array(())  # init mother array
+
+	for currentRow in range (1, lastKey[0] + 1):
+
+		# init row with 1st column
+		rowOfMotherMatrix = np.array((splitted_matrix[(currentRow, 1)]))
+
+		# start with 2nd column, because 1st already init
+		for currentColumn in range (2, lastKey[1] + 2):
+			# handle the the transition between mother rows
+			if currentColumn == ((lastKey[1])+1):
+				if (currentRow == 1):
+					motherMatrix = rowOfMotherMatrix
+				else:
+					motherMatrix = np.vstack((motherMatrix, rowOfMotherMatrix))
+				break
+			# handle transition between column inside of the row
+			childMatrix = np.array(splitted_matrix[(currentRow, currentColumn)])
+			rowOfMotherMatrix = np.hstack((rowOfMotherMatrix, childMatrix))
+
+	motherMatrix = motherMatrix.tolist()
+
+	return motherMatrix
