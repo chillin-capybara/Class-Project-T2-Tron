@@ -1,0 +1,128 @@
+#
+#attributs:
+#Players_online_list: str
+#input_IP
+#connect_to_server_Button
+#Back_to_menu_Button
+#waiting_for _other_player_if_waiting_Anzeige
+
+#operations:
+#    -
+
+<SearchForLobbiesMenuDynamic>:
+    on_enter:
+        #root.getPlayerdata("")
+        root.getavailableLobbies()
+        root.update_list()
+
+    HeaderLabel:
+        text: 'Search for Lobbies Menu Dynamic'
+        pos_hint: {"x": .01, "y": .94}
+
+    ColoredLabel:
+        id: explainmenuLabel
+        size_hint: ( .98, .08)
+        pos_hint: {'x': .01, 'y': .85}
+        background_color: (.1,.3,.7,1)
+        text: 'Here you can Enter a Lobby'
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: (.98, .57)
+        pos_hint: {'x': .01, 'y': .23}
+        spacing: 1
+        padding: 1
+
+        RecycleView:
+            id: lobby_port
+            viewclass: 'SelectableLabel'
+            SelectableRecycleBoxLayout:
+                default_size: None, dp(26)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+                multiselect: False
+                touch_multiselect: True
+
+        # BoxLayout:
+        #     orientation: "vertical"
+        #     size_hint: (.9, 1)
+
+        #     Label:
+        #         id: lobby1Label
+        #         text: ''
+        #     Label:
+        #         id: lobby2Label
+        #         text: ''
+        #     Label:
+        #         id: lobby3Label
+        #         text: ''
+        #     Label:
+        #         id: lobby4Label
+        #         text: ''
+        #     Label:
+        #         id: lobby5Label
+        #         text: ''
+        
+        # BoxLayout:
+        #     orientation: "vertical"
+        #     size_hint: (.1, 1)
+
+        #     CheckBox:
+        #         id: lobby1Checkbox
+        #         group: "LobbyCheckbox"
+        #         color: (1,0,0,1)
+        #         on_active:
+        #             root.updatechosenLobby(1)
+
+        #     CheckBox:
+        #         id: lobby2Checkbox
+        #         group: "LobbyCheckbox"
+        #         color: (1,0,0,1)
+        #         on_active:
+        #             root.updatechosenLobby(2)
+
+        #     CheckBox:
+        #         id: lobby3Checkbox
+        #         group: "LobbyCheckbox"
+        #         color: (1,0,0,1)
+        #         on_active:
+        #             root.updatechosenLobby(3)
+
+        #     CheckBox:
+        #         id: lobby4Checkbox
+        #         group: "LobbyCheckbox"
+        #         color: (1,0,0,1)
+        #         on_active:
+        #             root.updatechosenLobby(4)
+
+        #     CheckBox:
+        #         id: lobby5Checkbox
+        #         group: "LobbyCheckbox"
+        #         color: (1,0,0,1)
+        #         on_active:
+        #             root.updatechosenLobby(5)
+
+    Button:
+        id: refreshButton
+        size_hint: (.1, .08)
+        pos_hint: {"x": .89, "y": .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Refresh'
+        on_release:
+            root.getavailableLobbies()
+            root.update_list()
+
+    Button:
+        id: enterlobbyButton
+        size_hint: (.87, .08)
+        pos_hint: {"x": .01, "y": .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Enter Lobby'
+        on_release:
+            root.enterLobby()
+            root.manager.current = 'lobbymenudynamic'
+
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}

@@ -1,0 +1,65 @@
+<GameUI>:
+    on_enter: root.init_onenter()
+    # Creates Button, where you are able to start the countdown
+
+    Button:
+        id: backtomenuButton
+        size_hint: ( .2, .1)
+        pos_hint: {'x': .79, 'y': .01}
+        text: 'Return to Main Menu'
+        on_release:
+            root.manager.current = 'mainmenufloat'
+
+    Button:
+        id: StartButton
+        text: "Start"
+        size_hint: ( .2, .1)
+        pos_hint: {'x': .4, 'y': .45}
+        opacity: 1 if root.countdown_is_running == False and root.game_is_running == False else 0
+        on_press:
+            root.countdown_is_running = True
+            countdown.start()
+
+    Button:
+        id: ControlButton
+        text: "Control Others"
+        size_hint: ( .2, .1)
+        pos_hint: {'x': .79, 'y': .89}
+        opacity: 1 
+        # on_press: root.getControl
+        
+
+
+    # initializes the countdown feature
+    CountdownWidget:
+        id: countdown
+        opacity: 1 if root.countdown_is_running else 0
+        # pos: 0, 0
+        # size: root.size
+        start_value: 2
+        on_finished:
+            root.do_finished()
+
+    # kv file for the track representation
+    AnchorLayout:
+        size: root.size
+        anchor_x: "center"
+        anchor_y: "center"
+        TrackWidget:
+            id: trackWidget
+            size: root.size
+            playerList: root.playerList
+
+    # kv file for displaying all ingame players with colors
+
+    AnchorLayout:
+        size: root.size
+        anchor_x: "right"
+        anchor_y: "top"
+        PlayerWidget:
+            id: playerWidget
+            pos: 0, 0
+            size: root.getPlayerWidgetSize()
+            size_hint: None, None
+            playerList: root.playerList
+            # game: root.game

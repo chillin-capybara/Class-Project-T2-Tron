@@ -2,23 +2,23 @@
 <ConnectionLostMenuFloat>:
 
     HeaderLabel:
-        text: 'Connection Lost Menu Float Version'
-        pos_hint: {"x": .01, "y": .94}
+        text: 'Connection Lost Menu'
+        pos_hint: {"x": .01, "y": .91}
 
     ColoredLabel:
         id: connectionlostLabel
         size_hint: ( .98, .5)
         pos_hint: {'x': .01, 'y': .40}
         background_color: (.4,.4,.2,1)
-        text: 'Die Oma hat den Spaten ins Glasfaserkabel gerammt. Der Server ist leider nicht mehr zu erreichen'
+        text: 'Das W-Lankabel hatte einen Kurzschluss. Der Server ist leider nicht mehr zu erreichen'
     
     Button:
         id: gamestartButton
         size_hint: (.98, .08)
         pos_hint: {'x': .01, 'y': .1}
-        text: 'Start the game again (Not implemented yet)'
+        text: 'Search for Lobbies again'
         on_release:
-            root.manager.current = 'gamestartmenu'
+            root.manager.current = 'searchforlobbiesmenufloat'
         #    root.startGame()
 
     BackToMenuButton:

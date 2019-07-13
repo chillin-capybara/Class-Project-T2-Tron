@@ -8,16 +8,12 @@ from Backend.Core.Vect2D import Vect2D
 Builder.load_string("""
 <CountdownWidget>:
     # Widget for the countdown sequence
-    AnchorLayout:
-        size: root.size
-        anchor_x: "center"
-        anchor_y: "center"
-        Label:
-            valign: "middle"
-            halign: "center"
-            color: 1, 1, 1, 1
-            # counter function is implemented
-            text: "Finished" if root.counter == 0 else str(round(root.counter, 1))
+    Label:
+        size_hint: ( .2, .1)
+        pos_hint: {'x': .4, 'y': .45}
+        color: 1, 1, 1, 1
+        # counter function is implemented
+        text: "Finished" if root.counter == 0 else str(round(root.counter, 1))
 """)
 
 class CountdownWidget(Widget):

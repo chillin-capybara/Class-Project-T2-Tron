@@ -1,9 +1,12 @@
 # Global configuration of BACKEND classes
+import random
+#x will be a random number between 54010 and 54090
+x = random.randint(54010, 54090)
 
 LOBBY_DISCOVERY_PORT = 54000
 LOBBY_DISCOVERY_ADDR = "255.255.255.255"
 #LOBBY_PORT_RANGE = range(54010, 54100 + 1)
-LOBBY_PORT_RANGE = range(54010, 54200 + 1)
+LOBBY_PORT_RANGE = range(x, 54200 + 1) #start the range from a random port to avoid portcollision
 #LOBBY_PORT_RANGE = range(0, 65000)
 LOBBY_DISCOVERY_RECV_SIZE = 1024
 LOBBY_DISCOVER_TIMEOUT = 1 # Wait for broadcast responses only 2 seconds

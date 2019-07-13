@@ -16,6 +16,10 @@ import logging
 import time
 from datetime import datetime
 import json
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from kivy.uix.behaviors import FocusBehavior
+from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 ######## import own modules ############################
 from Backend.Classes.GameClient import GameClient
 CLIENT: GameClient = GameClient()
@@ -38,6 +42,7 @@ Builder.load_file('kvfilesmenu/pausemenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
 Builder.load_file('kvfilesmenu/gameovermenufloat.kv')
 Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
+Builder.load_file('kvfilesmenu/searchforlobbiesmenudynamic.kv')
 
 ######## Class Definitions of the Screens ############################
 class MainMenuFloat(Screen):
@@ -107,7 +112,7 @@ class SearchForLobbiesMenuFloat(Screen):
 
 		color = CLIENT.me.getColor()
 		playercolor = (color[0], color[1], color[2], 1)
-		self.ids.explainmenuLabel.background_color=playercolor
+		self.ids.explainmenuLabel.background_color = playercolor
 
 	def getavailableLobbies(self):
 		"""
@@ -215,7 +220,7 @@ class LobbyMenuFloat(Screen):
 				self.ids.match5featureLabel.text = match.get_feature_string()
 			else:
 				pass
-	def updatechosenMatch(self, currentmatch):
+	def updatechosenMatch(self, currentmatch=0):
 		"""
 		Sets variable for choosen Lobby
 
@@ -556,6 +561,83 @@ class GameOverMenuFloat(Screen):
 		print('Destroying Server...')
 		#GAME.DestroyServer()
 
+class SearchForLobbiesMenuDynamic(Screen):
+
+	lobbies = []
+	lobbiesdummy = ['198.168.0.1 - Lobby 1: 54001', '198.168.0.1 - Lobby 2: 54002', '198.168.0.1 - Lobby 3: 54003', '198.168.0.1 - Lobby 4: 54004', '198.168.0.1 - Lobby 5: 54005']
+	lobby = 0
+
+	def getavailableLobbies(self):
+		"""
+		Get the Lobbies which are available
+
+		Args:
+			Lobbies (list): IP & Port
+		Return:
+			-
+		"""
+		# Lobby = namedtuple('Lobby', ['host', 'port'])
+		# Lobby = namedtuple('Lobby', ['host', 'port'])
+		# lobby1 = Lobby("192.168.1.1", 20)
+		# lobby2 = Lobby("192.168.1.1", 20)
+		# lobby3 = Lobby("192.168.1.2", 20)
+		# lobby4 = Lobby("192.168.1.3", 20)
+		# listlobbies = [lobby1, lobby2, lobby3, lobby4]
+		# lobby1 = Lobby("192.168.1.1", 20)
+		# lobby2 = Lobby("10.0.0.1", 9984)
+		# lobby1.host
+		CLIENT.discover_lobby()
+		listlobbies = CLIENT.lobbies
+		count_lobbies = listlobbies.__len__()
+		lasthost = '0.0.0.0'
+		k = 0
+		for i in range(0,count_lobbies):
+			indexlobby = listlobbies[i]
+			currenthost = indexlobby.host
+			if currenthost == lasthost:
+				pass
+			else:
+				k = 0
+			if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port)) == 0:
+				self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port))
+			else:
+				pass
+			lasthost = indexlobby.host
+			k += 1
+
+		return self.lobbies
+
+	def update_list(self):
+		self.ids.lobby_port.data = [{'text' : str(x)} for x in self.lobbies]
+
+	def updatechosenLobby(self, currentlobby):
+		"""
+		Sets variable for choosen Lobby
+
+		Args:
+			Lobby (int):
+		Return:
+			Lobby (int)
+		"""
+		self.currentlobby = currentlobby
+
+		self.lobby = int(self.currentlobby)
+		logging.info('UI: Lobby %d has been clicked by player in Menu.' % (self.lobby+1))
+		return self.lobby
+
+	def enterLobby(self):
+		"""
+		Sends Lobby to Server
+
+		Args:
+			-
+		Return:
+			-
+		"""
+
+		logging.info('UI: Player enters Lobby %s' % (self.lobby))
+		CLIENT.enter_lobby(self.lobby)
+
 ######## Define KV file classes ############################
 class BackToMenuButton(Screen):
 	
@@ -566,6 +648,38 @@ class ListLabel(Screen):
 	pass
 
 class WindowManager(ScreenManager):
+	pass
+
+class SelectableLabel(RecycleDataViewBehavior, Label):
+	''' Add selection support to the Label '''
+	index = None
+	selected = BooleanProperty(False)
+	selectable = BooleanProperty(True)
+
+	def refresh_view_attrs(self, rv, index, data):
+		''' Catch and handle the view changes '''
+		self.index = index
+		return super(SelectableLabel, self).refresh_view_attrs(
+			rv, index, data)
+
+	def on_touch_down(self, touch):
+		''' Add selection on touch down '''
+		if super(SelectableLabel, self).on_touch_down(touch):
+			return True
+		if self.collide_point(*touch.pos) and self.selectable:
+			return self.parent.select_with_touch(self.index, touch)
+
+	def apply_selection(self, rv, index, is_selected):
+		''' Respond to the selection of items in the view. '''
+		self.selected = is_selected
+		self.index = index
+		if is_selected:
+			SearchForLobbiesMenuDynamic().updatechosenLobby(index)
+		else:
+			pass
+
+class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
+	''' Adds selection and focus behaviour to the view. '''
 	pass
 
 ######## Add Screens to the ScreenManager ############################
@@ -582,6 +696,7 @@ screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
 screen_manager.add_widget(GameOverMenuFloat(name='gameovermenufloat'))
+screen_manager.add_widget(SearchForLobbiesMenuDynamic(name='searchforlobbiesmenudynamic'))
 
 class MenuApp(App):
 

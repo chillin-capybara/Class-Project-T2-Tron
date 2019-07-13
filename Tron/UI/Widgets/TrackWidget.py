@@ -11,13 +11,13 @@ from kivy.clock import Clock
 import random
 import math
 
-from Backend.Classes.Client import Client
 from Backend.Classes.HumanPlayer import HumanPlayer
 from Backend.Core.Vect2D import Vect2D
 from Backend.Classes.Game import Game
 from Backend.Classes.Player import Player
 from UI.Widgets.HeadWidget import HeadWidget
 import UI.mainUI
+
 
 
 from kivy.base import runTouchApp
@@ -29,7 +29,6 @@ from kivy.uix.widget import Widget
 class TrackWidget(Widget):
     game_is_running = BooleanProperty(False)
     countdown_is_running = BooleanProperty(False)
-
     speed_constant = NumericProperty(0.001)
     speed_factor = NumericProperty(1)
     counter = NumericProperty(0)
@@ -68,8 +67,10 @@ class TrackWidget(Widget):
                     
 
             if self.game_is_running == True:
+                print("i got information")
                 
                 for player in self.playerList:   
+                    print(player.getVelocity().x)
                     self.allPoints_from_submission = player.getTrack()
                 #     if player == self._player:
                 #         if self.counter_update_players == 0:
@@ -231,6 +232,9 @@ class TrackWidget(Widget):
 
     def setBooleanCountdown(self):
         self.countdown_is_running = True
+
+    def setBooleanGame_Ended(self):
+        self.game_is_running = False
 
     def detect_outbound(self, xVar, yVar):
         fieldsize = UI.mainUI.FIELDSIZE

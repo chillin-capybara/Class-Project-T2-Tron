@@ -32,7 +32,7 @@
         Slider:
             id: numberlobbiesSlider
             min: 1
-            max: 10
+            max: 100
             step: 1
     
     BoxLayout:
@@ -56,7 +56,7 @@
         pos_hint: {'x': .01, 'y': .1}
         text: 'Search for lobbies'
         on_release:
-            root.manager.current = 'searchforlobbiesmenufloat'
+            root.manager.current = 'searchforlobbiesmenudynamic'
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}

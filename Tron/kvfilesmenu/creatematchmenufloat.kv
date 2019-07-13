@@ -9,6 +9,10 @@
 
 <CreateMatchMenuFloat>:
 
+    on_enter:
+        gamenameTextInput.focus = True
+        gamenameTextInput.text = ''
+
     HeaderLabel:
         text: 'Create Match Menu'
         pos_hint: {"x": .01, "y": .94}
@@ -34,7 +38,9 @@
         TextInput:
             size_hint: (.65, 1)
             id: gamenameTextInput
+            focus: True
             hint_text: 'Only_one_word_is_allowed'
+
             on_text:
                 root.validateInput(self.text)
 
@@ -49,7 +55,7 @@
 
         Slider:
             id: numberplayersSlider
-            min: 1
+            min: 2
             max: 10
             step: 1
 
@@ -70,24 +76,25 @@
 
     Button:
         id: creatematchButton
-        size_hint: (.98, .08)
+        size_hint: (.485, .08)
         pos_hint: {'x': .01, 'y': .1}
         background_color: (0.1,0.3,0.7,1)
         text: 'Create Match'
         on_release:
-            root.manager.current = 'lobbymenufloat'
+            root.manager.current = 'lobbymenudynamic'
             root.createMatch(numberplayersSlider.value, numberlifesSlider.value, gamenameTextInput.text)
-        #    root.connecttoServer(ipTextInput.text, portTextInput.text)
-        #    root.startGame()
-
+    
     Button:
         id: backtolobbymenuButton
-        size_hint: (.98, .08)
-        pos_hint: {'x': .01, 'y': .01}
+        size_hint: (.485, .08)
+        pos_hint: {'x': .5, 'y': .1}
         background_color: (0.1,0.3,0.7,1)
-        text: 'Return to Lobby Menu'
+        text: 'Back to Lobby Menu'
         on_release:
-            root.manager.current = 'lobbymenufloat'
+            root.manager.current = 'lobbymenudynamic'
+            
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}
 
     # BackToMenuButton:
     #     pos_hint: {"x": .01, "y": .01}
