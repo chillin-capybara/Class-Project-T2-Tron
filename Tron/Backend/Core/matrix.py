@@ -167,11 +167,13 @@ def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
 		List[Vect2D]: list of positions on the arena, the player already visited
 	"""
 	mylist = []
+	sizeX = len(matrix)
+	sizeY = len(matrix[0])
 	for row in range(0, len(matrix)):
 		# Go through all the rows and find the indexes
 		for col in range(0, len(matrix[0])):
 			# Go through the columns of the matrix
 			if matrix[row][col] == player_id:
-				mylist.append(Vect2D(row, col))
+				mylist.append(Vect2D(col, sizeX - row))
 
 	return mylist
