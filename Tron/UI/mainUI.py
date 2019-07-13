@@ -36,7 +36,7 @@ from kivy.properties import BooleanProperty
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.bubble import Bubble
+from kivy.config import Config
 import re
 import logging
 import time
@@ -896,7 +896,7 @@ screen_manager.add_widget(LobbyMenuDynamic(name='lobbymenudynamic'))
 ######## Errora and Handlers ############################
 def ErrorPopup(sender, msg):
 
-	popup = Popup(title='ERROR', content=Label(text = msg ), size_hint=(None, None), size=(400, 400))
+	popup = Popup(title='ERROR', content=Label(text = msg ), size_hint=(.8, .4))
 
 	popup.open()
 
@@ -928,6 +928,8 @@ CLIENT.EMatchStarted += handle_ematchStarted
 
 class MenuApp(App):
 
+	title = 'A-Moll Tron'
+	
 	def build(self):
 		Window.clearcolor = (0.2, 0.4, 0.7, 1)
 		return screen_manager
