@@ -70,9 +70,6 @@ class Lobby(object):
 		
 		if type(port) is not int:
 			raise TypeError
-		
-		if port not in LOBBY_PORT_RANGE:
-			raise ValueError("The given port is not in the specified range.")
 
 		self.__host = host
 		self.__port = port

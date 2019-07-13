@@ -37,6 +37,6 @@
             "name": "MAIN MENU",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/Tron/mainMenu.py",
+            "program": "${workspaceFolder}/Tron/mainMenuMerge.py",
             "console": "integratedTerminal"
         }

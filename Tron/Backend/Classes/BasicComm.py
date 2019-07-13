@@ -742,9 +742,6 @@ class BasicComm(CommProt):
 			port = int(params)
 		except:
 			raise TypeError("Port cannot be converted to integer")
-		
-		if port not in LOBBY_PORT_RANGE:
-			raise ValueError("The port number is not in the configured range.")
 
 		self.ELobby(self, port=port)
 		return self.LOBBY, port
