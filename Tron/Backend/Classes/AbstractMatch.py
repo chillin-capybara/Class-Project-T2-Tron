@@ -59,6 +59,7 @@ class AbstractMatch(ABC):
 		# Initialize the list of players with default player objects
 		for i in range(0, self.feat_players + 1): # Player zero is reserved for empty space
 			player = HumanPlayer()
+			player.set_lifes(self.feat_lifes)  # Set the default value of the player life
 			self._players.append(player)
 
 		# TODO Initialize the arena based on lobby property

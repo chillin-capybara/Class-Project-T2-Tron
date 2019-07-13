@@ -1,7 +1,7 @@
 from .AbstractMatch import AbstractMatch
 from .BasicComm import BasicComm
 from .HumanPlayer import HumanPlayer
-from ..Core.matrix import getActPos
+from ..Core.matrix import getActPos, getActDirection
 from ..Core.matrix_splitter import MatrixSplitter
 from ..Core.Hook import Hook
 from ..Core.globals import *
@@ -11,6 +11,8 @@ import logging
 import socket
 import time
 import threading
+
+# SECTION TOP
 
 SPLITTER = MatrixSplitter()
 
@@ -202,19 +204,29 @@ class MatchClient(AbstractMatch):
 					pid = 1
 					for player in self.players:
 						player.update_player_track(reconstructed_matrix,pid)
+
+						try:  # Try to update the position of the player
+							pos = getActPos(reconstructed_matrix, self.arena.matrix, pid)
+							x = int(pos[0])
+							y = int(pos[1])
+							oldpos = player.getPosition().to_tuple()
+
+							# Set the calculate position of the player
+							player.setPosition(x, y)
+
+							try:
+								dx, dy = getActDirection(pos, oldpos)
+								#logging.info("NEW DIRECTION %s" % str((dx, dy)))
+								player.setVelocity(dx, dy)
+							except:
+								# if the direction cannot be determined -> JUST IGNORE
+								pass							
+						except:
+							# Cannot update the position -> JUST IGNORE
+							pass
+
 						pid +=1
 
-					self.__hook_me().update_player_track(reconstructed_matrix, self.__player_id)
-					pl_me = self.__hook_me()
-					newtrack = self.__hook_me().getTrack()
-					try:
-						pos = getActPos(reconstructed_matrix, self.arena.matrix, self.__player_id)
-						x = pos[0]
-						y = pos[1]
-						self.__hook_me().setPosition(x,y) # Update the client position based on the matrix
-					except Exception as e:
-						#logging.warning("Cannot get position diff.: %s" % str(e))
-						pass
 					self._arena.update_matrix(self.__recv_dict)
 
 			self.__push_to_dict = True

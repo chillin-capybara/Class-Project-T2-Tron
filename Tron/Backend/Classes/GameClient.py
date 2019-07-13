@@ -24,6 +24,7 @@ class GameClient(object):
 	EError : Event = None # Event to be called, when an error happens
 	EMatchJoined : Event = None
 	EMatchStarted : Event = None
+	EMatchEnded : Event = None
 
 	def __init__(self):
 		"""
@@ -40,6 +41,7 @@ class GameClient(object):
 		self.EError = Event('msg')
 		self.EMatchJoined = Event('matchname')
 		self.EMatchStarted = Event()
+		self.EMatchEnded = Event('reason')
 
 		# Append the lobby event handler to the comm
 		self.__comm.ELobby += self.handle_lobby
@@ -152,6 +154,7 @@ class GameClient(object):
 		lobby.EError += self.handle_EError # Add callback to the error handler
 		lobby.EMatchJoined += self.handle_EMatchJoined # Add callback for match joins
 		lobby.EMatchStarted += self.handle_match_started
+		lobby.EMatchEnded += self.on_match_ended
 		self.__lobbies.append(lobby)
 
 	def handle_EError(self, sender, msg: str):
@@ -197,3 +200,16 @@ class GameClient(object):
 		"""
 		# Close the lobby
 		self.lobby.close()
+	
+		
+	def on_match_ended(self, sender, reason):
+		"""
+		Handle when a match was ended by the server
+		
+		Args:
+			sender (MatchClient): Caller of the Event
+			reason (str): Reason of the match's end
+		"""
+		# Pass the Event along
+		self.EMatchEnded(self, reason)
+

@@ -44,12 +44,16 @@ if __name__ == '__main__':
 	client.lobby.list_matches('Tron')
 	client.join_match(0)
 
+	client.me.setVelocity(1,0)
+
 	while True:
 		time.sleep(0.5)
 		# TODO Update the game matrix every second
 		matrix = client.match.arena.matrix
-		draw_matrix(matrix)
+		#draw_matrix(matrix)
 		players = client.match.players
-		print("Tracks:")
-		for tr in players[0].track:
-			print(str(tr))
+		os.system('clear')
+		for player in players:
+			print("PLAYER POS: %s" % str(player.getPosition()))
+			print("PLAYER VEL: %s" % str(player.getVelocity()))
+			print("PLAYER LIF: %s" % str(player.lifes))

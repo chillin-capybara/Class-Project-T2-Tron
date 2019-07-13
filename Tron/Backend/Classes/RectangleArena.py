@@ -142,9 +142,9 @@ class RectangleArena(Arena):
 		if pos.x > self.sizeX or pos.y > self.sizeY:
 			raise DieError("Player out of border")
 		
-		if self.__matrix[pos.x][pos.y] == 0:
+		if self.__matrix[self.sizeY - pos.y][pos.x] == 0:
 			# Field is still free, you can step on it
-			self.__matrix[pos.x][pos.y] = player_id
+			self.__matrix[self.sizeY - pos.y][pos.x] = player_id
 		else:
 			raise DieError("Player crossed a track")
 	

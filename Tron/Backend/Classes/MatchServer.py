@@ -253,10 +253,10 @@ class MatchServer(AbstractMatch):
 				for player in self.players:
 					try:
 						#player.setVelocity(1,0)
-						player.step()
+						player.step(self.arena.sizeX, self.arena.sizeY)
+
 						#logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
 						self._arena.player_stepped(pid, player.getPosition())
-						draw_matrix(self.arena.matrix)
 					except DieError:
 						player.die() # Call the die function on the player
 						try:
@@ -269,10 +269,16 @@ class MatchServer(AbstractMatch):
 						#logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
 						pid += 1
+					
+					# TODO REMOVE THIS DUMMY PRINTOUT
+					draw_matrix(self.arena.matrix)
+					print("POSITION %d:  %s" % (pid, str(self.players[0].getPosition())))
+					print("VELOCITY %d:  %s" % (pid, str(self.players[0].getVelocity())))
+					print("PLLLIFES %d:  %d / %d" % (pid, self.players[0].lifes, self.feat_lifes))
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
-			time.sleep(2) # 2 Updates per second
+			time.sleep(0.5) # 2 Updates per second
 
 			# Check if the match is in idle, when yes -> Close it
 			if self.is_idle():

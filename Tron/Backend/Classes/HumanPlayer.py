@@ -1,4 +1,5 @@
 from .Player import Player
+from .RectangleArena import DieError
 from .Track import Track, LightTrack
 from ..Core.Vect2D import Vect2D
 from typing import List
@@ -19,7 +20,7 @@ class HumanPlayer(Player):
 
 	__Name = ""  # Name of the player
 	__Color = None  # Color of the player
-	__Position = None
+	__Position: Vect2D = None
 	__Velocity = None
 	__Lifes = 0 # Number of lifes, the player has
 	# __Track = #TODO
@@ -131,7 +132,7 @@ class HumanPlayer(Player):
 		"""
 		Negate 1 from the lifes of the player, until it's zero
 		"""
-		if self.is_alive:
+		if self.is_alive():
 			# Only negate when the player is still alive
 			self.__Lifes -= 1
 	
@@ -142,7 +143,10 @@ class HumanPlayer(Player):
 		Returns:
 			int: True = Alive, False = Dead
 		"""
-		return (self.__Lifes > 0)
+		if self.__Lifes > 0:
+			return True
+		else:
+			return False
 
 	def getLine(self):
 		return self.__track.getLine()
@@ -314,12 +318,18 @@ class HumanPlayer(Player):
 		self.__Position.x += self.__Velocity.x * time
 		self.__Position.y += self.__Velocity.y * time
 	
-	def step(self):
+	def step(self, sizeX: int, sizeY: int):
 		"""
 		Step the player forward in the direction of it's velocity
 		"""
-		self.__Position.x += self.__Velocity.x
-		self.__Position.y += self.__Velocity.y
+		nx = self.__Position.x + self.__Velocity.x
+		ny = self.__Position.y + self.__Velocity.y
+
+		if nx in range(0, sizeX) and ny in range(0, sizeY):
+			self.__Position.x = nx
+			self.__Position.y = ny
+		else:
+			raise DieError
 	
 	def update_player_track(self, matrix: list, player_id: int):
 		"""

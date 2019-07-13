@@ -52,6 +52,7 @@ class Lobby(object):
 	EMatchJoined : Event = None
 	ELobbyStop : Event = None # Event to spread, when the server gets stopped
 	EMatchStarted : Event = None
+	EMatchEnded : Event = None # Event to be called when the match is ended
 
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None, parent=None):
 		"""
@@ -92,6 +93,7 @@ class Lobby(object):
 		self.EMatchJoined = Event('matchname')
 		self.ELobbyStop = Event()
 		self.EMatchStarted = Event() # Detalt event to start the GAME itself
+		self.EMatchEnded = Event('reason') # Reason of the game end
 
 		# Intialize communication protocol : CLIENT EVENTS!!!!
 		self.__comm = BasicComm()
@@ -104,6 +106,7 @@ class Lobby(object):
 		self.__comm.EMatchStarted += self.handle_match_started
 		self.__comm.EMatchJoined += self.handle_match_joined
 		self.__comm.ELifeUpdate += self.handle_life_update
+		self.__comm.EGameEnded += self.on_match_ended
 
 		# Initialize hook : Only for clients
 		if hook_me != None:
@@ -238,15 +241,26 @@ class Lobby(object):
 		Receiver thread, that receives message from the server asynchronously
 		"""
 		logging.info("Starting the receiver thread for the control protocoll...")
-		try:
-			while not self.__require_close:
+		while not self.__require_close:
+			try:
 				# Receive the data and forward it to the message processor
 				packet = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
+
+				if packet == b'': # TCP Connection is broken
+					self.__require_close = True
+					try:
+						self.__sock.close()
+					except:
+						pass
+
+					break
+
 				self.__recvQ.put(packet) # Enqueue the packet for processing
-		except OSError:
-			logging.info("Closing down the client's receiver")
-		except Exception as exc:
-			logging.error("Error occured while asynchronous receive. Reasor: %s", str(exc))
+			except OSError:
+				logging.info("Closing down the client's receiver")
+				break
+			except Exception as exc:
+				logging.error("Error occured while asynchronous receive. Reason: %s", str(exc))
 		
 		logging.info("Control receiver thread closed.")
 	
@@ -254,15 +268,16 @@ class Lobby(object):
 		"""
 		Sender thread to send requests asynchronously
 		"""
-		try:
-			logging.info("Client sender thread started")
-			while not self.__require_close:
+		logging.info("Client sender thread started")
+		while not self.__require_close:
+			try:
 				if not self.__sendQ.empty():
 					self.__sock.send(self.__sendQ.get())
-		except OSError:
-			logging.info("Stopping the clients lobby sender thread.")
-		except Exception as exc:
-			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+			except OSError:
+				logging.info("Stopping the clients lobby sender thread.")
+				break
+			except Exception as exc:
+				logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
 
 		logging.info("Control sender thread closed.")
 	
@@ -277,7 +292,12 @@ class Lobby(object):
 			while not self.__require_close: # For active thread
 				if not self.__recvQ.empty():
 					# Block this thread, until there is anything in the queue
-					self.__comm.process_response(self.__recvQ.get())
+					try:
+						nextmsg = self.__recvQ.get()
+						self.__comm.process_response(nextmsg)
+					except Exception as exc:
+						logging.warning("Error processing the cotntrol message: %s", str(nextmsg))
+						logging.warning("Reason: %s", str(exc))
 		except Exception as exc:
 			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
 
@@ -595,3 +615,16 @@ class Lobby(object):
 			score (int): Lives of the player left.
 		"""
 		self.match.life_udpate(player_id, lifes)
+	
+	def on_match_ended(self, sender, msg):
+		"""
+		Handle when the match is ended by the server
+		
+		Args:
+			sender ([type]): Caller of the event
+			msg (str): Reason of the match end
+		"""
+		logging.info("Match %s ended by the server. Reason: %s", self.match.name, msg)
+
+		# Trigger the Lobby Event
+		self.EMatchEnded(self, reason=msg)

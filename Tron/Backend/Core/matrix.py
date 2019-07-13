@@ -120,10 +120,12 @@ def string_to_matrix(string:str) -> list:
 
 	return out
 
-def getActPos (matix, old_matrix, player_id) -> tuple:
+def getActPos (matix:List[list], old_matrix:List[list], player_id) -> tuple:
 	"""
 	get the actual Positions of the players on the
-	game field
+	game field.
+	if there are no difference between old and new game fields detected,
+	(-666,-666) tuple returns
 
 	Args:
 		matrix(nested list) - actual game field matrix
@@ -131,29 +133,34 @@ def getActPos (matix, old_matrix, player_id) -> tuple:
 		player_id(int): the player id
 	Returns:
 		playersPos (tuple): actual player position
+	Raises:
+		ValueError: if the matrices are the same
 	"""
 
-	if type( player_id ) != int:
+	if type(player_id) != int:
 		raise TypeError
-	else:
-		if player_id < 0:
-			raise ValueError
+
+	if player_id < 0:
+		raise ValueError
+
+	maxY = len(matix) - 1
 
 	# init
 	matrix = np.array((matix))
-	old_matrix = np.array ((old_matrix))
+	old_matrix = np.array((old_matrix))
 
 	difference = matrix - old_matrix
 
-
-	playerTrack = np.where (difference == player_id, difference, difference*0) # we assume for now that player Track consist of one tuple
+	# we assume for now that player Track consist of one tuple
+	playerTrack = np.where(difference == player_id, difference, difference*0)
 	actualPosition = np.nonzero(playerTrack)
 
 	try:
-		actualPositionTuple = (actualPosition[0][0] + 1, actualPosition[1][0] + 1 )
-	except Exception as e:
-		raise e
-	return actualPositionTuple
+		actualPositionTuple = (actualPosition[0][0], actualPosition[1][0])
+	except Exception:
+		raise ValueError
+	else:
+		return actualPositionTuple[1], maxY - actualPositionTuple[0]
 
 def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
 	"""
@@ -177,3 +184,35 @@ def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
 				mylist.append(Vect2D(col, sizeX - row))
 
 	return mylist
+
+def getActDirection (actualPos:tuple, old_position: tuple) -> tuple:
+	"""
+	Calculate the actual direction of the player
+	in case of messy input data returns (0,0)
+
+	Args:
+		actualPos (tuple): the actual position of the object
+		old_position (tuple): the old position of the object
+	Returns:
+		tuple: Velocity direction of the player
+	"""
+	x,y = old_position
+	xnew, ynew = actualPos
+
+	xdir = 0
+	ydir = 0
+
+	if xnew > x:
+		xdir = 1
+	elif xnew < x:
+		xdir = -1
+
+	if ynew > y:
+		ydir = 1
+	elif ynew < y:
+		ydir = -1
+
+	if xdir == ydir:
+		raise ValueError  # No direction possible
+
+	return xdir, ydir

@@ -253,6 +253,11 @@ class LobbyThread(threading.Thread):
 		packet = self.__comm.life_update(player_id, score)
 		self.send(packet)
 
+		# Handle if the player died
+		if self.__leased_player_id.getObj() == player_id and score == 0:
+			packet = self.__comm.game_ended("You died!")
+			self.send(packet)
+
 	def handle_join_match(self, sender, name: str, player: HumanPlayer):
 		"""
 		Handle when a client wants to join a match
