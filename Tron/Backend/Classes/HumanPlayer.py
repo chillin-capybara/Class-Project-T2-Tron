@@ -330,9 +330,3 @@ class HumanPlayer(Player):
 			player_id (int): ID of the current player on the server
 		"""
 		self.__track = get_player_track(matrix, player_id)
-
-
-# # test Player implementation
-# testPlayer = HumanPlayer()
-# testPlayer.__Name = "Max Mustermann"
-# testPlayer.__Color = 2

@@ -252,7 +252,7 @@ class MatchServer(AbstractMatch):
 				pid = 1 # IGNORE PLAYER ZERO
 				for player in self.players:
 					try:
-						player.setVelocity(1,0)
+						#player.setVelocity(1,0)
 						player.step()
 						#logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
 						self._arena.player_stepped(pid, player.getPosition())
