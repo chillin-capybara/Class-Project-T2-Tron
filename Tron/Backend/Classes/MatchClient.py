@@ -198,6 +198,7 @@ class MatchClient(AbstractMatch):
 					# Update the track of the player
 					reconstructed_matrix = SPLITTER.matrix_collapse(self.__recv_dict)
 					self.__hook_me().update_player_track(reconstructed_matrix, self.__player_id)
+					pl_me = self.__hook_me()
 					newtrack = self.__hook_me().getTrack()
 					try:
 						pos = getActPos(reconstructed_matrix, self.arena.matrix, self.__player_id)

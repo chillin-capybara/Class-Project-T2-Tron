@@ -84,7 +84,7 @@ class GameServer(object):
 		"""
 		return self.__lobbies
 	
-	def Start(self):
+	def Start(self, loop = False):
 		"""
 		Start the game server with all the lobbies and discovery protocols
 		"""
@@ -108,7 +108,7 @@ class GameServer(object):
 		thread.start()
 
 		try:
-			while True:
+			while loop:
 				time.sleep(1)
 		except KeyboardInterrupt:
 			self.Stop() # Close up all the stuff

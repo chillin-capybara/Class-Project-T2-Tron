@@ -13,6 +13,7 @@ import logging
 import threading
 from typing import List
 import queue
+import time
 
 
 # TODO Call UI Events only from the UI Thread

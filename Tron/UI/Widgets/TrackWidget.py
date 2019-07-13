@@ -67,10 +67,7 @@ class TrackWidget(Widget):
                     
 
             if self.game_is_running == True:
-                print("i got information")
-                
                 for player in self.playerList:   
-                    print(player.getVelocity().x)
                     self.allPoints_from_submission = player.getTrack()
                 #     if player == self._player:
                 #         if self.counter_update_players == 0:
