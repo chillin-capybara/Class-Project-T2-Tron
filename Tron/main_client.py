@@ -49,3 +49,7 @@ if __name__ == '__main__':
 		# TODO Update the game matrix every second
 		matrix = client.match.arena.matrix
 		draw_matrix(matrix)
+		players = client.match.players
+		print("Tracks:")
+		for tr in players[0].track:
+			print(str(tr))

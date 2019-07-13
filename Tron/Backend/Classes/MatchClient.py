@@ -197,6 +197,13 @@ class MatchClient(AbstractMatch):
 					#logging.info("New matrix updated!")
 					# Update the track of the player
 					reconstructed_matrix = SPLITTER.matrix_collapse(self.__recv_dict)
+
+					# Update the tracks for all the players
+					pid = 1
+					for player in self.players:
+						player.update_player_track(reconstructed_matrix,pid)
+						pid +=1
+
 					self.__hook_me().update_player_track(reconstructed_matrix, self.__player_id)
 					pl_me = self.__hook_me()
 					newtrack = self.__hook_me().getTrack()
@@ -209,7 +216,6 @@ class MatchClient(AbstractMatch):
 						#logging.warning("Cannot get position diff.: %s" % str(e))
 						pass
 					self._arena.update_matrix(self.__recv_dict)
-					logging.debug("NEW MATRIX")
 
 			self.__push_to_dict = True
 			self.__recv_dict.clear() #Empty the receive buffer
