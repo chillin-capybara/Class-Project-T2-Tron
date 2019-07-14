@@ -4,6 +4,7 @@ from .Track import Track, LightTrack
 from ..Core.Vect2D import Vect2D
 from typing import List
 from ..Core.matrix import *
+import logging
 
 # todo: Implement the Human player according to the UML
 #TODO: Makros definition
@@ -248,7 +249,19 @@ class HumanPlayer(Player):
 		"""
 		if type(color) is not tuple:
 			raise TypeError
-		self.__Color = color
+
+		r,g,b = color
+
+		if type(r) is int and type(g) is int and type(b) is int:
+
+			if r in range(0,256) and b in range (0, 256) and g in range(0, 256):
+				self.__Color = color
+			else:
+				logging.critical("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
+				raise ValueError("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
+		else:
+			logging.critical("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
+			raise TypeError("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
 
 
 	def setPosition(self, x: int, y: int):
