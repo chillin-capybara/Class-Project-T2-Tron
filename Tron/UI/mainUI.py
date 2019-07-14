@@ -71,68 +71,67 @@ logging.info("GameApp loaded")
 
 # class GameUI(Widget):
 class GameUI(Screen):
-    playerList = ListProperty([])
-    countdown_is_running = BooleanProperty(False)
-    game_is_running = BooleanProperty(False)
-    playPos = ObjectProperty(Vect2D(10, 0))
+	playerList = ListProperty([])
+	countdown_is_running = BooleanProperty(False)
+	game_is_running = BooleanProperty(False)
+	playPos = ObjectProperty(Vect2D(10, 0))
 
-    def init_onenter(self, **kwargs):
-        super(GameUI, self).__init__(**kwargs)
+	def init_onenter(self, **kwargs):
+		super(GameUI, self).__init__(**kwargs)
 
-        self.__client = CLIENT
-        self.playerList = self.__client.match.players
-        # ## creates update function for all uses, ensures synchronized update trigger
-        # self.update()
-        
-        Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
-        logging.info("GameApp initialized")
+		self.__client = CLIENT
+		self.playerList = self.__client.match.players
+		# ## creates update function for all uses, ensures synchronized update trigger
+		# self.update()
+
+		Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
+		logging.info("GameApp initialized")
 
 
-    def update(self, *args):
-        ## final update function, where I trigger different functuions
-        self.ids.trackWidget.update()
-        self.ids.playerWidget.printPlayers()
-        
-        ## functions should only be started after special event is triggered
-        if self.countdown_is_running == True:
-            ## Despite trying to handle the information down, I was forced to create new function,
-            ## which triggers certain event in subclass
-            self.ids.trackWidget.setBooleanCountdown()
-            self.ids.trackWidget.increaseOpacity()
-            self.ids.trackWidget.getFieldsize(CLIENT.match.arena.sizeX, CLIENT.match.arena.sizeY)
-        
-        ## functions should only be started after special event is triggered
-        if self.game_is_running == True:
+	def update(self, *args):
+	## final update function, where I trigger different functuions
+		self.ids.trackWidget.update()
+		self.ids.playerWidget.printPlayers()
+
+		## functions should only be started after special event is triggered
+		if self.countdown_is_running == True:
+			## Despite trying to handle the information down, I was forced to create new function,
+			## which triggers certain event in subclass
+			self.ids.trackWidget.setBooleanCountdown()
+			self.ids.trackWidget.increaseOpacity()
+			self.ids.trackWidget.getFieldsize(CLIENT.match.arena.sizeX, CLIENT.match.arena.sizeY)
+
+		## functions should only be started after special event is triggered
+		if self.game_is_running == True:
 			CLIENT.i_am_ready()
-            ## Despite trying to handle the information down, I was forced to create new function,
-            ## which triggers certain event in subclass
-            self.ids.trackWidget.setBooleanGame()
+			## Despite trying to handle the information down, I was forced to create new function,
+			## which triggers certain event in subclass
+			self.ids.trackWidget.setBooleanGame()
 
-        # if self.game_is_running == False:
-        #     self.game.ids.trackWidget.setBooleanGame_Ended()
+		# if self.game_is_running == False:
+		# self.game.ids.trackWidget.setBooleanGame_Ended()
 
+	def getPlayerWidgetSize(self):
+		## creates the hight for the widget in duty of displaying all players online
+		playerCount = len(self.playerList)
+		return (100, playerCount * 20)
 
-    def getPlayerWidgetSize(self):
-        ## creates the hight for the widget in duty of displaying all players online
-        playerCount = len(self.playerList)
-        return (100, playerCount * 20)
+	def do_finished(self):
+		## event handler, sets the Booleans for opacity
+		def callback(_):
+			# Countdown abgelaufen
+			# Spiel starten ...
+			self.countdown_is_running = False
+			self.game_is_running = True
 
-    def do_finished(self):
-        ## event handler, sets the Booleans for opacity
-        def callback(_):
-            # Countdown abgelaufen
-            # Spiel starten ...
-            self.countdown_is_running = False
-            self.game_is_running = True
-            
-        ## after specified time callback function is called anbd game starts
-        Clock.schedule_once(callback, 0)
-        
-    def updateUpdater(self):
-        self.ids.headWidget.update_screen_size(self.size)
+		## after specified time callback function is called anbd game starts
+		Clock.schedule_once(callback, 0)
 
-    def getControl(self):
-        CLIENT.godmode_on()
+	def updateUpdater(self):
+		self.ids.headWidget.update_screen_size(self.size)
+
+	def getControl(self):
+		CLIENT.godmode_on()
 
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
