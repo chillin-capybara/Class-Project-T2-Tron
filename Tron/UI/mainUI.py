@@ -779,7 +779,7 @@ def handle_ematchStarted(sender):
 
 CLIENT.EMatchStarted += handle_ematchStarted
 
-def MatchEndedPopup(sender, reason):
+def MatchEndedPopup(sender, reason='You Died!'):
 
 	screen_manager.current = 'lobbymenudynamic'
 	popup = Popup(title='Match Ended', content=Label(text=reason), size_hint=(.8, .4))
