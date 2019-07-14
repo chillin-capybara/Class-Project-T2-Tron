@@ -26,10 +26,10 @@ class PlayerWidget(Widget):
     playerList = ListProperty([])
     game = ObjectProperty()
     print(game)
-    def on_playerList(self, instance, value):
+    def printPlayers(self):
         ## function for creating the input for the BoxLayout, capable of printing the text + the color of the player
         self.ids.boxLayout1.clear_widgets()
-        for player in value:
+        for player in self.playerList:
             self.ids.boxLayout1.add_widget(Label(
                 text = 'Lifes: %d' % player.lifes,
                 color = [player.getColor()[0]*255, player.getColor()[1]*255, player.getColor()[2]*255, 1]

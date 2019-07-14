@@ -91,6 +91,7 @@ class GameUI(Screen):
     def update(self, *args):
         ## final update function, where I trigger different functuions
         self.ids.trackWidget.update()
+        self.ids.playerWidget.printPlayers()
         
         ## functions should only be started after special event is triggered
         if self.countdown_is_running == True:
