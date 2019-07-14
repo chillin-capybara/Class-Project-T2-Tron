@@ -56,12 +56,12 @@ class MyKeyboardListener(Widget):
             self.press_d_key()
             # self.addingTrack_to_player()
 
-        if keycode[1] == 'left':
-            self.press_a_key()
+        if keycode[1] == 'w':
+            self.press_w_key()
             # self.addingTrack_to_player()
 
-        if keycode[1] == 'right':
-            self.press_d_key()
+        if keycode[1] == 's':
+            self.press_s_key()
             # self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
@@ -70,48 +70,15 @@ class MyKeyboardListener(Widget):
     def press_d_key(self):
         ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
         ## with d we go clockwise
-        if self._player.getVelocity().x == 1 and self._player.getVelocity().y == 0:
-            self._player.setVelocity(0, -1)
-            
-            return
-
-        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == 1:
-            self._player.setVelocity(1, 0)
-            return
-
-        if self._player.getVelocity().x == -1 and self._player.getVelocity().y == 0:
-            self._player.setVelocity(0, 1)
-            return
-
-
-        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == -1:
-            self._player.setVelocity(-1, 0)
-            return
+        self._player.setVelocity(1, 0)
     
-
     def press_a_key(self):
         ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
         ## with a we go counter-clockwise
-        if self._player.getVelocity().x == 1 and self._player.getVelocity().y == 0:
-            self._player.setVelocity(0, 1)
-            return
+        self._player.setVelocity(-1, 0)
 
-        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == 1:
-            self._player.setVelocity(-1, 0)
-            return
-            
-        if self._player.getVelocity().x == -1 and self._player.getVelocity().y == 0:
-            self._player.setVelocity(0, -1)
-            return
+    def press_w_key(self):
+        self._player.setVelocity(0, 1)
 
-        if self._player.getVelocity().x == 0 and self._player.getVelocity().y == -1:
-            self._player.setVelocity(1, 0)
-            return
-
-
-    
-
-    # def addingTrack_to_player(self):
-    #     self.trackPoints.append(self._player.getPosition().clone())
-    #     self._player.addTrack(self.trackPoints[-2], self.trackPoints[-1])
-        
+    def press_s_key(self):
+        self._player.setVelocity(0, -1)

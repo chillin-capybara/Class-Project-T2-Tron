@@ -245,11 +245,13 @@ class LeasableList(object):
 			obj: LeasableObject
 			if obj.is_free():
 
+				ret = obj.lease()
+
 				# Call the events
 				self.OnLease(self)
 				self.OnUpdate(self)
 
-				return obj.lease() # Set the lease of the object
+				return ret  # Set the lease of the object
 
 		# No instances found
 		raise LeaseError("The collections has no leaseable objects left")
@@ -267,11 +269,13 @@ class LeasableList(object):
 			obj: LeasableObject
 			if obj.is_free():
 
+				ret = obj.lease_lock(locker)
+
 				# Call the events
 				self.OnLease(self)
 				self.OnUpdate(self)
 
-				return obj.lease_lock(locker) # Set the lease of the object
+				return  ret  # Set the lease of the object
 
 		# No instances found
 		raise LeaseError("The collections has no leaseable objects left")
@@ -293,11 +297,11 @@ class LeasableList(object):
 		# Check if the object is in the collection
 		if obj in self.__collection:
 
+			obj.free()
+
 			# Call the events
 			self.OnFree(self)
 			self.OnUpdate(self)
-
-			obj.free()
 		else:
 			raise ValueError("The object is not part of this collection")
 
@@ -319,11 +323,11 @@ class LeasableList(object):
 		# Check if the object is in the collection
 		if obj in self.__collection:
 
+			obj.free()
+
 			# Call the events
 			self.OnFree(self)
 			self.OnUpdate(self)
-
-			obj.free()
 		else:
 			raise ValueError("The object is not part of this collection")
 
@@ -349,7 +353,7 @@ class LeasableList(object):
 		for obj in self.__collection:
 			obj: LeasableObject
 			obj.free()
-		
+
 		# Call the events
 		self.OnFree(self)
 		self.OnUpdate(self)

@@ -9,19 +9,20 @@ Builder.load_string("""
 <CountdownWidget>:
     # Widget for the countdown sequence
     Label:
-        size_hint: ( .2, .1)
-        pos_hint: {'x': .4, 'y': .45}
+        size: root.size
+        # pos_hint: {'x': .4, 'y': .45}
         color: 1, 1, 1, 1
         # counter function is implemented
-        text: "Finished" if root.counter == 0 else str(round(root.counter, 1))
+        text: '' if root.counter == 0 else str(round(root.counter, 1))
 """)
 
 class CountdownWidget(Widget):
     start_value = NumericProperty()
-    counter = NumericProperty(-1)
+    counter = NumericProperty()
 
     def __init__(self, **kwargs):
         # cunstructor for register the event
+        
         super(CountdownWidget, self).__init__(**kwargs)
         self.register_event_type("on_finished") # Event registrieren
 

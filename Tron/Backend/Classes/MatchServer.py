@@ -94,6 +94,7 @@ class MatchServer(AbstractMatch):
 
 			# Create the player slots (ID=0 is reserved for an empty player)
 			self.__player_slots = LeasableList(list(range(1,self._feat_players+1)))
+			logging.info("Slots created: %s" % str(list(range(1,self._feat_players+1))))
 
 			# Add slot updater for the server
 			self._feat_slots = self.feat_players
@@ -249,6 +250,8 @@ class MatchServer(AbstractMatch):
 		logging.info("Starting stepper thread, to update the player positions...")
 		while True:
 			try:
+				draw_matrix(self.arena.matrix)
+				print("--------- Players: ------------")
 				pid = 1 # IGNORE PLAYER ZERO
 				for player in self.players:
 					try:
@@ -268,13 +271,10 @@ class MatchServer(AbstractMatch):
 
 						#logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
+						print("%d; %s \t| %s | %s | %d" % (pid, player.getName(), str(player.getVelocity()), str(player.getPosition()), player.lifes), flush=True)
 						pid += 1
 					
 					# TODO REMOVE THIS DUMMY PRINTOUT
-					draw_matrix(self.arena.matrix)
-					print("POSITION %d:  %s" % (pid, str(self.players[0].getPosition())))
-					print("VELOCITY %d:  %s" % (pid, str(self.players[0].getVelocity())))
-					print("PLLLIFES %d:  %d / %d" % (pid, self.players[0].lifes, self.feat_lifes))
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
@@ -339,7 +339,7 @@ class MatchServer(AbstractMatch):
 			# Update the last activity time
 			self.__last_activity = time.perf_counter()
 
-	def lease_player_id(self) -> LeasableObject:
+	def lease_player_id(self, player:HumanPlayer) -> LeasableObject:
 		"""
 		Lease a player if, from the collection of player IDs.
 
@@ -349,7 +349,15 @@ class MatchServer(AbstractMatch):
 		Returns:
 			LeasableObject: Leased player id, wrapped in a LeaseableObject
 		"""
-		return self.__player_slots.lease()
+		# Let all the player properties to be taken from the Lobby
+		lease = self.__player_slots.lease()
+		pid = lease.getObj()
+
+		# Set the lifes of the newly joined player!
+		player.set_lifes(self.feat_lifes)
+		self._players[pid] = player
+
+		return lease
 
 	def is_idle(self):
 		"""

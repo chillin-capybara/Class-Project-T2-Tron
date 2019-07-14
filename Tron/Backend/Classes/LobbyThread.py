@@ -6,7 +6,7 @@ from typing import List
 
 from ..Core.Hook import Hook
 from ..Core.Event import Event
-from .BasicComm import BasicComm
+from .BasicComm import BasicComm, MessageError
 from .MatchServer import MatchServer
 from ..Core.globals import *
 from ..Core.leasable_collections import *
@@ -94,6 +94,10 @@ class LobbyThread(threading.Thread):
 				try:
 					# Pipeline it into the processor
 					self.__comm.process_response(data)
+				except MessageError as msg_error:
+					# Tell the client that the command was not understood
+					packet = self.__comm.error_incorrect_cmd()
+					self.send(packet)
 				except Exception as e:
 					# Message processing error
 					logging.warning(str(e))
@@ -272,13 +276,18 @@ class LobbyThread(threading.Thread):
 		# We have a color and a playername
 		player.setName(self.__hello_name)
 
+		# Set the color of the player
+		player.setColor(player.getColor())
+
+		logging.info("%s has the color %s" % (player.getName(), player.getColor()))
+
 		# Check if the match exists
 		ex_matches = self.__hook_get_matches()
 		for match in ex_matches:
 			match: MatchServer
 			if match.name == name:
 				# Found the match
-				self.__leased_player_id = match.lease_player_id()
+				self.__leased_player_id = match.lease_player_id(player)
 				pid: int = self.__leased_player_id.getObj() # Get the id of the player
 
 				# NOTE BIND THE PLAYER ID TO THE HOST
@@ -291,6 +300,7 @@ class LobbyThread(threading.Thread):
 				match.EStart += self.handle_match_started
 
 				match.ELifeUpdate += self.handle_OnLifeUpdate # Event to send away life updates
+				
 				# Check for the Event to start
 				match.check_for_start()
 				return

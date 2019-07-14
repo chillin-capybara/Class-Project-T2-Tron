@@ -29,6 +29,8 @@ class MatchClient(AbstractMatch):
 
 	__threadcollection: ThreadCollection = None # Initialize a threadcollection
 
+	__godmode: bool = False
+
 	def __init__(self, host: str, name: str, parent, hook_me):
 		"""
 		Initialize a new instanc of MatchClient with the match parameter
@@ -70,6 +72,12 @@ class MatchClient(AbstractMatch):
 			port (int): Port of the match (for UDP)
 		"""
 		self._port = port
+	
+	def godmode_on(self):
+		"""
+		Turn on the godmode for the match. This will controll all other players.
+		"""
+		self.__godmode = True
 
 	def set_features(self, features: List[str]):
 		"""
@@ -80,6 +88,9 @@ class MatchClient(AbstractMatch):
 		"""
 		self._feat_players = self.get_feature_value_int('Players', features)
 		self._feat_lifes   = self.get_feature_value_int('lifes', features)
+
+		# Regenerate the list of the players
+		self._generate_default_struture()
 
 		try:
 			# Try to set the feature slots
@@ -160,17 +171,39 @@ class MatchClient(AbstractMatch):
 		presock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 		ini = True
 		while True:
-			vel = self.__hook_me().getVelocity()
-			packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
-			seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
-			packet = seq + packet
-			self.__last_direction_seq += 1
-			presock.sendto(packet, (self.host, self.port))
-			#logging.info("Position info updated!")
+			if self.__godmode:
+				pid = 1
+				for player in self.players:
+					if pid != self.__player_id:
+						# Update other players MOUHAHAHA
+						player.setVelocity(GODMODE_X, GODMODE_Y)  # TODO MAKE IT A GLOBAL
+						vel = self.__hook_me().getVelocity()
+						packet = self.__comm.new_direction(pid, (vel.x, vel.y))
+						seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
+						packet = seq + packet
+						self.__last_direction_seq += 1
+						presock.sendto(packet, (self.host, self.port))
+					else:
+						# Update the current player
+						vel = self.__hook_me().getVelocity()
+						packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
+						seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
+						packet = seq + packet
+						self.__last_direction_seq += 1
+						presock.sendto(packet, (self.host, self.port))
+			else:
+				# UPDATE THE LOCAL PLAYER
+				vel = self.__hook_me().getVelocity()
+				packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
+				seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
+				packet = seq + packet
+				self.__last_direction_seq += 1
+				presock.sendto(packet, (self.host, self.port))
+
 			if ini:
 				self.__clientsock = presock
 				ini = False
-			#logging.info("NEW DIRECTION SEND!")
+
 			time.sleep(0.01) # Send the
 
 		logging.info("Exiting client sender thread")
@@ -250,3 +283,9 @@ class MatchClient(AbstractMatch):
 			ValueError: Lifes smaller than 0
 		"""
 		self._players[player_id].set_lifes(score)
+	
+	def leave(self):
+		"""
+		Leave the match for a client request
+		"""
+		pass
