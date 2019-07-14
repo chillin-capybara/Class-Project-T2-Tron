@@ -129,6 +129,9 @@ class GameUI(Screen):
     def updateUpdater(self):
         self.ids.headWidget.update_screen_size(self.size)
 
+    def getControl(self):
+        CLIENT.godmode_on()
+
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
 Builder.load_file('kvfilesmenu/createservermenufloat.kv')
