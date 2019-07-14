@@ -32,7 +32,7 @@ class PlayerWidget(Widget):
         for player in value:
             self.ids.boxLayout1.add_widget(Label(
                 text = 'Lifes: %d' % player.lifes,
-                color = [*player.getColor(), 1]
+                color = [player.getColor()[0]*255, player.getColor()[1]*255, player.getColor()[2]*255, 1]
             ))
     
   
