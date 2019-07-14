@@ -23,36 +23,26 @@ def parser (text:str, player_name:str)->int:
 
 	for word in range (0, len(word_list)):
 		#check bad symbols
-
+		# for letter in range (0, len(word_list[word])):
+		# 	if word_list[word] == "'":
+		# 		word_list[word] = word_list[word][0:letter-1]
 
 	# built string
 		string = word_list[word].lower() + "*" 
 		#inversion test
 		for item in range (0,len(not_list)):
-			try:
-				neg_match= re.match(string,"not")
-			except Exception:
-				pass
-			if neg_match:
+			if re.match(string,"not"):
 				inversion = True
 
 		#win list
 		for item in range (0,len(win_list)):
-			try:
-				win_match = re.match(string,win_list[item])
-			except Exception:
-				pass
-			if win_match :
+			if re.match(string,win_list[item]) :
 				answer = 1
 		
 		if answer == 0:
 			# looser list
 			for item in range (0,len(looser_list)):
-				try:
-					looser_match = re.match(string,looser_list[item])
-				except Exception:
-					pass
-				if looser_match :
+				if re.match(string,looser_list[item]) :
 					answer = -1
 		
 	if inversion & (answer != 0):
