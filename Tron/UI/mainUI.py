@@ -103,6 +103,7 @@ class GameUI(Screen):
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:
+			CLIENT.i_am_ready()
             ## Despite trying to handle the information down, I was forced to create new function,
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanGame()
@@ -292,6 +293,8 @@ class SearchForLobbiesMenuDynamic(Screen):
 class LobbyMenuDynamic(Screen):
 	match = 0
 	matches = []
+	sentmatch = 0
+	sentmatches = []
 
 	def getPlayerdata(self):
 
@@ -318,6 +321,13 @@ class LobbyMenuDynamic(Screen):
 		CLIENT.lobby.list_matches('Tron')
 		listmatches = CLIENT.lobby.matches
 		count_matches = listmatches.__len__()
+
+		## Debugging: what is Backend sending
+		for i in range(0,count_matches):
+			sentmatch = listmatches[i]
+			self.sentmatches.append("UI Lobby Menu: Backend sent: %s %s %s" % (sentmatch.name, sentmatch.game, sentmatch.get_feature_string()))
+		logging.info(str(self.sentmatches))
+
 		for i in range(0,count_matches):
 			match = listmatches[i]
 			if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0:
