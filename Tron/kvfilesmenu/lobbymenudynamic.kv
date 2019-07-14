@@ -12,6 +12,8 @@
     on_enter:
         root.getLobbyInformation()
         root.update_list()
+    on_leave:
+        root.clear_list()
 
     HeaderLabel:
         text: 'Lobby Menu'
@@ -68,7 +70,9 @@
         background_color: (0.1,0.3,0.7,1)
         text: 'Refresh'
         on_release:
+            root.clear_list()
             root.getLobbyInformation()
+            root.update_list()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}

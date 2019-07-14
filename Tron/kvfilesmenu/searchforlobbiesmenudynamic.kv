@@ -14,6 +14,8 @@
         #root.getPlayerdata("")
         root.getavailableLobbies()
         root.update_list()
+    on_leave:
+        root.clear_list()
 
     HeaderLabel:
         text: 'Search for Lobbies Menu'
@@ -45,65 +47,6 @@
                 multiselect: False
                 touch_multiselect: True
 
-        # BoxLayout:
-        #     orientation: "vertical"
-        #     size_hint: (.9, 1)
-
-        #     Label:
-        #         id: lobby1Label
-        #         text: ''
-        #     Label:
-        #         id: lobby2Label
-        #         text: ''
-        #     Label:
-        #         id: lobby3Label
-        #         text: ''
-        #     Label:
-        #         id: lobby4Label
-        #         text: ''
-        #     Label:
-        #         id: lobby5Label
-        #         text: ''
-        
-        # BoxLayout:
-        #     orientation: "vertical"
-        #     size_hint: (.1, 1)
-
-        #     CheckBox:
-        #         id: lobby1Checkbox
-        #         group: "LobbyCheckbox"
-        #         color: (1,0,0,1)
-        #         on_active:
-        #             root.updatechosenLobby(1)
-
-        #     CheckBox:
-        #         id: lobby2Checkbox
-        #         group: "LobbyCheckbox"
-        #         color: (1,0,0,1)
-        #         on_active:
-        #             root.updatechosenLobby(2)
-
-        #     CheckBox:
-        #         id: lobby3Checkbox
-        #         group: "LobbyCheckbox"
-        #         color: (1,0,0,1)
-        #         on_active:
-        #             root.updatechosenLobby(3)
-
-        #     CheckBox:
-        #         id: lobby4Checkbox
-        #         group: "LobbyCheckbox"
-        #         color: (1,0,0,1)
-        #         on_active:
-        #             root.updatechosenLobby(4)
-
-        #     CheckBox:
-        #         id: lobby5Checkbox
-        #         group: "LobbyCheckbox"
-        #         color: (1,0,0,1)
-        #         on_active:
-        #             root.updatechosenLobby(5)
-
     Button:
         id: refreshButton
         size_hint: (.1, .08)
@@ -111,6 +54,7 @@
         background_color: (0.1,0.3,0.7,1)
         text: 'Refresh'
         on_release:
+            root.clear_list()
             root.getavailableLobbies()
             root.update_list()
 
