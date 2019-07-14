@@ -40,8 +40,8 @@
                 Slider:
                     id: redcolorSlider
                     min: 0
-                    max: 1
-                    step: 0.25
+                    max: 255
+                    step: 1
             BoxLayout:
                 orientation: 'horizontal'
                 Label:
@@ -51,8 +51,8 @@
                 Slider:
                     id: greencolorSlider
                     min: 0
-                    max: 1
-                    step: 0.25
+                    max: 255
+                    step: 1
             BoxLayout:
                 orientation: 'horizontal'
                 Label:
@@ -62,8 +62,8 @@
                 Slider:
                     id: bluecolorSlider
                     min: 0
-                    max: 1
-                    step: 0.25
+                    max: 255
+                    step: 1
         BoxLayout:
             orientation: 'vertical'
             size_hint: (0.3, 1)
@@ -74,7 +74,7 @@
             ColoredLabel:
                 id: colordisplayLabel
                 text: ''
-                background_color: (redcolorSlider.value,greencolorSlider.value,bluecolorSlider.value,1)
+                background_color: (redcolorSlider.value/255,greencolorSlider.value/255,bluecolorSlider.value/255,1)
                 size_hint: (1, 1.5)
 
     # BackToMenuButton:

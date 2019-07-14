@@ -430,10 +430,16 @@ class SettingsMenuFloat(Screen):
 		else:
 			CLIENT.me.setName(playername)
 			print("Playername changed to: %s" % playername)
+		
+		# TODO Oliver: Wuerde mal darauf hinweisen, dass RGB von 0-255 die Werte hat.
+		# NOTE            Man sollte manchmal bissl die Code Dokumentation lesen...
+
+		r,g, b = color
+		color = (int(r), int(g), int(b))
 
 		if color == (0, 0, 0):
 			playercolor = loaddata[1]
-			color = (playercolor[0], playercolor[1], playercolor[2])
+			color = (int(playercolor[0]), int(playercolor[1]), int(playercolor[2]))
 			CLIENT.me.setColor(color)
 			print("Color stayed: %s" % str(color))
 		else:
