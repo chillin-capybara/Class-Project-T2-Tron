@@ -432,6 +432,14 @@ class Lobby(object):
 		# Set the selected match
 		self.__selected_match = self.matches[index]
 	
+	def leave_match(self):
+		"""
+		Send the server a request the you want to leave the math
+		"""
+		logging.info("Leaving the match...")
+		packet = self.__comm.leaving_match("Client clicked leave match.")
+		self.send(packet)
+	
 	def handle_welcome(self, sender, features: list):
 		"""
 		Event handler for receiving a welcome message form the server

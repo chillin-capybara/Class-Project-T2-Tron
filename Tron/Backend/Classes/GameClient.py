@@ -209,6 +209,15 @@ class GameClient(object):
 		# Close the lobby
 		self.lobby.close()
 	
+	def leave_match(self):
+		"""
+		Leave the joined match (if there is a joined match)
+		"""
+		try:
+			self.lobby.leave_match()
+		except Exception as exc:
+			logging.warning("Cannot leave match. Reason: %s", str(exc))
+	
 		
 	def on_match_ended(self, sender, reason):
 		"""

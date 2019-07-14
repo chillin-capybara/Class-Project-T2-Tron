@@ -52,12 +52,13 @@ class LobbyThread(threading.Thread):
 		self.__comm = BasicComm()
 
 		# Initialize event handlers
-		self.__comm.EHello += self.handle_hello
-		self.__comm.EListGames += self.handle_list_games
-		self.__comm.ECreateMatch += self.handle_create_match
-		self.__comm.EListMatches += self.handle_list_matches
-		self.__comm.EMatchFeatures += self.handle_match_features
-		self.__comm.EJoinMatch  += self.handle_join_match
+		self.__comm.EHello            += self.handle_hello
+		self.__comm.EListGames        += self.handle_list_games
+		self.__comm.ECreateMatch      += self.handle_create_match
+		self.__comm.EListMatches      += self.handle_list_matches
+		self.__comm.EMatchFeatures    += self.handle_match_features
+		self.__comm.EJoinMatch        += self.handle_join_match
+		self.__comm.EExitGame         += self.on_leave_match
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
@@ -333,4 +334,22 @@ class LobbyThread(threading.Thread):
 		# Generate match started package for every player in their thread
 		packet = self.__comm.match_started(port, player_ids, players)
 		self.send(packet)
-
+	
+	def on_leave_match(self, sender, msg):
+		"""
+		Handle, when a user wants to exit a match
+		
+		Args:
+			sender (Any): Caller of the event
+			msg (str): Reason why to leave. Can be ignored
+		"""
+		try:
+			if self.__leased_player_id.is_leased():
+				# Free up the leased player id
+				self.__leased_player_id.free()
+				logging.info("The player %s wants to leave the match", self.__hello_name)
+			else:
+				# JUST LOG and IGNORE
+				logging.warning("The player %s is not joined to any match.", self.__hello_name)
+		except Exception as exc:
+			logging.warning("Error while leaving the match: %s", str(exc))
