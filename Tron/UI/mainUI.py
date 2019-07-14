@@ -324,8 +324,9 @@ class LobbyMenuDynamic(Screen):
 		## Debugging: what is Backend sending
 		for i in range(0,count_matches):
 			sentmatch = listmatches[i]
-			self.sentmatches.append("UI Lobby Menu: Backend sent: %s %s %s" % (sentmatch.name, sentmatch.game, sentmatch.get_feature_string()))
-		logging.info(str(self.sentmatches))
+			self.sentmatches.append("[%s %s %s]" % (sentmatch.name, sentmatch.game, sentmatch.get_feature_string()))
+		logging.info('UI Lobby Menu: Backend sent: %s' % str(self.sentmatches))
+		self.sentmatches.clear()
 
 		for i in range(0,count_matches):
 			match = listmatches[i]
