@@ -172,6 +172,7 @@ class MatchClient(AbstractMatch):
 				pid = 1
 				for player in self.players:
 					if pid != self.__player_id:
+						# Update other players MOUHAHAHA
 						player.setVelocity(GODMODE_X, GODMODE_Y)  # TODO MAKE IT A GLOBAL
 						vel = self.__hook_me().getVelocity()
 						packet = self.__comm.new_direction(pid, (vel.x, vel.y))
@@ -179,7 +180,16 @@ class MatchClient(AbstractMatch):
 						packet = seq + packet
 						self.__last_direction_seq += 1
 						presock.sendto(packet, (self.host, self.port))
+					else:
+						# Update the current player
+						vel = self.__hook_me().getVelocity()
+						packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
+						seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
+						packet = seq + packet
+						self.__last_direction_seq += 1
+						presock.sendto(packet, (self.host, self.port))
 			else:
+				# UPDATE THE LOCAL PLAYER
 				vel = self.__hook_me().getVelocity()
 				packet = self.__comm.new_direction(self.__player_id, (vel.x, vel.y))
 				seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
