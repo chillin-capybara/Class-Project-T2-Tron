@@ -49,6 +49,29 @@
             on_active:
                 root.statusServer(self.active, numberlobbiesSlider.value)
 
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: ( .98, .29)
+        pos_hint: {'x': .01, 'y': .19}
+
+        Label:
+            text: 'Fieldsize: Width ' + str(int(widthSlider.value))
+
+        Slider:
+            id: widthSlider
+            min: 10
+            max: 100
+            step: 5
+
+        Label:
+            text: 'Fieldsize: Height ' + str(int(heightSlider.value))
+
+        Slider:
+            id: heightSlider
+            min: 10
+            max: 100
+            step: 5
+
     Button:
         id: searchforlobbiesButton
         size_hint: (.98, .08)

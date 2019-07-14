@@ -48,7 +48,7 @@
 
     Button:
         id: creatematchButton
-        size_hint: (.43, .08)
+        size_hint: (.395, .08)
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {'x': .01, 'y': .1}
         text: 'Create match'
@@ -57,12 +57,21 @@
 
     Button:
         id: joinmatchButton
-        size_hint: (.43, .08)
+        size_hint: (.225, .08)
         background_color: (0.1,0.3,0.7,1)
-        pos_hint: {'x': .45, 'y': .1}
+        pos_hint: {'x': .415, 'y': .1}
         text: 'Join match'
         on_release:
             root.joinMatch()
+    
+    Button:
+        id: leavematchButton
+        size_hint: (.225, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .65, 'y': .1}
+        text: 'Leave match'
+        on_release:
+            root.leaveMatch()
     
     Button:
         id: refreshButton
