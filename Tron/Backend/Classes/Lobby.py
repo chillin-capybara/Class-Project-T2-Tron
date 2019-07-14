@@ -271,8 +271,8 @@ class Lobby(object):
 		logging.info("Client sender thread started")
 		while not self.__require_close:
 			try:
-				if not self.__sendQ.empty():
-					self.__sock.send(self.__sendQ.get())
+				next_packet = self.__sendQ.get()
+				self.__sock.send(next_packet)
 			except OSError:
 				logging.info("Stopping the clients lobby sender thread.")
 				break
@@ -290,14 +290,12 @@ class Lobby(object):
 		try:
 			logging.info("Lobby client message processor thread started!")
 			while not self.__require_close: # For active thread
-				if not self.__recvQ.empty():
-					# Block this thread, until there is anything in the queue
-					try:
-						nextmsg = self.__recvQ.get()
-						self.__comm.process_response(nextmsg)
-					except Exception as exc:
-						logging.warning("Error processing the cotntrol message: %s", str(nextmsg))
-						logging.warning("Reason: %s", str(exc))
+				try:
+					nextmsg = self.__recvQ.get()
+					self.__comm.process_response(nextmsg)
+				except Exception as exc:
+					logging.warning("Error processing the cotntrol message: %s", str(nextmsg))
+					logging.warning("Reason: %s", str(exc))
 		except Exception as exc:
 			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
 
