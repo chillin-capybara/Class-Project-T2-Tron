@@ -117,17 +117,6 @@ class MatchServer(AbstractMatch):
 			# Create a collection of thread to maintain
 			self.__threadcollection = ThreadCollection()
 
-			# Use the generator to create new player data and set the players starting
-			ini_data = generate_random_player_data(self.arena.sizeX, self.arena.sizeY,
-														self.feat_players, MATCH_PLAYER_DIRECTIONS)
-			iter_ini_data = iter(ini_data)
-
-			for player in self.players: # self.players property already ignores player zero
-				pos, vel = next(iter_ini_data)
-				# Set the default values for the players
-				player.setPosition(pos[0], pos[1])
-				player.setVelocity(vel[0], vel[1])
-
 			# Initialize the local events of the match
 			# Event to notify the joined playes to that the match is starting
 			self.EStart = Event('port', 'player_ids', 'players')
@@ -141,6 +130,21 @@ class MatchServer(AbstractMatch):
 			err_msg = "Cannot create match. Reason: %s" % str(err)
 			logging.error(err_msg)
 			raise ServerError(err_msg)
+
+	def randominze_player_positions(self):
+		"""
+		Set the player positions to random at the beginning
+		"""
+		# Use the generator to create new player data and set the players starting
+		ini_data = generate_random_player_data(self.arena.sizeX, self.arena.sizeY,
+														self.feat_players, MATCH_PLAYER_DIRECTIONS)
+		iter_ini_data = iter(ini_data)
+
+		for player in self.players: # self.players property already ignores player zero
+			pos, vel = next(iter_ini_data)
+			# Set the default values for the players
+			player.setPosition(pos[0], pos[1])
+			player.setVelocity(vel[0], vel[1])
 
 	def on_update_slots(self, sender:LeasableList):
 		"""
@@ -160,6 +164,9 @@ class MatchServer(AbstractMatch):
 		sender = threading.Thread(target=self.__sender_thread)
 		receiver = threading.Thread(target=self.__receiver_thread)
 		updater = threading.Thread(target=self.__field_updater_thread)
+
+		# Randomize the player positions when the match opens
+		self.randominze_player_positions()
 
 		# Add all the threads to the thread collection
 		self.__threadcollection.append(sender)
@@ -253,13 +260,15 @@ class MatchServer(AbstractMatch):
 				draw_matrix(self.arena.matrix)
 				print("--------- Players: ------------")
 				pid = 1 # IGNORE PLAYER ZERO
+				alive = 0
 				for player in self.players:
 					try:
-						#player.setVelocity(1,0)
-						player.step(self.arena.sizeX, self.arena.sizeY)
+						if player.is_alive():
+							alive += 1
+							player.step(self.arena.sizeX, self.arena.sizeY)
 
-						#logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
-						self._arena.player_stepped(pid, player.getPosition())
+							#logging.info("Payer %d stepped on %s" % (pid, str(player.getPosition())))
+							self._arena.player_stepped(pid, player.getPosition())
 					except DieError:
 						player.die() # Call the die function on the player
 						try:
@@ -283,6 +292,11 @@ class MatchServer(AbstractMatch):
 			# Check if the match is in idle, when yes -> Close it
 			if self.is_idle():
 				break # Stop the updater thread loop
+			
+			# If there is no players alive, stop the match...
+			if alive == 0:
+				logging.info("All player are dead. Closing the server...")
+				break  # Stop the server
 
 		# Close automatically everything, when the main thread stops
 		self.close(join=False)
@@ -332,7 +346,13 @@ class MatchServer(AbstractMatch):
 				# Log when a player really changes the direction
 				logging.info("Player ID=%d, NAME=%s has a new direction %s" % (player_id, requester_player.getName(), str(direction)))
 
-			requester_player.setVelocity(direction[0], direction[1])
+			dx, dy = requester_player.getVelocity().to_tuple()
+			dxnew, dynew = direction
+
+			if (dx == -dxnew and dxnew != 0) or (dy == -dynew and dynew != 0):
+				logging.debug("Invalid direction from %s to %s" % (str((dx,dy)), str((dxnew, dynew))))
+			else:
+				requester_player.setVelocity(dxnew, dynew)
 		except Exception as exc: #pylint: disable=broad-except
 			logging.warning(str(exc))
 		finally:
