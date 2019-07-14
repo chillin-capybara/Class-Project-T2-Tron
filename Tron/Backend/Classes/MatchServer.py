@@ -271,10 +271,11 @@ class MatchServer(AbstractMatch):
 						pid += 1
 					
 					# TODO REMOVE THIS DUMMY PRINTOUT
-					draw_matrix(self.arena.matrix)
-					print("POSITION %d:  %s" % (pid, str(self.players[0].getPosition())))
-					print("VELOCITY %d:  %s" % (pid, str(self.players[0].getVelocity())))
-					print("PLLLIFES %d:  %d / %d" % (pid, self.players[0].lifes, self.feat_lifes))
+					#draw_matrix(self.arena.matrix)
+					#print("POSITION %d:  %s" % (pid, str(self.players[0].getPosition())))
+					#print("VELOCITY %d:  %s" % (pid, str(self.players[0].getVelocity())))
+					#print("PLLLIFES %d:  %d / %d" % (pid, self.players[0].lifes, self.feat_lifes))
+					#print("PCOLOR   %d:  %s" % (pid, str(self.players[0].getColor())))
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
@@ -339,7 +340,7 @@ class MatchServer(AbstractMatch):
 			# Update the last activity time
 			self.__last_activity = time.perf_counter()
 
-	def lease_player_id(self) -> LeasableObject:
+	def lease_player_id(self, player:HumanPlayer) -> LeasableObject:
 		"""
 		Lease a player if, from the collection of player IDs.
 
@@ -349,7 +350,11 @@ class MatchServer(AbstractMatch):
 		Returns:
 			LeasableObject: Leased player id, wrapped in a LeaseableObject
 		"""
-		return self.__player_slots.lease()
+		# Let all the player properties to be taken from the Lobby
+		lease = self.__player_slots.lease()
+		pid = lease.getObj()
+		self._players[pid] = player
+		return lease
 
 	def is_idle(self):
 		"""
