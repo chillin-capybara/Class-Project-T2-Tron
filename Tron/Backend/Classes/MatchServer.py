@@ -94,6 +94,7 @@ class MatchServer(AbstractMatch):
 
 			# Create the player slots (ID=0 is reserved for an empty player)
 			self.__player_slots = LeasableList(list(range(1,self._feat_players+1)))
+			logging.info("Slots created: %s" % str(list(range(1,self._feat_players+1))))
 
 			# Add slot updater for the server
 			self._feat_slots = self.feat_players

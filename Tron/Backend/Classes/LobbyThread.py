@@ -300,6 +300,7 @@ class LobbyThread(threading.Thread):
 				match.EStart += self.handle_match_started
 
 				match.ELifeUpdate += self.handle_OnLifeUpdate # Event to send away life updates
+				
 				# Check for the Event to start
 				match.check_for_start()
 				return
