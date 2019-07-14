@@ -182,6 +182,9 @@ class MatchServer(AbstractMatch):
 		"""
 		logging.info("Closing the match is requested")
 
+		# Free all the given player slots
+		self.__player_slots.free_all()
+
 		# Give back the port lease
 		self.__port_lease.free()
 
