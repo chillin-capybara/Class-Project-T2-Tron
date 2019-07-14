@@ -219,5 +219,5 @@ class GameClient(object):
 			reason (str): Reason of the match's end
 		"""
 		# Pass the Event along
-		self.EMatchEnded(self, reason)
+		self.EMatchEnded(self, reason=reason)
 
