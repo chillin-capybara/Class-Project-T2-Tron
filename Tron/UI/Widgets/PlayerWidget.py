@@ -30,9 +30,8 @@ class PlayerWidget(Widget):
         ## function for creating the input for the BoxLayout, capable of printing the text + the color of the player
         self.ids.boxLayout1.clear_widgets()
         for player in value:
-            print(self.playerList)
             self.ids.boxLayout1.add_widget(Label(
-                text = player.getName(),
+                text = 'Lifes: %d' % player.lifes,
                 color = [*player.getColor(), 1]
             ))
     
