@@ -273,6 +273,15 @@ class LobbyThread(threading.Thread):
 		"""
 		logging.info("%s wants to join the match %s" % (self.__hello_name, name))
 
+		try: # Check if the player is already joined to a match
+			if self.__leased_player_id.is_leased():  # Check if the player has an active pid
+				# The player already is joined to a match
+				packet = self.__comm.failed_to_join("The player is already joined to a match.")
+				self.send(packet)
+				return
+		except:
+			pass
+
 		# We have a color and a playername
 		player.setName(self.__hello_name)
 
@@ -300,7 +309,7 @@ class LobbyThread(threading.Thread):
 				match.EStart += self.handle_match_started
 
 				match.ELifeUpdate += self.handle_OnLifeUpdate # Event to send away life updates
-				
+
 				# Check for the Event to start
 				match.check_for_start()
 				return
