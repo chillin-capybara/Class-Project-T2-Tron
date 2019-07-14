@@ -257,7 +257,16 @@ class MatchServer(AbstractMatch):
 		"""
 		Update the field with stepping the players to the current direction
 		"""
-		logging.info("Starting stepper thread, to update the player positions...")
+		# Wait until all the players are ready
+		logging.info("Wait until all players press ready...")
+		all_ready = False
+		while not all_ready:
+			all_ready = True
+			for player in self.players:
+				if not player.is_ready():
+					all_ready = False
+		
+		logging.info("All players ready, starting the match.")
 		while True:
 			try:
 				draw_matrix(self.arena.matrix)

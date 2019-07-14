@@ -218,6 +218,11 @@ class GameClient(object):
 		except Exception as exc:
 			logging.warning("Cannot leave match. Reason: %s", str(exc))
 	
+	def i_am_ready(self):
+		"""
+		Send a signal to the server that you are ready to paly
+		"""
+		self.lobby.i_am_ready()	
 		
 	def on_match_ended(self, sender, reason):
 		"""

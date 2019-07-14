@@ -31,6 +31,8 @@ class LobbyThread(threading.Thread):
 	__hello_name :str = "JoeWorkingman" # Name of the player to be stored after the hello message
 	__leased_player_id : LeasableObject = None
 
+	__local_player : HumanPlayer = None
+
 	def __init__(self, sock:socket.socket, conn, hook_get_games, hook_get_matches):
 		"""
 		Create a new lobbythread for a client
@@ -59,6 +61,7 @@ class LobbyThread(threading.Thread):
 		self.__comm.EMatchFeatures    += self.handle_match_features
 		self.__comm.EJoinMatch        += self.handle_join_match
 		self.__comm.EExitGame         += self.on_leave_match
+		self.__comm.EClientReady      += self.on_client_ready
 
 		logging.debug("Lobby thread initialized.")
 		threading.Thread.__init__(self)
@@ -298,6 +301,7 @@ class LobbyThread(threading.Thread):
 			if match.name == name:
 				# Found the match
 				self.__leased_player_id = match.lease_player_id(player)
+				self.__local_player = player # Make sure to have a binding to the player object
 				pid: int = self.__leased_player_id.getObj() # Get the id of the player
 
 				# NOTE BIND THE PLAYER ID TO THE HOST
@@ -353,3 +357,17 @@ class LobbyThread(threading.Thread):
 				logging.warning("The player %s is not joined to any match.", self.__hello_name)
 		except Exception as exc:
 			logging.warning("Error while leaving the match: %s", str(exc))
+	
+	def on_client_ready(self, sender):
+		"""
+		Handle when a cliet is ready to play
+		
+		Args:
+			sender (Any): Caller of the event
+		"""
+		try:
+			# Set the local player to ready
+			self.__local_player.ready()
+			logging.info("Player %s is ready to play...", self.__hello_name)
+		except Exception as exc:
+			logging.warning(str(exc))

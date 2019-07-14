@@ -48,7 +48,9 @@ if __name__ == '__main__':
 
 	client.me.setVelocity(1,0)
 
-	time.sleep(2)
+	time.sleep(5)
+
+	client.i_am_ready()
 
 	# List the player colors
 	pid = 1

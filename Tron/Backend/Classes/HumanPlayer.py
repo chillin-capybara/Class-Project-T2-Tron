@@ -32,6 +32,7 @@ class HumanPlayer(Player):
 
 	__track : List[Vect2D] = None
 	__last_velocity : Vect2D = None
+	__ready = False
 
 # input check Velocity.x
 	@property
@@ -353,3 +354,9 @@ class HumanPlayer(Player):
 			player_id (int): ID of the current player on the server
 		"""
 		self.__track = get_player_track(matrix, player_id)
+
+	def ready(self):
+		self.__ready = True
+	
+	def is_ready(self):
+		return self.__ready

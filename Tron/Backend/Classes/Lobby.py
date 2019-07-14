@@ -645,3 +645,10 @@ class Lobby(object):
 
 		# Trigger the Lobby Event
 		self.EMatchEnded(self, reason=msg)
+
+	def i_am_ready(self):
+		"""
+		Send a message to the server that the player is ready to playe
+		"""
+		packet = self.__comm.i_am_ready()
+		self.send(packet)
