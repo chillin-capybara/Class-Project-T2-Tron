@@ -247,6 +247,9 @@ class SearchForLobbiesMenuDynamic(Screen):
 	def update_list(self):
 		self.ids.lobby_port.data = [{'text' : str(x)} for x in self.lobbies]
 
+	def clear_list(self):
+		self.lobbies.clear()
+
 	def updatechosenLobby(self, currentlobby):
 		"""
 		Sets variable for choosen Lobby
@@ -298,6 +301,9 @@ class LobbyMenuDynamic(Screen):
 
 	def update_list(self):
 		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matches]
+
+	def clear_list(self):
+		self.matches.clear()
 
 	def updatechosenMatch(self, currentmatch=0):
 		"""
@@ -745,7 +751,6 @@ screen_manager.add_widget(GameUI(name='gameui'))
 def ErrorPopup(sender, msg):
 
 	popup = Popup(title='ERROR', content=Label(text = msg ), size_hint=(.8, .4))
-
 	popup.open()
 
 CLIENT.EError += ErrorPopup
@@ -768,11 +773,18 @@ def handle_ematchStarted(sender):
 	MyKeyboardListener(client=CLIENT)
 	try:
 		GameUI(client=CLIENT)
-		#MyKeyboardListener(client=CLIENT)
 	except Exception as e:
 		print(getattr(e, 'message', repr(e)))
 
 CLIENT.EMatchStarted += handle_ematchStarted
+
+def MatchEndedPopup(sender, reason):
+
+	screen_manager.current = 'lobbymenudynamic'
+	popup = Popup(title='Match Ended', content=Label(text=reason), size_hint=(.8, .4))
+	popup.open()
+
+CLIENT.EMatchEnded += MatchEndedPopup
 
 class MenuApp(App):
 
