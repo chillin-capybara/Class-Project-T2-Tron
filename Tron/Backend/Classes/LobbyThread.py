@@ -272,13 +272,18 @@ class LobbyThread(threading.Thread):
 		# We have a color and a playername
 		player.setName(self.__hello_name)
 
+		# Set the color of the player
+		player.setColor(player.getColor())
+
+		logging.info("%s has the color %s" % (player.getName(), player.getColor()))
+
 		# Check if the match exists
 		ex_matches = self.__hook_get_matches()
 		for match in ex_matches:
 			match: MatchServer
 			if match.name == name:
 				# Found the match
-				self.__leased_player_id = match.lease_player_id()
+				self.__leased_player_id = match.lease_player_id(player)
 				pid: int = self.__leased_player_id.getObj() # Get the id of the player
 
 				# NOTE BIND THE PLAYER ID TO THE HOST

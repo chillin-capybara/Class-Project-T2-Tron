@@ -600,6 +600,13 @@ class Lobby(object):
 		# Start match client
 		self.__selected_match.open()
 
+		try:
+			# Set the player colors in the match
+			for pid,r,g,b in players:
+				self.__selected_match.players[pid - 1].setColor((r,g,b))
+		except Exception as exc:
+			logging.warning("Cannot set player color in the match. Reason: %s", str(exc))
+
 		# Notifty the UI to show the game
 		self.EMatchStarted(self)
 	

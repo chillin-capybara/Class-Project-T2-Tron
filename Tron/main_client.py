@@ -26,6 +26,8 @@ def draw_matrix(matrix):
 if __name__ == '__main__':
 	client = GameClient()
 
+	client.me.setColor((255,0,0))
+
 	logging.info("Discovering Lobbies")
 	client.discover_lobby()
 	time.sleep(1)
@@ -46,7 +48,15 @@ if __name__ == '__main__':
 
 	client.me.setVelocity(1,0)
 
-	while True:
+	time.sleep(2)
+
+	# List the player colors
+	pid = 1
+	for player in client.match.players:
+		print("Player %d has the color %s" % (pid, player.getColor()))
+		pid += 1
+
+	while False:
 		# TODO Update the game matrix every second
 		matrix = client.match.arena.matrix
 		#draw_matrix(matrix)
