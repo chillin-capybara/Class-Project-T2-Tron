@@ -54,8 +54,18 @@ class AbstractMatch(ABC):
 		except:
 			pass
 
-		self._players = [] # Create an empty list
+		self._generate_default_struture()
 
+		# Initialize events
+		self.EInit  = Event()
+		self.EClose = Event()
+
+		# Call the init event
+		self.EInit(self)
+	
+	def _generate_default_struture(self):
+		self._players = [] # Create an empty list
+		self._players.clear()
 		# Initialize the list of players with default player objects
 		for i in range(0, self.feat_players + 1): # Player zero is reserved for empty space
 			player = HumanPlayer()
@@ -64,13 +74,6 @@ class AbstractMatch(ABC):
 
 		# TODO Initialize the arena based on lobby property
 		self._arena = RectangleArena("Testname", (40,40), 0, 0)
-
-		# Initialize events
-		self.EInit  = Event()
-		self.EClose = Event()
-
-		# Call the init event
-		self.EInit(self)
 
 	@property
 	def arena(self) -> RectangleArena:

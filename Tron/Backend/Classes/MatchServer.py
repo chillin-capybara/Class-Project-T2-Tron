@@ -250,6 +250,8 @@ class MatchServer(AbstractMatch):
 		logging.info("Starting stepper thread, to update the player positions...")
 		while True:
 			try:
+				draw_matrix(self.arena.matrix)
+				print("--------- Players: ------------")
 				pid = 1 # IGNORE PLAYER ZERO
 				for player in self.players:
 					try:
@@ -269,14 +271,10 @@ class MatchServer(AbstractMatch):
 
 						#logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
+						print("%d; %s \t| %s | %s | %d" % (pid, player.getName(), str(player.getVelocity()), str(player.getPosition()), player.lifes), flush=True)
 						pid += 1
 					
 					# TODO REMOVE THIS DUMMY PRINTOUT
-					#draw_matrix(self.arena.matrix)
-					#print("POSITION %d:  %s" % (pid, str(self.players[0].getPosition())))
-					#print("VELOCITY %d:  %s" % (pid, str(self.players[0].getVelocity())))
-					#print("PLLLIFES %d:  %d / %d" % (pid, self.players[0].lifes, self.feat_lifes))
-					#print("PCOLOR   %d:  %s" % (pid, str(self.players[0].getColor())))
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
@@ -354,7 +352,11 @@ class MatchServer(AbstractMatch):
 		# Let all the player properties to be taken from the Lobby
 		lease = self.__player_slots.lease()
 		pid = lease.getObj()
+
+		# Set the lifes of the newly joined player!
+		player.set_lifes(self.feat_lifes)
 		self._players[pid] = player
+
 		return lease
 
 	def is_idle(self):
