@@ -601,9 +601,13 @@ class Lobby(object):
 		self.__selected_match.open()
 
 		try:
-			# Set the player colors in the match
+			# Set the player colors & lifes in the match
 			for pid,r,g,b in players:
 				self.__selected_match.players[pid - 1].setColor((r,g,b))
+				self.__selected_match.players[pid - 1].set_lifes(
+					self.__selected_match.feat_lifes
+				)
+
 		except Exception as exc:
 			logging.warning("Cannot set player color in the match. Reason: %s", str(exc))
 

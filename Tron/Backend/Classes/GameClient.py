@@ -102,7 +102,15 @@ class GameClient(object):
 			index (int): Index of the selected match
 		"""
 		self.lobby.join_match(index)
-		
+	
+	def godmode_on(self):
+		"""
+		Turn on the godmode, to control all players in a game.
+
+		NOTE:
+			This has to be turned of each time. The setting will not remain.
+		"""
+		self.match.godmode_on()
 
 	def get_me(self):
 		"""

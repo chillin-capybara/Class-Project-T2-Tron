@@ -54,9 +54,10 @@ if __name__ == '__main__':
 	pid = 1
 	for player in client.match.players:
 		print("Player %d has the color %s" % (pid, player.getColor()))
+		print("Player %d has n   lifes %d" % (pid, player.lifes))
 		pid += 1
 
-	while False:
+	while True:
 		# TODO Update the game matrix every second
 		matrix = client.match.arena.matrix
 		#draw_matrix(matrix)

@@ -6,7 +6,7 @@ from typing import List
 
 from ..Core.Hook import Hook
 from ..Core.Event import Event
-from .BasicComm import BasicComm
+from .BasicComm import BasicComm, MessageError
 from .MatchServer import MatchServer
 from ..Core.globals import *
 from ..Core.leasable_collections import *
@@ -94,6 +94,10 @@ class LobbyThread(threading.Thread):
 				try:
 					# Pipeline it into the processor
 					self.__comm.process_response(data)
+				except MessageError as msg_error:
+					# Tell the client that the command was not understood
+					packet = self.__comm.error_incorrect_cmd()
+					self.send(packet)
 				except Exception as e:
 					# Message processing error
 					logging.warning(str(e))

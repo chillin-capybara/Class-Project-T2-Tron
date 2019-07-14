@@ -28,5 +28,7 @@ MATCH_IDLE_TIMEOUT = 10 # How many seconds to wait, until a match is closed
 # Default feature string to initialize match objects at the client side
 MATCH_DEFAULT_FEATURES = ['BASIC', 'Players', 1, 'lifes', 1]
 MATCH_PLAYER_DIRECTIONS = [(0,1), (0,-1), (1,0), (-1,0)]
+GODMODE_X = 1
+GODMODE_Y = 0
 
 CLIENT = None
