@@ -132,8 +132,8 @@ class GameUI(Screen):
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')
 Builder.load_file('kvfilesmenu/createservermenufloat.kv')
-Builder.load_file('kvfilesmenu/searchforlobbiesmenufloat.kv')
-Builder.load_file('kvfilesmenu/lobbymenufloat.kv')
+Builder.load_file('kvfilesmenu/searchforlobbiesmenudynamic.kv')
+Builder.load_file('kvfilesmenu/lobbymenudynamic.kv')
 Builder.load_file('kvfilesmenu/creatematchmenufloat.kv')
 Builder.load_file('kvfilesmenu/settingsmenufloat.kv')
 Builder.load_file('kvfilesmenu/statisticsmenufloat.kv')
@@ -143,9 +143,7 @@ Builder.load_file('kvfilesmenu/pausemenu.kv')
 Builder.load_file('kvfilesmenu/connectionlostmenufloat.kv')
 Builder.load_file('kvfilesmenu/gameovermenufloat.kv')
 Builder.load_file('kvfilesmenu/globalcustomwidgets.kv')
-Builder.load_file('kvfilesmenu/searchforlobbiesmenudynamic.kv')
 Builder.load_file('kvfilesmenu/gameui.kv')
-Builder.load_file('kvfilesmenu/lobbymenudynamic.kv')
 
 ######## Class Definitions of the Screens ############################
 class MainMenuFloat(Screen):
@@ -201,21 +199,17 @@ class CreateServerMenuFloat(Screen):
 			logging.info('Stopping Server...')
 			self.server.Stop()
 
-class SearchForLobbiesMenuFloat(Screen):
+class SearchForLobbiesMenuDynamic(Screen):
 
-	def getPlayerdata(self,test):
-		print("Updating screen... %s" % test)
 
-		outputname = CLIENT.me.getName()
-		print(outputname, flush= True)
-		if outputname != '':
-			self.ids.explainmenuLabel.text = ('Here you can Enter the Lobby as %s' % outputname)
-		else:
-			pass
-
-		color = CLIENT.me.getColor()
-		playercolor = (color[0], color[1], color[2], 1)
-		self.ids.explainmenuLabel.background_color = playercolor
+	lobby = 0
+	lobbies = []
+	lobbiesdummy = [
+    '198.168.0.1 - Lobby 1: 54001',
+    '198.168.0.1 - Lobby 2: 54002',
+    '198.168.0.1 - Lobby 3: 54003',
+    '198.168.0.1 - Lobby 4: 54004',
+    '198.168.0.1 - Lobby 5: 54005']
 
 	def getavailableLobbies(self):
 		"""
@@ -226,27 +220,29 @@ class SearchForLobbiesMenuFloat(Screen):
 		Return:
 			-
 		"""
-		# Lobby = namedtuple('Lobby', ['host', 'port'])
-		# lobby1 = Lobby("192.168.1.1", 20)
-		# lobby2 = Lobby("10.0.0.1", 9984)
-		# lobby1.host
 		CLIENT.discover_lobby()
 		listlobbies = CLIENT.lobbies
 		count_lobbies = listlobbies.__len__()
+		lasthost = '0.0.0.0'
+		k = 0
 		for i in range(0,count_lobbies):
-			lobby = listlobbies[i]
-			if i == 0:
-				self.ids.lobby1Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
-			elif i == 1:
-				self.ids.lobby2Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
-			elif i == 2:
-				self.ids.lobby3Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
-			elif i == 3:
-				self.ids.lobby4Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
-			elif i == 4:
-				self.ids.lobby5Label.text = 'Lobby %d: Host: %s with Port %d' % (i+1, lobby.host, lobby.port)
+			indexlobby = listlobbies[i]
+			currenthost = indexlobby.host
+			if currenthost == lasthost:
+				pass
+			else:
+				k = 0
+			if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port)) == 0:
+				self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port))
 			else:
 				pass
+			lasthost = indexlobby.host
+			k += 1
+
+		return self.lobbies
+
+	def update_list(self):
+		self.ids.lobby_port.data = [{'text' : str(x)} for x in self.lobbies]
 
 	def updatechosenLobby(self, currentlobby):
 		"""
@@ -258,11 +254,9 @@ class SearchForLobbiesMenuFloat(Screen):
 			Lobby (int)
 		"""
 		self.currentlobby = currentlobby
-
 		self.lobby = int(self.currentlobby)
-		
-		print('Lobby: %d has been choosen.' % (self.lobby), flush = True)
-		return self.lobby
+		logging.info('UI Search for Lobby Menu: Lobby %d has been clicked by player.' % (self.lobby+1))
+		SearchForLobbiesMenuDynamic.lobby = self.lobby
 
 	def enterLobby(self):
 		"""
@@ -273,11 +267,12 @@ class SearchForLobbiesMenuFloat(Screen):
 		Return:
 			-
 		"""
+		logging.info('UI Search for Lobbies Menu: Player enters Lobby %s with Index %s' % (self.lobby+1, self.lobby))
+		CLIENT.enter_lobby(self.lobby)
 
-		print('Enter Lobby %s' % (self.lobby))
-		CLIENT.enter_lobby(self.lobby-1)
-
-class LobbyMenuFloat(Screen):
+class LobbyMenuDynamic(Screen):
+	match = 0
+	matches = []
 	def getLobbyInformation(self):
 		"""
 		Get the Information of the available Lobbies
@@ -287,42 +282,20 @@ class LobbyMenuFloat(Screen):
 		Return:
 			-
 		"""
-		# Match = namedtuple('Match', ['name', 'game', 'features'])
-		# match1 = Match("Letsfight", 'Tron', '3 Players; 4 Lives')
-		# match2 = Match("FullHouse123", 'Tron', '5 Players; 8 Lives')
-		# match3 = Match("Pong", 'Pong', '2 Players; 1 Lives')
-		# match4 = Match("Alone", 'Minecraft', '1 Players; 1 Live; 3 Zombies; a Million Bricks')
-		# listmatches = [match1, match2, match3, match4]
 
 		CLIENT.lobby.list_matches('Tron')
 		listmatches = CLIENT.lobby.matches
-		print(listmatches)
 		count_matches = listmatches.__len__()
 		for i in range(0,count_matches):
 			match = listmatches[i]
-			print("%s %s %s " % (match.name, match.game, match.get_feature_string()))
-			if i == 0:
-				self.ids.match1nameLabel.text = match.name
-				self.ids.match1gameLabel.text = match.game
-				self.ids.match1featureLabel.text = match.get_feature_string()
-			elif i == 1:
-				self.ids.match2nameLabel.text = match.name
-				self.ids.match2gameLabel.text = match.game
-				self.ids.match2featureLabel.text = match.get_feature_string()
-			elif i == 2:
-				self.ids.match3nameLabel.text = match.name
-				self.ids.match3gameLabel.text = match.game
-				self.ids.match3featureLabel.text = match.get_feature_string()
-			elif i == 3:
-				self.ids.match4nameLabel.text = match.name
-				self.ids.match4gameLabel.text = match.game
-				self.ids.match4featureLabel.text = match.get_feature_string()
-			elif i == 4:
-				self.ids.match5nameLabel.text = match.name
-				self.ids.match5gameLabel.text = match.game
-				self.ids.match5featureLabel.text = match.get_feature_string()
+			if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0:
+				self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
 			else:
 				pass
+
+	def update_list(self):
+		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matches]
+
 	def updatechosenMatch(self, currentmatch=0):
 		"""
 		Sets variable for choosen Lobby
@@ -335,12 +308,12 @@ class LobbyMenuFloat(Screen):
 		self.currentmatch = currentmatch
 
 		self.match = int(self.currentmatch)
-		
-		print('Lobby: %d has been choosen.' % (self.match), flush = True)
-		return self.match
+
+		logging.info('UI Lobby Menu: Match %d has been clicked by player.' % (self.match+1))
+		LobbyMenuDynamic.match = self.match
 
 	def joinMatch(self):
-
+		logging.info('UI Lobby Menu: Player joins Match %s with Index %s' % (self.match+1, self.match))
 		CLIENT.join_match(self.match - 1)
 
 class CreateMatchMenuFloat(Screen):
@@ -678,139 +651,6 @@ class GameOverMenuFloat(Screen):
 		print('Destroying Server...')
 		#GAME.DestroyServer()
 
-class SearchForLobbiesMenuDynamic(Screen):
-
-
-	lobby = 0
-	lobbies = []
-	lobbiesdummy = [
-    '198.168.0.1 - Lobby 1: 54001',
-    '198.168.0.1 - Lobby 2: 54002',
-    '198.168.0.1 - Lobby 3: 54003',
-    '198.168.0.1 - Lobby 4: 54004',
-    '198.168.0.1 - Lobby 5: 54005']
-
-	def getavailableLobbies(self):
-		"""
-		Get the Lobbies which are available
-
-		Args:
-			Lobbies (list): IP & Port
-		Return:
-			-
-		"""
-		# Lobby = namedtuple('Lobby', ['host', 'port'])
-		# Lobby = namedtuple('Lobby', ['host', 'port'])
-		# lobby1 = Lobby("192.168.1.1", 20)
-		# lobby2 = Lobby("192.168.1.1", 20)
-		# lobby3 = Lobby("192.168.1.2", 20)
-		# lobby4 = Lobby("192.168.1.3", 20)
-		# listlobbies = [lobby1, lobby2, lobby3, lobby4]
-		# lobby1 = Lobby("192.168.1.1", 20)
-		# lobby2 = Lobby("10.0.0.1", 9984)
-		# lobby1.host
-		CLIENT.discover_lobby()
-		listlobbies = CLIENT.lobbies
-		count_lobbies = listlobbies.__len__()
-		lasthost = '0.0.0.0'
-		k = 0
-		for i in range(0,count_lobbies):
-			indexlobby = listlobbies[i]
-			currenthost = indexlobby.host
-			if currenthost == lasthost:
-				pass
-			else:
-				k = 0
-			if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port)) == 0:
-				self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port))
-			else:
-				pass
-			lasthost = indexlobby.host
-			k += 1
-
-		return self.lobbies
-
-	def update_list(self):
-		self.ids.lobby_port.data = [{'text' : str(x)} for x in self.lobbies]
-
-	def updatechosenLobby(self, currentlobby):
-		"""
-		Sets variable for choosen Lobby
-
-		Args:
-			Lobby (int):
-		Return:
-			Lobby (int)
-		"""
-		self.currentlobby = currentlobby
-		self.lobby = int(self.currentlobby)
-		logging.info('UI Search for Lobby Menu: Lobby %d has been clicked by player.' % (self.lobby+1))
-		SearchForLobbiesMenuDynamic.lobby = self.lobby
-
-	def enterLobby(self):
-		"""
-		Sends Lobby to Server
-
-		Args:
-			-
-		Return:
-			-
-		"""
-		logging.info('UI Search for Lobbies Menu: Player enters Lobby %s with Index %s' % (self.lobby+1, self.lobby))
-		CLIENT.enter_lobby(self.lobby)
-
-class LobbyMenuDynamic(Screen):
-	match = 0
-	matches = []
-	def getLobbyInformation(self):
-		"""
-		Get the Information of the available Lobbies
-
-		Args:
-			Lobbies (list): name; game; features
-		Return:
-			-
-		"""
-		# Match = namedtuple('Match', ['name', 'game', 'features'])
-		# match1 = Match("Letsfight", 'Tron', '3 Players; 4 Lives')
-		# match2 = Match("FullHouse123", 'Tron', '5 Players; 8 Lives')
-		# match3 = Match("Pong", 'Pong', '2 Players; 1 Lives')
-		# match4 = Match("Alone", 'Minecraft', '1 Players; 1 Live; 3 Zombies; a Million Bricks')
-		# listmatches = [match1, match2, match3, match4]
-
-		CLIENT.lobby.list_matches('Tron')
-		listmatches = CLIENT.lobby.matches
-		count_matches = listmatches.__len__()
-		for i in range(0,count_matches):
-			match = listmatches[i]
-			if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0:
-				self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
-			else:
-				pass
-
-	def update_list(self):
-		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matches]
-
-	def updatechosenMatch(self, currentmatch=0):
-		"""
-		Sets variable for choosen Lobby
-
-		Args:
-			Lobby (int):
-		Return:
-			Lobby (int)
-		"""
-		self.currentmatch = currentmatch
-
-		self.match = int(self.currentmatch)
-
-		logging.info('UI Lobby Menu: Match %d has been clicked by player.' % (self.match+1))
-		LobbyMenuDynamic.match = self.match
-
-	def joinMatch(self):
-		logging.info('UI Lobby Menu: Player joins Match %s with Index %s' % (self.match+1, self.match))
-		CLIENT.join_match(self.match - 1)
-
 ######## Define KV file classes ############################
 class BackToMenuButton(Screen):
 	
@@ -886,8 +726,8 @@ class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, Recycle
 screen_manager = WindowManager()
 screen_manager.add_widget(MainMenuFloat(name='mainmenufloat'))
 screen_manager.add_widget(CreateServerMenuFloat(name='createservermenufloat'))
-screen_manager.add_widget(SearchForLobbiesMenuFloat(name='searchforlobbiesmenufloat'))
-screen_manager.add_widget(LobbyMenuFloat(name='lobbymenufloat'))
+screen_manager.add_widget(SearchForLobbiesMenuDynamic(name='searchforlobbiesmenudynamic'))
+screen_manager.add_widget(LobbyMenuDynamic(name='lobbymenudynamic'))
 screen_manager.add_widget(CreateMatchMenuFloat(name='creatematchmenufloat'))
 screen_manager.add_widget(SettingsMenuFloat(name='settingsmenufloat'))
 screen_manager.add_widget(StatisticsMenuFloat(name='statisticsmenufloat'))
@@ -896,9 +736,7 @@ screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
 screen_manager.add_widget(GameOverMenuFloat(name='gameovermenufloat'))
-screen_manager.add_widget(SearchForLobbiesMenuDynamic(name='searchforlobbiesmenudynamic'))
 screen_manager.add_widget(GameUI(name='gameui'))
-screen_manager.add_widget(LobbyMenuDynamic(name='lobbymenudynamic'))
 
 ######## Errora and Handlers ############################
 def ErrorPopup(sender, msg):
