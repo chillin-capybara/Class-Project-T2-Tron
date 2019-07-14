@@ -57,7 +57,7 @@ datapath = "data.json"
 
 ## Static global defined values
 UPDATES_PER_SECOND = 3
-# FIELDSIZE = Arena.getSize()
+
 FIELDSIZE = (100, 100)
 TRACKSIZE = 1
 HEADSIZE = 1
@@ -98,6 +98,7 @@ class GameUI(Screen):
             ## which triggers certain event in subclass
             self.ids.trackWidget.setBooleanCountdown()
             self.ids.trackWidget.increaseOpacity()
+            self.ids.trackWidget.getFieldsize(CLIENT.match.arena.sizeX, CLIENT.match.arena.sizeY)
         
         ## functions should only be started after special event is triggered
         if self.game_is_running == True:

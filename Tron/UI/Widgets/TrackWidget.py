@@ -19,7 +19,6 @@ from UI.Widgets.HeadWidget import HeadWidget
 import UI.mainUI
 
 
-
 from kivy.base import runTouchApp
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
@@ -40,7 +39,7 @@ class TrackWidget(Widget):
     playerList = ListProperty([])
     allPoints_from_submission = ListProperty([])
     allPoints = ListProperty([])
-    
+    fieldsize = ListProperty([])
 
     def update(self):
         self.canvas.clear()
@@ -50,7 +49,6 @@ class TrackWidget(Widget):
 
 
     def update_players(self):
-        fieldsize = UI.mainUI.FIELDSIZE
         with self.canvas:
             self.opacity = self.opacityValue
             if self.game_is_running == False and self.countdown_is_running == True:
@@ -61,6 +59,7 @@ class TrackWidget(Widget):
                     HeadWidget(
                     game_is_running = self.game_is_running,
                     countdown_is_running = self.countdown_is_running,
+                    fieldsize = self.fieldsize,
                     opacityValue = self.opacityValue,
                     screen_size = self.size, 
                     player = player)
@@ -95,14 +94,17 @@ class TrackWidget(Widget):
                 #         print(player.getPosition())
                     
                     Color(rgba = self.getPlayerColor(player))
-                    HeadWidget(screen_size = self.size, player = player)
+                    HeadWidget(
+                    screen_size = self.size, 
+                    fieldsize = self.fieldsize,
+                    player = player)
 
                     for point in self.allPoints_from_submission:
-                        xPos2 = (self.size[0]/fieldsize[0]) * point.x
-                        yPos2 = (self.size[1]/fieldsize[1]) * point.y
+                        xPos2 = (self.size[0]/self.fieldsize[0]) * point.x
+                        yPos2 = (self.size[1]/self.fieldsize[1]) * point.y
 
-                        xSize = self.size[0]/fieldsize[0]
-                        ySize = self.size[1]/fieldsize[1]
+                        xSize = self.size[0]/self.fieldsize[0]
+                        ySize = self.size[1]/self.fieldsize[1]
 
                         Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
 
@@ -218,7 +220,8 @@ class TrackWidget(Widget):
 
 
 
-
+    def getFieldsize(self, fieldsizeX, fieldsizeY):
+        self.fieldsize = (fieldsizeX, fieldsizeY)
     
     def updatespeed_factor(self):
         self.speed_factor = self.speed_factor + self.speed_constant
@@ -234,8 +237,7 @@ class TrackWidget(Widget):
         self.game_is_running = False
 
     def detect_outbound(self, xVar, yVar):
-        fieldsize = UI.mainUI.FIELDSIZE
 
-        if xVar < 0 or xVar > fieldsize[0] or yVar < 0 or yVar > fieldsize[1]:
+        if xVar < 0 or xVar > self.fieldsize[0] or yVar < 0 or yVar > self.fieldsize[1]:
             print ("You hit one border")
             
