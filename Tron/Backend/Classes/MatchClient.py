@@ -270,3 +270,9 @@ class MatchClient(AbstractMatch):
 			ValueError: Lifes smaller than 0
 		"""
 		self._players[player_id].set_lifes(score)
+	
+	def leave(self):
+		"""
+		Leave the match for a client request
+		"""
+		pass

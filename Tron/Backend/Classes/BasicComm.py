@@ -527,12 +527,19 @@ class BasicComm(CommProt):
 			response (bytes): Received message as bytes
 		"""
 		try:
-			cmd, params = self.decode_message(response)
-			# Call the callback from policy
-			if callable(self.POLICY[cmd]):
-				return self.POLICY[cmd](params)
-			else:
-				raise MessageError("Policy cannot be called")
+			# Split up the message if it contains multiple sub-messages
+			parts = response.split(b'\x00')
+			for part in parts:
+				if part != b'':
+					cmd, params = self.decode_message(part + b'\x00')
+
+					# Call the callback from policy
+					if callable(self.POLICY[cmd]):
+						return self.POLICY[cmd](params)
+					else:
+						raise MessageError("Command policy cannot be called!")
+				else:
+					raise MessageError("The received message is invalid!")
 		except Exception as e:
 			raise e
 
