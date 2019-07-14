@@ -215,6 +215,18 @@ class SearchForLobbiesMenuDynamic(Screen):
     '198.168.0.1 - Lobby 4: 54004',
     '198.168.0.1 - Lobby 5: 54005']
 
+	def getPlayerdata(self):
+
+		outputname = CLIENT.me.getName()
+		if outputname != '':
+			self.ids.explainmenuLabel.text = ('Here you can Enter the Lobby as %s' % outputname)
+		else:
+			pass
+
+		color = CLIENT.me.getColor()
+		playercolor = (color[0]*255, color[1]*255, color[2]*255, 1)
+		self.ids.explainmenuLabel.background_color = playercolor
+
 	def getavailableLobbies(self):
 		"""
 		Get the Lobbies which are available
@@ -280,6 +292,19 @@ class SearchForLobbiesMenuDynamic(Screen):
 class LobbyMenuDynamic(Screen):
 	match = 0
 	matches = []
+
+	def getPlayerdata(self):
+
+		outputname = CLIENT.me.getName()
+		if outputname != '':
+			self.ids.explainmenuLabel.text = ('Here you can join a Match as %s' % outputname)
+		else:
+			pass
+
+		color = CLIENT.me.getColor()
+		playercolor = (color[0]*255, color[1]*255, color[2]*255, 1)
+		self.ids.explainmenuLabel.background_color = playercolor
+
 	def getLobbyInformation(self):
 		"""
 		Get the Information of the available Lobbies
