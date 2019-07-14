@@ -244,16 +244,16 @@ class SearchForLobbiesMenuDynamic(Screen):
 		for i in range(0,count_lobbies):
 			indexlobby = listlobbies[i]
 			currenthost = indexlobby.host
-			if currenthost == lasthost:
-				pass
+			# if currenthost == lasthost:
+			# 	pass
+			# else:
+			# 	k = 0
+			if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port)) == 0:
+				self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port))
 			else:
-				k = 0
-			if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port)) == 0:
-				self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, k+1, indexlobby.port))
-			else:
 				pass
-			lasthost = indexlobby.host
-			k += 1
+			# lasthost = indexlobby.host
+			# k += 1
 
 		return self.lobbies
 
@@ -781,13 +781,15 @@ def ErrorPopup(sender, msg):
 
 CLIENT.EError += ErrorPopup
 
+class PopupManager:
+	active_popup = None
+
 def handle_ematchJoined(sender, matchname):
 
 	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	logging.info('EMatchJoined received by client %s' % timestamp)
-	# popup = Popup(title='Match Joined', content=Label(text = 'Waiting for %s to start...' % matchname), size_hint=(None, None), size=(400, 400), auto_dismiss=True)
-
-	# popup.open()
+	PopupManager.active_popup = Popup(title='Match Joined', content=Label(text = 'Waiting for other players to join Match %s to start...' % matchname), size_hint=(None, None), size=(400, 400), auto_dismiss=True)
+	PopupManager.active_popup.open()
 
 CLIENT.EMatchJoined += handle_ematchJoined
 
@@ -798,6 +800,7 @@ def handle_ematchStarted(sender):
 	screen_manager.current = 'gameui'
 	MyKeyboardListener(client=CLIENT)
 	try:
+		PopupManager.active_popup.dismiss()
 		GameUI(client=CLIENT)
 	except Exception as e:
 		print(getattr(e, 'message', repr(e)))
@@ -806,6 +809,7 @@ CLIENT.EMatchStarted += handle_ematchStarted
 
 def MatchEndedPopup(sender, reason='You Died!'):
 
+	LobbyMenuDynamic.clear_list()
 	screen_manager.current = 'lobbymenudynamic'
 	popup = Popup(title='Match Ended', content=Label(text=reason), size_hint=(.8, .4))
 	popup.open()
