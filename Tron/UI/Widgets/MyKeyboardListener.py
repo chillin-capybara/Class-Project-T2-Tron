@@ -57,11 +57,11 @@ class MyKeyboardListener(Widget):
             # self.addingTrack_to_player()
 
         if keycode[1] == 'w':
-            self.press_a_key()
+            self.press_w_key()
             # self.addingTrack_to_player()
 
         if keycode[1] == 's':
-            self.press_d_key()
+            self.press_s_key()
             # self.addingTrack_to_player()
         # Return True to accept the key. Otherwise, it will be used by
         # the system.
@@ -70,17 +70,15 @@ class MyKeyboardListener(Widget):
     def press_d_key(self):
         ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
         ## with d we go clockwise
-        self.__player.setVelocity(1, 0)
+        self._player.setVelocity(1, 0)
     
-
     def press_a_key(self):
         ## is triggered by keyboard listener, if I have a velocity vector in a certain direction, I need to change that velocity
         ## with a we go counter-clockwise
-        self.__player.setVelocity(-1, 0)
-
+        self._player.setVelocity(-1, 0)
 
     def press_w_key(self):
-        self.__player.setVelocity(0, 1)
+        self._player.setVelocity(0, 1)
 
     def press_s_key(self):
-        self.__player.setVelocity(0, -1)
+        self._player.setVelocity(0, -1)
