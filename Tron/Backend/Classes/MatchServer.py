@@ -352,8 +352,10 @@ class MatchServer(AbstractMatch):
 			dx, dy = requester_player.getVelocity().to_tuple()
 			dxnew, dynew = direction
 
+			# Check if the direction to choose is valid
 			if (dx == -dxnew and dxnew != 0) or (dy == -dynew and dynew != 0):
-				logging.debug("Invalid direction from %s to %s" % (str((dx,dy)), str((dxnew, dynew))))
+				#logging.debug("Invalid direction from %s to %s" % (str((dx,dy)), str((dxnew, dynew))))
+				pass
 			else:
 				requester_player.setVelocity(dxnew, dynew)
 		except Exception as exc: #pylint: disable=broad-except
