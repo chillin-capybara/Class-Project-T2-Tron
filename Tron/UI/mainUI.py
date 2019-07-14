@@ -351,6 +351,10 @@ class LobbyMenuDynamic(Screen):
 		logging.info('UI Lobby Menu: Player joins Match %s with Index %s' % (self.match+1, self.match))
 		CLIENT.join_match(self.match - 1)
 
+	def leaveMatch(self):
+		logging.info('UI Lobby Menu: Player leaves Match %s with Index %s' % (self.match+1, self.match))
+		CLIENT.leave_match()
+
 class CreateMatchMenuFloat(Screen):
 
 	i = 1
@@ -809,7 +813,6 @@ CLIENT.EMatchStarted += handle_ematchStarted
 
 def MatchEndedPopup(sender, reason='You Died!'):
 
-	LobbyMenuDynamic.clear_list()
 	screen_manager.current = 'lobbymenudynamic'
 	popup = Popup(title='Match Ended', content=Label(text=reason), size_hint=(.8, .4))
 	popup.open()
