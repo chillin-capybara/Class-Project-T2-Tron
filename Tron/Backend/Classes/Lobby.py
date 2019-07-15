@@ -23,12 +23,15 @@ class Lobby(object):
 	Game lobby object for the Tron Game
 	NOTE:
 		Extendable for Pong, too
+
+	Events:
+		OnMatchesUpdate(sender, matches): is called every time when the list of
 	"""
 	__host = "" # IP address of the server
 	__port = 0 # Change is not allowed after initialization
 
 	__games : list   = None # List of games Here only Tron
-	__matches : List[MatchClient] = None # List of matches in the Lobby 
+	__matches : List[MatchClient] = None # List of matches in the Lobby
 
 	__sock : socket.socket = None # Socket connection to the lobby
 	__comm : BasicComm = None
@@ -53,23 +56,24 @@ class Lobby(object):
 	ELobbyStop : Event = None # Event to spread, when the server gets stopped
 	EMatchStarted : Event = None
 	EMatchEnded : Event = None # Event to be called when the match is ended
+	OnMatchesUpdate: Event = None # Event, when the list of matches is updated
 
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None, parent=None):
 		"""
 		Initialize a lobby on the server, to create games in
-		
+
 		Args:
 			host(str) : IP adress of the lobby's server
 			port (int): Port of the Lobby on the server.
 			hook_me (callable): Hook to get the clients player. (CLIENT ONLY)
-		
+
 		Raises:
 			TypeError: Invalid argument types
 			ValueError: Invalid port range
 		"""
 		if type(host) is not str:
 			raise TypeError
-		
+
 		if type(port) is not int:
 			raise TypeError
 
@@ -94,6 +98,7 @@ class Lobby(object):
 		self.ELobbyStop = Event()
 		self.EMatchStarted = Event() # Detalt event to start the GAME itself
 		self.EMatchEnded = Event('reason') # Reason of the game end
+		self.OnMatchesUpdate = Event('matches') # Sender and matches
 
 		# Intialize communication protocol : CLIENT EVENTS!!!!
 		self.__comm = BasicComm()
@@ -115,7 +120,7 @@ class Lobby(object):
 		else:
 			# Only for servers
 			self.__hook_lease_port = Hook(hook_lease_port)
-	
+
 	@property
 	def parent(self):
 		return self.__parent__
@@ -126,21 +131,21 @@ class Lobby(object):
 		Port number of the lobby on the server
 		"""
 		return self.__port
-	
+
 	@property
 	def host(self):
 		"""
 		Host address of the Lobby's server
 		"""
 		return self.__host
-	
+
 	@property
 	def matches(self) -> List[Match]:
 		"""
 		Active matches in the lobby
 		"""
 		return self.__matches
-	
+
 	@property
 	def match(self) -> MatchClient:
 		"""
@@ -151,19 +156,19 @@ class Lobby(object):
 	def hook_get_games(self):
 		"""
 		Get the list of games in the lobby
-		
+
 		Returns:
 			list: List of the game types ont he server
 		"""
 		return SERVER_GAMES
-	
+
 	def hook_get_matches(self):
 		"""
 		Return the matches running in the lobby
 		// TODO Return a real list...
 		"""
 		return self.__matches
-	
+
 	def start_server(self):
 		"""
 		Start serving the lobby on the server
@@ -173,7 +178,7 @@ class Lobby(object):
 		# Create a thread fot the server
 		self.__server_thread = threading.Thread(target=self.__server)
 		self.__server_thread.start()
-	
+
 	def Stop(self):
 		"""
 		Stop the lobby server with all it's parent threads
@@ -187,7 +192,7 @@ class Lobby(object):
 	def handle_server_stop(self, sender):
 		"""
 		Handle the server stop
-		
+
 		Args:
 			sender ([type]): GameServer
 		"""
@@ -210,7 +215,7 @@ class Lobby(object):
 				self.__create_thread(thread_sock, addr)
 		except Exception as e:
 			logging.error(str(e))
-	
+
 	def __create_thread(self, sock: socket.socket, conn):
 		"""
 		Create a thread on the server to handle client requests and responses simultaniously
@@ -261,9 +266,9 @@ class Lobby(object):
 				break
 			except Exception as exc:
 				logging.error("Error occured while asynchronous receive. Reason: %s", str(exc))
-		
+
 		logging.info("Control receiver thread closed.")
-	
+
 	def __client_sender_thread(self):
 		"""
 		Sender thread to send requests asynchronously
@@ -280,7 +285,7 @@ class Lobby(object):
 				logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
 
 		logging.info("Control sender thread closed.")
-	
+
 	def __message_processor(self):
 		"""
 		Process messages that are received by the client thread.
@@ -300,13 +305,13 @@ class Lobby(object):
 			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
 
 		logging.info("Control message processor thread closed.")
-	
+
 	def send(self, packet:bytes):
 		"""
 		Send a message over the client's socket to the server
 		NOTE:
 			This enqueues the packet for a send by the sender thread
-		
+
 		Args:
 			packet (bytes): Message as bytes
 		"""
@@ -322,7 +327,7 @@ class Lobby(object):
 		"""
 		try:
 			logging.info("Entering the Lobby %s:%d" % (self.host, self.port))
-			
+
 			# create socket and connect
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.connect((self.host, self.port))
@@ -346,7 +351,7 @@ class Lobby(object):
 
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
-	
+
 	def close(self):
 		"""
 		Event handler for closing the client with all it's threads
@@ -373,11 +378,11 @@ class Lobby(object):
 
 		except Exception as e:
 			logging.error(str(e))
-	
+
 	def create_match(self, game: str, name: str, settings: dict):
 		"""
 		Create a match in the lobby with the selected settings
-		
+
 		Args:
 			game (str): Name of the game : Tron
 			name (str): Name of the match
@@ -390,7 +395,7 @@ class Lobby(object):
 		try:
 			logging.info("Creating match on server %s/%s..." % (game, name))
 			features = ['BASIC', 'Players', settings['Players'], 'Lifes', settings['Lifes']]
-			
+
 			# Create protocolled message
 			packet = self.__comm.create_match(game, name, features)
 
@@ -399,11 +404,14 @@ class Lobby(object):
 
 		except Exception as e:
 			logging.error("Error creating match: %s" % str(e))
-	
+
 	def list_matches(self, game:str):
 		"""
 		List matches in a lobby to a game
-		
+
+		NOTE: This is a non-blocking function. The results are returned by the event
+		OnMatchesUpdate
+
 		Args:
 			game (str): Tron / Pong
 		"""
@@ -414,13 +422,10 @@ class Lobby(object):
 		packet = self.__comm.list_matches(game)
 		self.send(packet)
 
-		# Wait until the server lists the matches
-		self.__comm.EMatch.wait_clear(0.3)
-	
 	def join_match(self, index: int):
 		"""
 		Join the selected match from the list
-		
+
 		Args:
 			index (int): Index of the match in the list
 		"""
@@ -431,7 +436,7 @@ class Lobby(object):
 
 		# Set the selected match
 		self.__selected_match = self.matches[index]
-	
+
 	def leave_match(self):
 		"""
 		Send the server a request the you want to leave the math
@@ -439,11 +444,11 @@ class Lobby(object):
 		logging.info("Leaving the match...")
 		packet = self.__comm.leaving_match("Client clicked leave match.")
 		self.send(packet)
-	
+
 	def handle_welcome(self, sender, features: list):
 		"""
 		Event handler for receiving a welcome message form the server
-		
+
 		Args:
 			sender   (CommProt): Caller of the event
 			featrues (list): List of server features
@@ -453,17 +458,17 @@ class Lobby(object):
 	def handle_available_games(self, sender, games: List[str]):
 		"""
 		Event handler for handling the list of abailable games in a lobby
-		
+
 		Args:
 			sender (CommProt): Caller of the evernt
 			games (list): List of available games: Tron, Pong...
 		"""
 		logging.info("The following games are available in the server: %s" % str(games))
-	
+
 	def handle_list_matches(self, sender, game: str, matches: list):
 		"""
 		Event handler for handling the list of matches in a lobby with a specific game
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 			game (str): Name of the game
@@ -473,10 +478,13 @@ class Lobby(object):
 		for matchname in matches:
 			self.__append_match(matchname)
 
+		# Tell the UI that the matches are updated
+		self.OnMatchesUpdate(self, matches=self.matches)
+
 	def __append_match(self, name: str):
 		"""
 		Append a match to the collection of matches on the client side
-		
+
 		Args:
 			name (str): Name of the match
 		"""
@@ -489,11 +497,11 @@ class Lobby(object):
 			self.send(packet)
 		except Exception as e:
 			logging.error("Error appending match %s. Reason: %s" % (name, str(e)))
-	
+
 	def handle_match_features(self, sender, game: str, name: str, features: List[str]):
 		"""
 		Handle the listing of match features for a specific match on the server
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 			game (str): Name of the game (Tron/Pong...)
@@ -501,11 +509,11 @@ class Lobby(object):
 			features (List[str]): List of features on the match
 		"""
 		logging.info("The match %s in %s has the features: %s" % (name, game, str(features)))
-	
+
 	def handle_match_created(self, sender):
 		"""
 		Handle a match created event from the server
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 		"""
@@ -517,7 +525,7 @@ class Lobby(object):
 		Handle the creation of a new match, when requested from a LobbyThread
 		NOTE:
 			THIS IS A SERVER EVENT HANDLER!!!
-		
+
 		Args:
 			sender (LobbyThread): Caller of the event
 			game (str): Name of the game Tron/Pong
@@ -529,11 +537,11 @@ class Lobby(object):
 		new_match.EClose += self.handle_match_close #Add event call back to remove the match
 		self.__matches.append(new_match)
 		logging.info("Match created!")
-	
+
 	def handle_match_close(self, sender: MatchServer):
 		"""
 		Handle, when a match is closed on the server and remove it from the collection
-		
+
 		Args:
 			sender (MatchServer): Caller of the event
 		"""
@@ -543,7 +551,7 @@ class Lobby(object):
 	def handle_match(self, sender, game:str, name:str, features: List[str]):
 		"""
 		Event handler for getting the match features
-		
+
 		Args:
 			sender ([type]): Caller of the event
 			game (str): Name of the game
@@ -552,33 +560,36 @@ class Lobby(object):
 		"""
 		try:
 			for match in self.__matches:
-				if match.game == game and match.name == name:
+				if match.name == name: # Match name is unique in a lobby
 					match.set_features(features)
 					logging.debug("Match %s has the features: %s" % (name, features))
+
+					# Tell the UI that the list got updated
+					self.OnMatchesUpdate(self, matches=self.matches)
 					return
-			
+
 			logging.warning("Match %s not found in the lobby." % name)
 		except Exception as e:
 			logging.error("Error while setting the match features of %s to %s. Reason: %s" % (name, str(features), str(e)))
-	
+
 	def handle_server_error(self, sender, msg:str):
 		"""
 		Handle the error message from the server
-		
+
 		Args:
 			sender ([type]): Caller of the event
 			message (str): Error message
 		"""
 		# Simply log the error
 		logging.error(msg)
-		
+
 		# Pass the error along to the client class
 		self.EError(self, msg=msg)
-	
+
 	def handle_match_joined(self, sender, player_id:int):
 		"""
 		Handle a match_joined resposne from the server
-		
+
 		Args:
 			sender (Any): Caller of the event
 			player_id (int): Player id of the current player
@@ -590,11 +601,11 @@ class Lobby(object):
 
 		# Call the Lobby's event -> With the name of the match
 		self.EMatchJoined(self, matchname=self.__selected_match.name)
-	
+
 	def handle_match_started(self, sender, port:int, players:list):
 		"""
 		Handle the event, when the match starts
-		
+
 		Args:
 			sender ([type]): Caller of the event
 			port (int): Port of the starting match
@@ -621,22 +632,22 @@ class Lobby(object):
 
 		# Notifty the UI to show the game
 		self.EMatchStarted(self)
-	
+
 	def handle_life_update(self, sender, player_id:int, lifes:int):
 		"""
 		Handle life updates for every player in the current match.
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 			player_id (int): ID of the player in the game
 			score (int): Lives of the player left.
 		"""
 		self.match.life_udpate(player_id, lifes)
-	
+
 	def on_match_ended(self, sender, msg):
 		"""
 		Handle when the match is ended by the server
-		
+
 		Args:
 			sender ([type]): Caller of the event
 			msg (str): Reason of the match end

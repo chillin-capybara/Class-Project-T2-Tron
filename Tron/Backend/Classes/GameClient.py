@@ -12,6 +12,9 @@ from typing import List
 class GameClient(object):
 	"""
 	Main client object for Tron Game
+
+	Events:
+		OnMatchesUpdate(sender, matches): is called when the list of matches gets updated
 	"""
 
 	__comm : BasicComm = None
@@ -25,6 +28,7 @@ class GameClient(object):
 	EMatchJoined : Event = None
 	EMatchStarted : Event = None
 	EMatchEnded : Event = None
+	OnMatchesUpdate: Event = None # Event to be called when the list of matches is updated
 
 	def __init__(self):
 		"""
@@ -42,6 +46,7 @@ class GameClient(object):
 		self.EMatchJoined = Event('matchname')
 		self.EMatchStarted = Event()
 		self.EMatchEnded = Event('reason')
+		self.OnMatchesUpdate = Event('matches')
 
 		# Append the lobby event handler to the comm
 		self.__comm.ELobby += self.handle_lobby
@@ -91,8 +96,18 @@ class GameClient(object):
 		# Say hello to the lobby
 		self.__lobbies[index].say_hello()
 
+		try:
+			# Remove the previous event handler from the latest joined lobby
+			self.lobby.OnMatchesUpdate -= self.on_matches_updated
+		except:
+			# Error of the handler removal can be ignored
+			pass
+
 		# Set the entered lobby
 		self.__entered_lobby = self.__lobbies[index]
+
+		# Attach the lobby update event to the client
+		self.lobby.OnMatchesUpdate += self.on_matches_updated
 
 	def join_match(self, index:int):
 		"""
@@ -234,4 +249,15 @@ class GameClient(object):
 		"""
 		# Pass the Event along
 		self.EMatchEnded(self, reason=reason)
+	
+	def on_matches_updated(self, sender: Lobby, matches: List[MatchClient]):
+		"""
+		Event handler of the Lobby.OnMatchesUpdated event
+		
+		Args:
+			sender (Lobby): Caller of the event
+			matches (List[MatchClient]): Updated list of matches
+		"""
+		# Pass the event along to the client
+		self.OnMatchesUpdate(self, matches=matches)
 

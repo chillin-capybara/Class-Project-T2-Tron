@@ -89,14 +89,19 @@ class MatchClient(AbstractMatch):
 		self._feat_players = self.get_feature_value_int('Players', features)
 		self._feat_lifes   = self.get_feature_value_int('lifes', features)
 
-		# Regenerate the list of the players
-		self._generate_default_struture()
-
 		try:
 			# Try to set the feature slots
 			self._feat_slots = self.get_feature_value_int('Slots', features)
 		except:
 			pass
+		try:
+			# Regenerate the list of the players
+			self._generate_default_struture()
+		except Exception as exc:
+			logging.error(
+				"Cannot initialize the match with the features! Reason: %s",
+				 str(exc))
+
 
 	def set_current_player_id(self, pid:int):
 		"""
