@@ -270,6 +270,12 @@ class LobbyThread(threading.Thread):
 			packet = self.__comm.game_ended("You died!")
 			self.send(packet)
 
+			# Release the player ID
+			try:
+				self.__leased_player_id.free()
+			except:
+				pass
+
 	def on_match_terminated(self, sender, reason):
 		"""
 		Handle the OnMatchTerminated event from the match and send a game ended
@@ -280,6 +286,12 @@ class LobbyThread(threading.Thread):
 		"""
 		packet = self.__comm.game_ended(reason)
 		self.send(packet)
+
+		# Free the own player ID
+		try:
+			self.__leased_player_id.free()
+		except:
+			pass
 
 
 	def on_player_win(self, sender: MatchServer, player_id: int):
@@ -297,6 +309,11 @@ class LobbyThread(threading.Thread):
 				self.send(packet)
 		except Exception as exc:
 			logging.warning("Error while notifying the winning player. Reason: %s", str(exc))
+		finally:
+			try:
+				self.__leased_player_id.free()
+			except:
+				pass
 
 
 	def handle_join_match(self, sender, name: str, player: HumanPlayer):
