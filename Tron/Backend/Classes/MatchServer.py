@@ -1,5 +1,6 @@
 from .AbstractMatch import AbstractMatch
 from .HumanPlayer import HumanPlayer
+from ..Core.Router import *
 from .BasicComm import BasicComm
 from ..Core.leasable_collections import LeasableObject, LeasableList, LeaseError
 from typing import List
@@ -57,7 +58,11 @@ class MatchServer(AbstractMatch):
 	player updates and sends out game arena updates.
 
 	Events:
+
 		OnPlayerWin(sender, player_id): is triggered, when a player wins the match
+
+		OnMatchTerminated(sender, reason): is triggered when the match is closed due
+			to errors or by admin
 	"""
 	_comm: BasicComm = None
 
@@ -75,9 +80,12 @@ class MatchServer(AbstractMatch):
 	__last_activity = None # Clock time, when the last direction update was performed
 	__require_close = False
 
+	router: Router = None
+
 	EStart: Event = None
 	ELifeUpdate: Event = None # Event to call when a player's life has to be updated
 	OnPlayerWin: Event  = None  # Event to be called when a player wins
+	OnMatchTerminated: Event = None # Event to be called when the match is close by admin
 
 	def __init__(self, available_ports: LeasableList, name: str, features: List[str]):
 		"""
@@ -124,9 +132,18 @@ class MatchServer(AbstractMatch):
 
 			# Initialize the local events of the match
 			# Event to notify the joined playes to that the match is starting
+			# ANCHOR Event inits
 			self.EStart = Event('port', 'player_ids', 'players')
 			self.ELifeUpdate = Event('player_id', 'score')
 			self.OnPlayerWin = Event('player_id')
+			self.OnMatchTerminated = Event('reason')
+
+			# Initialize the command router
+			self.router = Router()
+			self.router.add_default(self.base_default)
+			self.router.add_route('watch', self.base_watch)
+			self.router.add_route('ls', self.base_ls)
+			self.router.add_route('stat', self.base_stat)
 
 		except LeaseError as err_lease:
 			err_msg = "Cannot create match, the server has run out of ports. %s" % str(err_lease)
@@ -167,9 +184,9 @@ class MatchServer(AbstractMatch):
 		Open a match for clients to join. Initialize threads and start the UDP game server
 		"""
 		logging.info("Starting the udp game server on port %d" % self.port)
-		sender = threading.Thread(target=self.__sender_thread)
-		receiver = threading.Thread(target=self.__receiver_thread)
-		updater = threading.Thread(target=self.__field_updater_thread)
+		sender = threading.Thread(target=self.__sender_thread, name="MatchSenderThread")
+		receiver = threading.Thread(target=self.__receiver_thread, name="MatchReceiverThread")
+		updater = threading.Thread(target=self.__field_updater_thread, name="MatchUpdaterThread")
 
 		# Randomize the player positions when the match opens
 		self.randominze_player_positions()
@@ -182,7 +199,7 @@ class MatchServer(AbstractMatch):
 		# Start all the threads
 		self.__threadcollection.start_all()
 
-	def close(self, join=True):
+	def close(self, join=True, terminate = True):
 		"""
 		Close the match, and clean up the leases and sockets after the processes.
 		"""
@@ -205,6 +222,9 @@ class MatchServer(AbstractMatch):
 		except:
 			pass # Ignorable error
 
+		if terminate:  # When the termination of the match was requested
+			self.OnMatchTerminated(self, reason="The match was closed by the server on request")
+
 		logging.debug("Waiting for all the match threads to finish...")
 		if join:
 			self.__threadcollection.join_all()
@@ -225,6 +245,10 @@ class MatchServer(AbstractMatch):
 			self.__updsock.bind(("", self.port))
 
 			while True:
+				if self.__require_close:
+					logging.debug("Closing the match receiver on request...")
+					break
+
 				data, conn = self.__updsock.recvfrom(UDP_RECV_BUFFER_SIZE)
 				self.__current_conn = conn # For validating the player id
 				if conn not in self.__player_addresses:
@@ -243,6 +267,11 @@ class MatchServer(AbstractMatch):
 		logging.info("Starting sender thread to keep the clients updated")
 		try:
 			while True:
+
+				if self.__require_close:
+					logging.debug("Closing the match sender thread on request")
+					break
+
 				try:
 					cindex = 0
 					for conn in self.__player_addresses:
@@ -341,7 +370,7 @@ class MatchServer(AbstractMatch):
 				break # Stop the updater thread loop
 
 		# Close automatically everything, when the main thread stops
-		self.close(join=False)
+		self.close(join=False, terminate=False)
 
 	def kick_player(self, player_id:int):
 		"""
@@ -448,3 +477,58 @@ class MatchServer(AbstractMatch):
 			self.close(join = False)
 		except:
 			pass # Error can be ignored
+
+	def base_ls(self):
+		"""
+		List the players of the match
+		"""
+		try:
+			for player in self.players:
+				print("{:<20s}   COLOR: {}".format(player.getName(), str(player.getColor())), flush=True)
+			print("%d players were listed" % len(self.players))
+		except:
+			print("Players cannot be listed.", flush=True)
+	
+	def base_stat(self):
+		"""
+		Show the stats of the match
+		"""
+		try:
+			print("Players joined / Max players: %d / %d" % (self.__player_slots.count_leased(), self.feat_players), flush=True)
+			print("Size of the arena is %d x %d" % (self.arena.sizeX, self.arena.sizeY), flush=True)
+		except:
+			print("Cannot show the match stats", flush=True)
+	
+	def base_watch(self):
+		"""
+		Display the current match in the terminal
+		"""
+		try:
+			while True:
+				os.system('clear')
+				draw_matrix(self.arena.matrix)
+				print("---- Players ----")
+				for pl in self.players:
+					print("{:<20s}   POS: {:<10s}   DIR: {:<10s}".format(pl.getName(), str(pl.getPosition()), str(pl.getVelocity())), flush=True)
+				time.sleep(1)
+		except KeyboardInterrupt:
+			pass # Close the watcher
+		except:
+			print("Error while watching the game.", flush=True)
+	
+	def base_default(self):
+		"""
+		Command not recognizeable
+		"""
+		print("Command cannot be recognized", flush=True)
+	
+	def base(self, base=""):
+		"""
+		Base command processor
+		"""
+		while True:
+			ins = input("%s >>>" % base)
+			if ins == "cd ..":  # Go back to the parent
+				return
+			else:
+				self.router.run(ins)

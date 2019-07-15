@@ -2,6 +2,7 @@ import unittest
 from parser import parser
 
 
+
 class TestParser(unittest.TestCase):
 	"""
 	"""
@@ -65,7 +66,7 @@ class TestParser(unittest.TestCase):
 		self.assertEqual(parser("You are a looser", "marcell"), -1)
 		self.assertEqual(parser("You lost", "marcell"), -1)
 		self.assertEqual(parser("You have lost", "marcell"), -1)
-		# self.assertEqual(parser("You've lost", "marcell"), -1)
+		self.assertEqual(parser("You've lost", "marcell"), -1)
 		self.assertEqual(parser("Marcell lost", "marcell"), -1)
 		self.assertEqual(parser("Marcell is a looser", "marcell"), -1)
 		self.assertEqual(parser("Marcell lost the game", "marcell"), -1)
