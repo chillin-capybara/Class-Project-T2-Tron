@@ -176,7 +176,7 @@ class Lobby(object):
 		# Initialize the list of threads
 		self.__server_threads = []
 		# Create a thread fot the server
-		self.__server_thread = threading.Thread(target=self.__server)
+		self.__server_thread = threading.Thread(target=self.__server, name="LobbyServerThread")
 		self.__server_thread.start()
 
 	def Stop(self):
@@ -335,9 +335,9 @@ class Lobby(object):
 
 			# Here to start the receiver thread
 			# TODO Make a Stop client threads function
-			receiver = threading.Thread(target=self.__client_receiver_thread)
-			sender = threading.Thread(target=self.__client_sender_thread)
-			processor = threading.Thread(target=self.__message_processor)
+			receiver = threading.Thread(target=self.__client_receiver_thread, name="ClientRecvThread")
+			sender = threading.Thread(target=self.__client_sender_thread, name="ClientSenderThread")
+			processor = threading.Thread(target=self.__message_processor, name="ClientProcessorThread")
 			self.__threadcollection += receiver
 			self.__threadcollection += sender
 			self.__threadcollection += processor
@@ -547,8 +547,11 @@ class Lobby(object):
 		Args:
 			sender (MatchServer): Caller of the event
 		"""
-		self.__matches.remove(sender)
-		logging.info("The match %s was removed from the server.", sender.name)
+		try:
+			self.__matches.remove(sender)
+			logging.info("The match %s was removed from the server.", sender.name)
+		except: # No Problem, when it cannot be removed...
+			pass
 
 	def handle_match(self, sender, game:str, name:str, features: List[str]):
 		"""

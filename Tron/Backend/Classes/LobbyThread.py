@@ -203,7 +203,11 @@ class LobbyThread(threading.Thread):
 		Args:
 			data (bytes): Data to be sent
 		"""
-		return self.__sock.send(data)
+		try:
+			return self.__sock.send(data)
+		except OSError:
+			# The socket is closed
+			logging.warn("The socket is closed. Cannot send the message %s", str(data))
 
 	def handle_list_matches(self, sender, game:str):
 		"""
@@ -265,6 +269,18 @@ class LobbyThread(threading.Thread):
 		if self.__leased_player_id.getObj() == player_id and score == 0:
 			packet = self.__comm.game_ended("You died!")
 			self.send(packet)
+
+	def on_match_terminated(self, sender, reason):
+		"""
+		Handle the OnMatchTerminated event from the match and send a game ended
+		Message to the clients.
+
+		This event will be called when the match was closed by admin or due
+		to some errors.
+		"""
+		packet = self.__comm.game_ended(reason)
+		self.send(packet)
+
 
 	def on_player_win(self, sender: MatchServer, player_id: int):
 		"""
@@ -330,7 +346,12 @@ class LobbyThread(threading.Thread):
 
 				match.EStart += self.handle_match_started
 
-				match.ELifeUpdate += self.handle_OnLifeUpdate # Event to send away life updates
+				# Event to send away life updates
+				match.ELifeUpdate         += self.handle_OnLifeUpdate
+
+				# Handle when a match gets terminated
+				match.OnMatchTerminated   += self.on_match_terminated
+				match.OnPlayerWin         += self.on_player_win
 
 				# Check for the Event to start
 				match.check_for_start()
