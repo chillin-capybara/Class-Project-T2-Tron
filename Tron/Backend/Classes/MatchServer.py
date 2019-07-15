@@ -487,7 +487,7 @@ class MatchServer(AbstractMatch):
 				print("{:<20s}   COLOR: {}".format(player.getName(), str(player.getColor())), flush=True)
 			print("%d players were listed" % len(self.players))
 		except:
-			logging.warning("Players cannot be listed.")
+			print("Players cannot be listed.", flush=True)
 	
 	def base_stat(self):
 		"""
@@ -497,7 +497,7 @@ class MatchServer(AbstractMatch):
 			print("Players joined / Max players: %d / %d" % (self.__player_slots.count_leased(), self.feat_players), flush=True)
 			print("Size of the arena is %d x %d" % (self.arena.sizeX, self.arena.sizeY), flush=True)
 		except:
-			logging.warning("Cannot show the match stats")
+			print("Cannot show the match stats", flush=True)
 	
 	def base_watch(self):
 		"""
@@ -514,7 +514,7 @@ class MatchServer(AbstractMatch):
 		except KeyboardInterrupt:
 			pass # Close the watcher
 		except:
-			logging.warning("Error while watching the game.")
+			print("Error while watching the game.", flush=True)
 	
 	def base_default(self):
 		"""

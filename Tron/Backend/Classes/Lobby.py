@@ -190,7 +190,7 @@ class Lobby(object):
 			feat = ['Players', players, 'lifes', lifes]
 			self.handle_create_game(None, 'Tron', name, feat)
 		except:
-			logging.warn("Cannot create match")
+			print("Cannot create match", flush=True)
 	
 	def base_rem(self, matchname):
 		"""
@@ -206,9 +206,9 @@ class Lobby(object):
 					m.close(join=False)
 					return
 			
-			logging.warn("Match %s does not exist.", matchname)
+			print("Match %s does not exist.", matchname, flush=True)
 		except:
-			logging.warn("Cannot remove the match")
+			print("Cannot remove the match", flush=True)
 	
 	def base_watch(self, matchname):
 		"""
@@ -224,9 +224,9 @@ class Lobby(object):
 					m.base_watch()
 					return
 			
-			logging.warn("Match %s does not exist.", matchname)
+			print("Match %s does not exist.", matchname, flush=True)
 		except:
-			logging.warn("Cannot watch the match")
+			print("Cannot watch the match", flush=True)
 
 	@property
 	def parent(self):
