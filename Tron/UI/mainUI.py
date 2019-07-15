@@ -248,10 +248,11 @@ class SearchForLobbiesMenuDynamic(Screen):
 			# 	pass
 			# else:
 			# 	k = 0
-			if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port)) == 0:
-				self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port))
-			else:
-				pass
+			self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port))
+			# if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port)) == 0:
+			# 	self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port))
+			# else:
+			# 	pass
 			# lasthost = indexlobby.host
 			# k += 1
 
@@ -290,11 +291,17 @@ class SearchForLobbiesMenuDynamic(Screen):
 		CLIENT.enter_lobby(self.lobby)
 
 class LobbyMenuDynamic(Screen):
+
 	match = 0
 	matches = []
 	sentmatch = 0
 	sentmatches = []
 
+	## print a LOG, when refresh Button in LobbyMenu is pressed
+	def logging(self):
+		logging.info('UI Lobby Menu: Refresh Button pressed')
+
+	## get the Playerdata from the current Player to display in headerlabel
 	def getPlayerdata(self):
 
 		outputname = CLIENT.me.getName()
@@ -307,6 +314,7 @@ class LobbyMenuDynamic(Screen):
 		playercolor = (color[0]*255, color[1]*255, color[2]*255, 1)
 		self.ids.explainmenuLabel.background_color = playercolor
 
+	## getting the current state of matches in the current choosen Lobby
 	def getLobbyInformation(self):
 		"""
 		Get the Information of the available Lobbies
@@ -319,7 +327,9 @@ class LobbyMenuDynamic(Screen):
 
 		CLIENT.lobby.list_matches('Tron')
 		listmatches = CLIENT.lobby.matches
-		count_matches = listmatches.__len__()
+		time.sleep(2) ## delay for compensating server delay when sending matches
+		count_matches = listmatches.__len__() ## getting number of matches for calling single matches
+		logging.info('UI Lobby Menu: Var: count_matches = %d' % count_matches)
 
 		## Debugging: what is Backend sending
 		for i in range(0,count_matches):
@@ -328,17 +338,23 @@ class LobbyMenuDynamic(Screen):
 		logging.info('UI Lobby Menu: Backend sent: %s' % str(self.sentmatches))
 		self.sentmatches.clear()
 
+		## add all content from listmatches into a list with strings for showing in Lobby Menu
 		for i in range(0,count_matches):
 			match = listmatches[i]
-			if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0:
-				self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
-			else:
-				pass
+			self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
+			# if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0: ## was ment to prevent several listings of the same match --> no always clearing whole list
+			# 	self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
+			# else:
+			# 	pass
 
+	## show the in getLobbyinformation created List in the Lobby Menu
 	def update_list(self):
+		logging.info('UI Lobby Menu: List updated')
 		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matches]
 
+	## clear the list with matches for preventing multiple listing of the same match
 	def clear_list(self):
+		logging.info('UI Lobby Menu: List cleared')
 		self.matches.clear()
 
 	def updatechosenMatch(self, currentmatch=0):

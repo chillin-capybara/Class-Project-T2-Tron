@@ -80,6 +80,7 @@
         background_color: (0.1,0.3,0.7,1)
         text: 'Refresh'
         on_release:
+            root.logging()
             root.clear_list()
             root.getLobbyInformation()
             root.update_list()
