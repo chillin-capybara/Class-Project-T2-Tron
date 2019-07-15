@@ -16,13 +16,25 @@ def parser (text:str, player_name:str)->int:
 	not_list = ["not", "no"]
 	inversion = False
 
+	#erase bad symbols
+	try:
+		bad_char_index = text.index("\'")
+		text = text[:(bad_char_index-1)] + text[(bad_char_index+1):]
+	except:
+		pass
+
 	word_list = shlex.split(text, comments=False, posix=True)
 	print (word_list)
-	
 	answer = 0
 
 	for word in range (0, len(word_list)):
 		#check bad symbols
+		try:
+			bad_char_index = word_list[word].index("\'")
+			word_list[word][bad_char_index] = "q"
+		except:
+			pass
+
 		# for letter in range (0, len(word_list[word])):
 		# 	if word_list[word] == "'":
 		# 		word_list[word] = word_list[word][0:letter-1]
@@ -35,10 +47,10 @@ def parser (text:str, player_name:str)->int:
 				inversion = True
 
 		#win list
-		for item in range (0,len(win_list)):
-			if re.match(string,win_list[item]) :
+		for item in range (0, len(win_list)):
+			if re.match(string, win_list[item]):
 				answer = 1
-		
+
 		if answer == 0:
 			# looser list
 			for item in range (0,len(looser_list)):
