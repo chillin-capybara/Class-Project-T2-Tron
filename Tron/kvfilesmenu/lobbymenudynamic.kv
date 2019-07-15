@@ -9,12 +9,15 @@
 #operations:
 
 <LobbyMenuDynamic>:
+
+    # on_pre_enter:
+    #     root.refresh_matches_list()
     on_enter:
         root.getPlayerdata()
-        root.getLobbyInformation()
-        root.update_list()
-    on_leave:
-        root.clear_list()
+        root.get_matchlist_from_server() ## now it will be automatically updated by an event --> when it will work ;-)
+        # root.update_shown_list() ## is now directly called in get_matchlist_from_server()
+    # on_leave:
+    #     root.clear_list() ## is now directly called in get_matchlist_from_server()
 
     HeaderLabel:
         text: 'Lobby Menu'
@@ -81,9 +84,10 @@
         text: 'Refresh'
         on_release:
             root.logging()
-            root.clear_list()
-            root.getLobbyInformation()
-            root.update_list()
+            # root.clear_list() ## is now directly called in get_matchlist_from_server()
+            root.get_matchlist_from_server() ## now it will be automatically updated by an event
+            # root.refresh_matches_list() ## trigger the event to update list with current games
+            # root.update_shown_list() ## is now directly called in get_matchlist_from_server()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
