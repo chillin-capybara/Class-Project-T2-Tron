@@ -181,22 +181,27 @@ class MainMenuFloat(Screen):
 
 class CreateServerMenuFloat(Screen):
 
-	def statusServer(self, statusswitch, numberlobbies):
+	def statusServer(self, statusswitch, numberlobbies, fieldsize_x, fieldsize_y):
 		"""
 		Call open server function and sends number of lobbies
 
 		Args:
 			statusswitch(boolean)
 			numberlobbies (int)
+			fieldsize_x (int)
+			fieldsize_y (int)
 		Return:
 			-
 		"""
 		self.statusswitch = statusswitch
 		self.numberlobbies = numberlobbies
+		self.fieldsize_x = fieldsize_x
+		self.fieldsize_y = fieldsize_y
 
 		if self.statusswitch:
-			logging.info('Create Server with %d Lobbies' % self.numberlobbies)
-			self.server=GameServer(self.numberlobbies)
+			logging.info('UI Create Server Menu: Create Server with %d Lobbies, Width %d and Height %d' % (self.numberlobbies, self.fieldsize_x, self.fieldsize_y))
+			self.server = GameServer(self.numberlobbies)
+			# self.server = GameServer(self.numberlobbies, self.fieldsize_x, self.fieldsize_y) ## use when implemented in server
 			self.server.Start()
 			
 		else:
@@ -293,16 +298,14 @@ class SearchForLobbiesMenuDynamic(Screen):
 class LobbyMenuDynamic(Screen):
 
 	match = 0
-	matches = []
+	matchlist = []
 	sentmatch = 0
 	sentmatches = []
 
-	## print a LOG, when refresh Button in LobbyMenu is pressed
-	def logging(self):
-		logging.info('UI Lobby Menu: Refresh Button pressed')
-
-	## get the Playerdata from the current Player to display in headerlabel
 	def getPlayerdata(self):
+		"""
+		Get the Playerdata from the current Player to display in headerlabel
+		"""
 
 		outputname = CLIENT.me.getName()
 		if outputname != '':
@@ -314,8 +317,57 @@ class LobbyMenuDynamic(Screen):
 		playercolor = (color[0]*255, color[1]*255, color[2]*255, 1)
 		self.ids.explainmenuLabel.background_color = playercolor
 
-	## getting the current state of matches in the current choosen Lobby
-	def getLobbyInformation(self):
+	def logging(self):
+		"""
+		Print a LOG, when refresh Button in LobbyMenu is pressed
+		"""
+		logging.info('UI Lobby Menu: Refresh Button pressed')
+
+	def refresh_matches_list(self):
+		"""
+		Asks the Server for all current matches in the choosen Lobby
+		"""
+		CLIENT.lobby.list_matches('Tron')
+	
+	def on_matches_update(sender, matches):
+		"""
+		Show the newly updated matches in Lobby Menu
+		"""
+		## clear the List with matches to avoid multiple listings of the same match
+		logging.info('UI Lobby Menu: on_matches_update function was called')
+		self.clear_list()
+
+		## Marcell's solution
+		## Print out the list of matches for debugging
+		# for sentmatch in matches:
+		# 	self.sentmatches.append("[%s %s %s]" % (sentmatch.name, sentmatch.game, sentmatch.get_feature_string()))
+		# logging.info('UI Lobby Menu: Backend sent: %s' % str(self.sentmatches))
+		# self.sentmatches.clear()
+
+		# for match in matches:
+		# 	self.matchlist.append("[%s \t %s \t %s]" % (match.name, match.game, match.get_feature_string()))
+
+		## solution from old function
+		listmatches = matches
+		# time.sleep(2) ## delay for compensating server delay when sending matches
+		count_matches = listmatches.__len__() ## getting number of matches for calling single matches
+		logging.info('UI Lobby Menu: Var: count_matches = %d' % count_matches)
+
+		## Debugging: what is Backend sending
+		for i in range(0,count_matches):
+			sentmatch = listmatches[i]
+			self.sentmatches.append("[%s %s %s]" % (sentmatch.name, sentmatch.game, sentmatch.get_feature_string()))
+		logging.info('UI Lobby Menu: Backend sent: %s' % str(self.sentmatches))
+		self.sentmatches.clear()
+
+		## add all content from listmatches into a list with strings for showing in Lobby Menu
+		for i in range(0,count_matches):
+			match = listmatches[i]
+			self.matchlist.append("%s \t %s \t %s" % (match.name, match.game, match.get_feature_string()))
+		
+		self.update_shown_list()
+
+	def get_matchlist_from_server(self):
 		"""
 		Get the Information of the available Lobbies
 
@@ -324,6 +376,7 @@ class LobbyMenuDynamic(Screen):
 		Return:
 			-
 		"""
+		self.clear_list()
 		logging.info('UI Lobby Menu: Getting current list of Matches from Server')
 		CLIENT.lobby.list_matches('Tron')
 		listmatches = CLIENT.lobby.matches
@@ -341,21 +394,27 @@ class LobbyMenuDynamic(Screen):
 		## add all content from listmatches into a list with strings for showing in Lobby Menu
 		for i in range(0,count_matches):
 			match = listmatches[i]
-			self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
+			self.matchlist.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
 			# if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0: ## was ment to prevent several listings of the same match --> no always clearing whole list
 			# 	self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
 			# else:
 			# 	pass
+		
+		self.update_shown_list()
 
-	## show the in getLobbyinformation created List in the Lobby Menu
-	def update_list(self):
-		logging.info('UI Lobby Menu: List updated in the Menu')
-		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matches]
+	def update_shown_list(self):
+		"""
+		Show the in getLobbyinformation created List in the Lobby Menu
+		"""
+		logging.info('UI Lobby Menu: Update shown List in the Menu')
+		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matchlist]
 
-	## clear the list with matches for preventing multiple listing of the same match
 	def clear_list(self):
+		"""
+		Clear the list with matches for preventing multiple listing of the same match
+		"""
 		logging.info('UI Lobby Menu: List cleared')
-		self.matches.clear()
+		self.matchlist.clear()
 
 	def updatechosenMatch(self, currentmatch=0):
 		"""
@@ -374,10 +433,16 @@ class LobbyMenuDynamic(Screen):
 		LobbyMenuDynamic.match = self.match
 
 	def joinMatch(self):
+		"""
+		Join the Match
+		"""
 		logging.info('UI Lobby Menu: Player joins Match %s with Index %s' % (self.match+1, self.match))
 		CLIENT.join_match(self.match - 1)
 
 	def leaveMatch(self):
+		"""
+		Leave the Match
+		"""
 		logging.info('UI Lobby Menu: Player leaves Match %s with Index %s' % (self.match+1, self.match))
 		CLIENT.leave_match()
 
@@ -397,7 +462,7 @@ class CreateMatchMenuFloat(Screen):
 			self.numberplayer = 1
 			self.i += 1
 
-		logging.info('UI Create Mathc Menu: Create Match with %d players, %d lifes and name %s' % (self.numberplayer, self.numberlifes, self.matchname))
+		logging.info('UI Create Match Menu: Create Match with %d players, %d lifes and name %s' % (self.numberplayer, self.numberlifes, self.matchname))
 		settings = {
 			'Players' : self.numberplayer,
 			'Lifes' : self.numberlifes
@@ -856,7 +921,7 @@ screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'
 screen_manager.add_widget(GameOverMenuFloat(name='gameovermenufloat'))
 screen_manager.add_widget(GameUI(name='gameui'))
 
-######## Errora and Handlers ############################
+######## Error and  Event Handlers ############################
 def ErrorPopup(sender, msg):
 
 	popup = Popup(title='ERROR', content=Label(text = msg ), size_hint=(.8, .4))
@@ -897,6 +962,10 @@ def MatchEndedPopup(sender, reason='You Died!'):
 	popup.open()
 
 CLIENT.EMatchEnded += MatchEndedPopup
+
+## calling the on_matches_update function in class LobbyMenuDynamic
+
+# CLIENT.OnMatchesUpdate += LobbyMenuDynamic.on_matches_update ## will be used when working
 
 class MenuApp(App):
 
