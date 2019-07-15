@@ -509,7 +509,7 @@ class MatchServer(AbstractMatch):
 				draw_matrix(self.arena.matrix)
 				print("---- Players ----")
 				for pl in self.players:
-					print("{:<20s}   POS: {:<10s}   DIR: {:<10s}".format(pl.getName(), str(pl.getPosition()), str(pl.getVelocity())), flush=True)
+					print("{:<15s}   POS: {:<10s}   DIR: {:<10s} LIFES: {}".format(pl.getName(), str(pl.getPosition()), str(pl.getVelocity()), pl.lifes), flush=True)
 				time.sleep(1)
 		except KeyboardInterrupt:
 			pass # Close the watcher

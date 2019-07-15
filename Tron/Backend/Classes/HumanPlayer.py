@@ -73,6 +73,7 @@ class HumanPlayer(Player):
 
 	def __init__(self):
 		self.__track = []
+		self.__track.clear()
 		self.__Position = Vect2D(0,0)
 		self.__Velocity = Vect2D(0,0)
 		self.__last_velocity = Vect2D(0,0)

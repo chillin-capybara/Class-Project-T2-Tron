@@ -1,6 +1,7 @@
 from .Broadcaster import Broadcaster
 from .Lobby import Lobby
 from ..Core.Router import *
+from ..Core.BackendConfig import BackendConfig
 
 from ..Core.leasable_collections import *
 from ..Core.globals import *
@@ -26,7 +27,7 @@ class GameServer(object):
 
 	EStop : Event = None # Stop Event for the server
 
-	def __init__(self, num_lobbies: int):
+	def __init__(self, num_lobbies: int, arena_size: tuple):
 		"""
 		Initialize a Game Server with a given amount of lobbies
 		
@@ -39,6 +40,10 @@ class GameServer(object):
 
 		# Initialize the collection of available ports
 		self.__available_ports = LeasableList(list(LOBBY_PORT_RANGE))
+
+		sx, sy = arena_size
+		BackendConfig.arena_sizex = sx
+		BackendConfig.arena_sizey = sy
 
 		# Initialize the list of the lobbies
 		self.__lobbies = []
@@ -64,6 +69,7 @@ class GameServer(object):
 		self.ROOT_ROUTER.add_route('log on', self.root_log_on)
 		self.ROOT_ROUTER.add_route('log off', self.root_log_off)
 		self.ROOT_ROUTER.add_route('shutdown', self.root_shutdown)
+		self.ROOT_ROUTER.add_route('resize (\d+) (\d+)', self.root_resize)
 	
 	@property
 	def available_ports(self) -> LeasableList:
@@ -186,6 +192,20 @@ class GameServer(object):
 		logger = logging.getLogger()
 		logger.propagate = False
 		print("Logging turned ON.", flush=True)
+
+	def root_resize(self, sx: str, sy: str):
+		"""
+		Resize the new arenas on the server
+		
+		Args:
+			sx (str): Size X: width
+			sy (str): Size Y: height
+		"""
+		sxi = int(sx)
+		syi = int(sy)
+
+		BackendConfig.arena_sizex = sxi
+		BackendConfig.arena_sizey = syi
 
 	def root_shutdown(self):
 		"""

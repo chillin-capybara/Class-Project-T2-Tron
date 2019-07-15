@@ -52,20 +52,45 @@ if __name__ == '__main__':
 	time.sleep(2)
 	client.i_am_ready()
 
-	# List the player colors
-	pid = 1
-	for player in client.match.players:
-		print("Player %d has the color %s" % (pid, player.getColor()))
-		print("Player %d has n   lifes %d" % (pid, player.lifes))
-		pid += 1
-
-	while True:
+	# First game only for 10 secs
+	starter = time.perf_counter()
+	while time.perf_counter() - starter < 10:
 		# TODO Update the game matrix every second
 		matrix = client.match.arena.matrix
-		#draw_matrix(matrix)
+		draw_matrix(matrix)
 		players = client.match.players
-		os.system('clear')
 		for player in players:
 			print("PLAYER POS: %s" % str(player.getPosition()))
 			print("PLAYER VEL: %s" % str(player.getVelocity()))
 			print("PLAYER LIF: %s" % str(player.lifes))
+			print("TRACKS %d" % len(player.getTrack()))
+
+	# Create a new game
+	logging.info("Creating seconds match")
+	client.lobby.create_match("Tron", "mathy", {'Players': 1, 'Lifes': 10})
+	client.lobby.create_match("Tron", "mathy2", {'Players': 1, 'Lifes': 10})
+	time.sleep(1)
+
+	# Join  the match
+	logging.info("Joining the match")
+	client.lobby.list_matches('Tron')
+	time.sleep(2)
+	client.join_match(1)
+
+	client.me.setVelocity(1,0)
+
+	time.sleep(2)
+	client.i_am_ready()
+
+	# First game only for 10 secs
+	starter = time.perf_counter()
+	while time.perf_counter() - starter < 10:
+		# TODO Update the game matrix every second
+		matrix = client.match.arena.matrix
+		draw_matrix(matrix)
+		players = client.match.players
+		for player in players:
+			print("PLAYER POS: %s" % str(player.getPosition()))
+			print("PLAYER VEL: %s" % str(player.getVelocity()))
+			print("PLAYER LIF: %s" % str(player.lifes))
+			print("TRACKS %d" % len(player.getTrack()))

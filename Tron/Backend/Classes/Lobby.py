@@ -8,6 +8,7 @@ from .HumanPlayer import HumanPlayer
 from .LobbyThread import LobbyThread
 from .MatchClient import MatchClient
 from ..Core.ThreadCollection import ThreadCollection
+from ..Core.BackendConfig import BackendConfig
 from .Match import Match
 import socket
 import logging
@@ -562,6 +563,23 @@ class Lobby(object):
 			featrues (list): List of server features
 		"""
 		logging.info("The server welcomes you. Supported server features %s" % str(features))
+
+		try:
+			# try to fetch the arena dimensions
+			for i in range(0, len(features)):
+				if features[i] == "DIMS":
+					cell_w = features[i + 1]
+					cell_h = features[i + 2]
+					sx     = int(features[i + 3])
+					sy     = int(features[i + 4])
+
+					# Set the arena dimensions based on the server
+					BackendConfig.arena_sizex = sx
+					BackendConfig.arena_sizey = sy
+					return
+
+		except Exception as exc:
+			logging.critical("Cannot fetch the arena dimensions! Reason: %s", str(exc))
 
 	def handle_available_games(self, sender, games: List[str]):
 		"""

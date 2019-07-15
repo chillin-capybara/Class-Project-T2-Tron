@@ -10,6 +10,7 @@ from .BasicComm import BasicComm, MessageError
 from .MatchServer import MatchServer
 from ..Core.globals import *
 from ..Core.leasable_collections import *
+from ..Core.BackendConfig import BackendConfig
 from .Match import Match
 from .HumanPlayer import HumanPlayer
 
@@ -146,8 +147,13 @@ class LobbyThread(threading.Thread):
 		# Store the player's name
 		self.__hello_name = playername
 
+		# Query the new features
+		feat = SERVER_FEATURES
+		feat[4] = BackendConfig.arena_sizex
+		feat[5] = BackendConfig.arena_sizey
+
 		# Answer back with welcome message
-		packet = self.__comm.welcome(SERVER_FEATURES)
+		packet = self.__comm.welcome(feat)
 		self.__sock.send(packet)
 
 		logging.info("Answering with server features: %s" % str(SERVER_FEATURES))

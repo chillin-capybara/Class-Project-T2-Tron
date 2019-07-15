@@ -122,6 +122,7 @@ class RectangleArena(Arena):
 			zrow.append(0)
 
 		self.__matrix = []
+		self.__matrix.clear()  # Make sure that the list is empty
 		for j in range(0, self.sizeX):
 			self.__matrix.append(zrow.copy()) # Make a x * y zero matrix for the game
 	

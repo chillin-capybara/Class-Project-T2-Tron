@@ -3,6 +3,7 @@ from .HumanPlayer import HumanPlayer
 from typing import List
 from .RectangleArena import RectangleArena, DieError
 from ..Core.Event import Event
+from ..Core.BackendConfig import BackendConfig
 import logging
 
 class AbstractMatch(ABC):
@@ -73,7 +74,7 @@ class AbstractMatch(ABC):
 			self._players.append(player)
 
 		# TODO Initialize the arena based on lobby property
-		self._arena = RectangleArena("Testname", (40,40), 0, 0)
+		self._arena = RectangleArena("Testname", (BackendConfig.arena_sizex,BackendConfig.arena_sizey), 0, 0)
 
 	@property
 	def arena(self) -> RectangleArena:
