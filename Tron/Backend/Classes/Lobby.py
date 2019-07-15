@@ -187,6 +187,7 @@ class Lobby(object):
 		# Trigger a socket close
 		self.__server_sock.close()
 
+		# Closing all the threaded tasks
 		self.ELobbyStop(self)
 
 	def handle_server_stop(self, sender):
@@ -535,6 +536,7 @@ class Lobby(object):
 		# Create a new match object and lease a port from the server's collection
 		new_match = MatchServer(self.parent.available_ports, name, features)
 		new_match.EClose += self.handle_match_close #Add event call back to remove the match
+		self.ELobbyStop  += new_match.handle_lobby_stop  # Add event handler to close the UDP server
 		self.__matches.append(new_match)
 		logging.info("Match created!")
 

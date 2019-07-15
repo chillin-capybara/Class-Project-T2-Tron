@@ -36,7 +36,7 @@ class LobbyThread(threading.Thread):
 	def __init__(self, sock:socket.socket, conn, hook_get_games, hook_get_matches):
 		"""
 		Create a new lobbythread for a client
-		
+
 		Args:
 			socket (socket.socket): Connected socket from the client
 			hook_get_games (callable): Hook to get the list of the games in the lobby
@@ -68,12 +68,12 @@ class LobbyThread(threading.Thread):
 
 		# Initialize the __ECreateGame
 		self.__ECreateGame = Event('game', 'name', 'features')
-	
+
 	@property
 	def ECreateGame(self):
 		"""
 		Event to be called when the creation of a new match is requested
-		
+
 		Returns:
 			Event: Event to add callbacks to
 		"""
@@ -115,11 +115,11 @@ class LobbyThread(threading.Thread):
 			except:
 				pass # Player ID was not reserved
 			logging.info("Closing connection to [FILL THIS OUT]")
-	
+
 	def handle_lobby_stop(self, sender):
 		"""
 		Handle the stop of the lobby object
-		
+
 		Args:
 			sender ([type]): Caller lobby object
 		"""
@@ -135,7 +135,7 @@ class LobbyThread(threading.Thread):
 	def handle_hello(self, sender, playername: str, features: list):
 		"""
 		Handle EHello from the communication protocoll
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 			name (str): Name of the player, who said hello
@@ -151,11 +151,11 @@ class LobbyThread(threading.Thread):
 		self.__sock.send(packet)
 
 		logging.info("Answering with server features: %s" % str(SERVER_FEATURES))
-	
+
 	def handle_list_games(self, sender):
 		"""
 		Handlt the EAvailableGames from the Communication protocol
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 		"""
@@ -163,11 +163,11 @@ class LobbyThread(threading.Thread):
 		list_game = self.__hook_get_games()
 		packet = self.__comm.available_games(SERVER_GAMES)
 		self.__sock.send(packet)
-	
+
 	def handle_create_match(self, sender, game:str, name: str, features: List[str]) -> None:
 		"""
 		Handle the create match commands from the client.
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 			game (str): Name of the game = Tron/Pong
@@ -176,7 +176,7 @@ class LobbyThread(threading.Thread):
 		"""
 		try:
 			logging.info("Creating a new match %s/%s is requested with: %s" % (game, name, str(features)))
-			
+
 			# Check if the match exists.
 			ex_matches = self.__hook_get_matches()
 			c_with_name = sum(p.name == name for p in ex_matches)
@@ -195,11 +195,11 @@ class LobbyThread(threading.Thread):
 			# Failed to create the match
 			# // TODO add error message sending
 			logging.error("Error creating the match!")
-	
+
 	def send(self, data: bytes):
 		"""
 		Send data to the socket of the lobbythread
-		
+
 		Args:
 			data (bytes): Data to be sent
 		"""
@@ -208,7 +208,7 @@ class LobbyThread(threading.Thread):
 	def handle_list_matches(self, sender, game:str):
 		"""
 		Handle the list matches request from the client
-		
+
 		Args:
 			sender (CommProt): Caller of the event
 			game (str): Name of the game to list matches of
@@ -222,14 +222,14 @@ class LobbyThread(threading.Thread):
 
 		logging.debug("List of matches: %s", str(str_list))
 
-		# Generate protocoll message, SEND	
+		# Generate protocoll message, SEND
 		packet = self.__comm.games(game, str_list)
 		self.send(packet)
-	
+
 	def handle_match_features(self, sender, name:str):
 		"""
 		Event handler for queriing the match features
-		
+
 		Args:
 			name (str): Name of the match
 		"""
@@ -242,16 +242,16 @@ class LobbyThread(threading.Thread):
 				packet = self.__comm.match(match.game, match.name, match.features)
 				self.send(packet)
 				return
-		
+
 		# If match not found
 		logging.warning("Match %s not found on the server" % name)
 		packet = self.__comm.game_not_exists(name)
 		self.send(packet)
-	
+
 	def handle_OnLifeUpdate(self, sender:MatchServer, player_id:int, score:int):
 		"""
 		Handle a life update event of a specific match and notify all the joined players
-		
+
 		Args:
 			sender (MatchServer): Caller Match of the event
 			player_id (int): ID of the player in the match
@@ -266,10 +266,27 @@ class LobbyThread(threading.Thread):
 			packet = self.__comm.game_ended("You died!")
 			self.send(packet)
 
+	def on_player_win(self, sender: MatchServer, player_id: int):
+		"""
+		Event to be called when a player wins the match.
+		"""
+		try:
+			# When the player is the player
+			if self.__leased_player_id.getObj() == player_id:
+				packet = self.__comm.game_ended("Congratulations! You won the match %s!" % sender.getName())
+				self.send(packet)
+			else:
+				playername = sender.players[player_id - 1].getName()
+				packet = self.__comm.game_ended("You lost! %s won the match %s!" % (playername, sender.getName()))
+				self.send(packet)
+		except Exception as exc:
+			logging.warning("Error while notifying the winning player. Reason: %s", str(exc))
+
+
 	def handle_join_match(self, sender, name: str, player: HumanPlayer):
 		"""
 		Handle when a client wants to join a match
-		
+
 		Args:
 			sender ([type]): Caller of the event
 			name (str): Name of the match to join
@@ -318,7 +335,7 @@ class LobbyThread(threading.Thread):
 				# Check for the Event to start
 				match.check_for_start()
 				return
-		
+
 		# Failed to join
 		packet = self.__comm.failed_to_join("The match %s does not exists in the lobby!" % name)
 		self.send(packet)
@@ -327,7 +344,7 @@ class LobbyThread(threading.Thread):
 		"""
 		Handle when the server starts the match
 		Send out the notifications to all clients
-		
+
 		Args:
 			sender (match): Caller of the event
 			port (int) : Port of the match
@@ -338,11 +355,11 @@ class LobbyThread(threading.Thread):
 		# Generate match started package for every player in their thread
 		packet = self.__comm.match_started(port, player_ids, players)
 		self.send(packet)
-	
+
 	def on_leave_match(self, sender, msg):
 		"""
 		Handle, when a user wants to exit a match
-		
+
 		Args:
 			sender (Any): Caller of the event
 			msg (str): Reason why to leave. Can be ignored
@@ -357,11 +374,11 @@ class LobbyThread(threading.Thread):
 				logging.warning("The player %s is not joined to any match.", self.__hello_name)
 		except Exception as exc:
 			logging.warning("Error while leaving the match: %s", str(exc))
-	
+
 	def on_client_ready(self, sender):
 		"""
 		Handle when a cliet is ready to play
-		
+
 		Args:
 			sender (Any): Caller of the event
 		"""

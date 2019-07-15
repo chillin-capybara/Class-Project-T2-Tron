@@ -352,7 +352,8 @@ class LeasableList(object):
 		"""
 		for obj in self.__collection:
 			obj: LeasableObject
-			obj.free()
+			if obj.is_leased():  # Only free the objects that are already leased
+				obj.free()
 
 		# Call the events
 		self.OnFree(self)

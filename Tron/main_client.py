@@ -44,12 +44,12 @@ if __name__ == '__main__':
 	# Join  the match
 	logging.info("Joining the match")
 	client.lobby.list_matches('Tron')
+	time.sleep(2)
 	client.join_match(0)
 
 	client.me.setVelocity(1,0)
 
-	time.sleep(5)
-
+	time.sleep(2)
 	client.i_am_ready()
 
 	# List the player colors

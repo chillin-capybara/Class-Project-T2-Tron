@@ -55,6 +55,9 @@ class MatchServer(AbstractMatch):
 	"""
 	Server class of the match to be hosted with. Supports server sockets,
 	player updates and sends out game arena updates.
+
+	Events:
+		OnPlayerWin(sender, player_id): is triggered, when a player wins the match
 	"""
 	_comm: BasicComm = None
 
@@ -70,9 +73,11 @@ class MatchServer(AbstractMatch):
 
 	__seq_send: List[int] = None # List to track which sequence number to send for which client
 	__last_activity = None # Clock time, when the last direction update was performed
+	__require_close = False
 
 	EStart: Event = None
 	ELifeUpdate: Event = None # Event to call when a player's life has to be updated
+	OnPlayerWin: Event  = None  # Event to be called when a player wins
 
 	def __init__(self, available_ports: LeasableList, name: str, features: List[str]):
 		"""
@@ -121,6 +126,7 @@ class MatchServer(AbstractMatch):
 			# Event to notify the joined playes to that the match is starting
 			self.EStart = Event('port', 'player_ids', 'players')
 			self.ELifeUpdate = Event('player_id', 'score')
+			self.OnPlayerWin = Event('player_id')
 
 		except LeaseError as err_lease:
 			err_msg = "Cannot create match, the server has run out of ports. %s" % str(err_lease)
@@ -181,12 +187,23 @@ class MatchServer(AbstractMatch):
 		Close the match, and clean up the leases and sockets after the processes.
 		"""
 		logging.info("Closing the match is requested")
+		try:
+			# Free all the given player slots
+			self.__player_slots.free_all()
 
-		# Free all the given player slots
-		self.__player_slots.free_all()
+			# Give back the port lease
+			self.__port_lease.free()
+		except:
+			pass
 
-		# Give back the port lease
-		self.__port_lease.free()
+		# Set a close flag
+		self.__require_close = True
+
+		# Destroy the socket
+		try:
+			self.__udpsock.close()
+		except:
+			pass # Ignorable error
 
 		logging.debug("Waiting for all the match threads to finish...")
 		if join:
@@ -269,8 +286,8 @@ class MatchServer(AbstractMatch):
 		logging.info("All players ready, starting the match.")
 		while True:
 			try:
-				draw_matrix(self.arena.matrix)
-				print("--------- Players: ------------")
+				#draw_matrix(self.arena.matrix)
+				#print("--------- Players: ------------")
 				pid = 1 # IGNORE PLAYER ZERO
 				alive = 0
 				for player in self.players:
@@ -292,7 +309,7 @@ class MatchServer(AbstractMatch):
 
 						#logging.info("Player ID=%d '%s' died. Has %d / %d lifes left" % (pid, player.getName(), player.lifes, self.feat_lifes))
 					finally:
-						print("%d; %s \t| %s | %s | %d" % (pid, player.getName(), str(player.getVelocity()), str(player.getPosition()), player.lifes), flush=True)
+						#print("%d; %s \t| %s | %s | %d" % (pid, player.getName(), str(player.getVelocity()), str(player.getPosition()), player.lifes), flush=True)
 						pid += 1
 					
 					# TODO REMOVE THIS DUMMY PRINTOUT
@@ -301,14 +318,27 @@ class MatchServer(AbstractMatch):
 
 			time.sleep(0.5) # 2 Updates per second
 
+			if self.__require_close:
+				logging.info("Closing the field updater on request")
+				break
+
+			# Check when a player wins the game
+			if alive == 1 and self.feat_players > 1:
+				pid = 1
+				for player in self.players:
+					if player.is_alive():
+						self.OnPlayerWin(self, player_id=pid)
+						logging.info("Player %s won the game. Closing the server...", player.getName())
+						break  # Exit the player updater
+					pid +=1
+			elif alive == 0:
+				# If there is no players alive, stop the match...
+				logging.info("All player are dead. Closing the server...")
+				break  # Stop the server
+
 			# Check if the match is in idle, when yes -> Close it
 			if self.is_idle():
 				break # Stop the updater thread loop
-			
-			# If there is no players alive, stop the match...
-			if alive == 0:
-				logging.info("All player are dead. Closing the server...")
-				break  # Stop the server
 
 		# Close automatically everything, when the main thread stops
 		self.close(join=False)
@@ -406,3 +436,15 @@ class MatchServer(AbstractMatch):
 				return False
 		else:
 			return False
+	
+	def handle_lobby_stop(self, sender):
+		"""
+		Handle when the lobby thread was stopped, and stop the game server
+		
+		Args:
+			sender (Lobby): Caller of the event
+		"""
+		try:
+			self.close(join = False)
+		except:
+			pass # Error can be ignored
