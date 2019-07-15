@@ -75,6 +75,7 @@ class GameUI(Screen):
 	countdown_is_running = BooleanProperty(False)
 	game_is_running = BooleanProperty(False)
 	playPos = ObjectProperty(Vect2D(10, 0))
+	counter_for_running = NumericProperty(0)
 
 	def init_onenter(self, **kwargs):
 		super(GameUI, self).__init__(**kwargs)
@@ -103,7 +104,9 @@ class GameUI(Screen):
 
 		## functions should only be started after special event is triggered
 		if self.game_is_running == True:
-			CLIENT.i_am_ready()
+			if self.counter_for_running == 0:
+				CLIENT.i_am_ready()
+				self.counter_for_running = 1
 			## Despite trying to handle the information down, I was forced to create new function,
 			## which triggers certain event in subclass
 			self.ids.trackWidget.setBooleanGame()
