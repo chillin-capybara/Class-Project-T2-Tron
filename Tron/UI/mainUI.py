@@ -324,7 +324,7 @@ class LobbyMenuDynamic(Screen):
 		Return:
 			-
 		"""
-
+		logging.info('UI Lobby Menu: Getting current list of Matches from Server')
 		CLIENT.lobby.list_matches('Tron')
 		listmatches = CLIENT.lobby.matches
 		time.sleep(2) ## delay for compensating server delay when sending matches
@@ -349,7 +349,7 @@ class LobbyMenuDynamic(Screen):
 
 	## show the in getLobbyinformation created List in the Lobby Menu
 	def update_list(self):
-		logging.info('UI Lobby Menu: List updated')
+		logging.info('UI Lobby Menu: List updated in the Menu')
 		self.ids.lobby_match.data = [{'text' : str(x)} for x in self.matches]
 
 	## clear the list with matches for preventing multiple listing of the same match
