@@ -111,4 +111,4 @@ class HeadWidget(Widget):
         ## todo getting value to be constant
         print (screensize_from_top)
         return screensize_from_top
-         
+    
