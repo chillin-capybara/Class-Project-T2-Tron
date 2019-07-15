@@ -23,6 +23,7 @@ from UI.Widgets.MyKeyboardListener import MyKeyboardListener
 from UI.Widgets.PlayerWidget import PlayerWidget
 from Backend.Classes.GameClient import GameClient
 
+import copy
 import logging
 
 ################## Oliver and Lorenz #######################
@@ -76,14 +77,17 @@ class GameUI(Screen):
 	game_is_running = BooleanProperty(False)
 	playPos = ObjectProperty(Vect2D(10, 0))
 	counter_for_running = NumericProperty(0)
+	counter_games = NumericProperty(0)
+	CLIENT = CLIENT
 
 	def init_onenter(self, **kwargs):
 		super(GameUI, self).__init__(**kwargs)
-
+		self.playerList.clear()
 		self.__client = CLIENT
+		CLIENT.EMatchEnded += self.on_match_ended
 		self.playerList = self.__client.match.players
+		self.ids.trackWidget.reset_init()
 		# ## creates update function for all uses, ensures synchronized update trigger
-		# self.update()
 
 		Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
 		logging.info("GameApp initialized")
@@ -135,6 +139,15 @@ class GameUI(Screen):
 
 	def getControl(self):
 		CLIENT.godmode_on()
+
+	def on_match_ended(self, sender, reason):
+		self.game_is_running = False
+		self.ids.trackWidget.game_ended()
+		
+		self.exit()
+		
+
+
 
 ######## Load the kv files into Menu.py ############################
 Builder.load_file('kvfilesmenu/mainmenufloat.kv')

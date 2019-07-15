@@ -30,68 +30,52 @@ class TrackWidget(Widget):
     countdown_is_running = BooleanProperty(False)
     speed_constant = NumericProperty(0.001)
     speed_factor = NumericProperty(1)
-    counter = NumericProperty(0)
     opacityValue = NumericProperty(0)
-    countergetPos = BooleanProperty(True)
-    counter_constructMissingPoints = NumericProperty(0)
-    counter_update_players = NumericProperty(0)
-    counter_update_players_remote = NumericProperty(0)
-    playerList = ListProperty([])
-    allPoints_from_submission = ListProperty([])
-    allPoints = ListProperty([])
     fieldsize = ListProperty([])
+    client = ObjectProperty(object())
 
     def update(self):
         self.canvas.clear()
         self.updatespeed_factor()
         self.update_players()
-        
+    
+    def __init__(self, *args, **kwargs):
+        self.game_is_running = False
+        self.countdown_is_running = False
+        self.speed_factor = 1
+        self.opacityValue = 0
+        self.fieldsize = []
+        self.client = ObjectProperty(object())
+        super().__init__(*args, **kwargs)
+    
+    def reset_init(self):
+        self.game_is_running = False
+        self.countdown_is_running = False
+        self.speed_factor = 1
+        self.opacityValue = 0
+        self.fieldsize = []
 
 
     def update_players(self):
         with self.canvas:
             self.opacity = self.opacityValue
-            if self.game_is_running == False and self.countdown_is_running == True:
-                ## I want to slowly increse the opacity of the Head while countdown is running
-                for player in self.playerList:
+            # if self.game_is_running == False and self.countdown_is_running == True:
+            #     ## I want to slowly increse the opacity of the Head while countdown is running
+            #     for player in self.client.match.players:
                     
-                    ## Generates for every player a headWidget a class and handles down some values
-                    HeadWidget(
-                    game_is_running = self.game_is_running,
-                    countdown_is_running = self.countdown_is_running,
-                    fieldsize = self.fieldsize,
-                    opacityValue = self.opacityValue,
-                    screen_size = self.size, 
-                    player = player)
+            #         ## Generates for every player a headWidget a class and handles down some values
+            #         HeadWidget(
+            #         game_is_running = self.game_is_running,
+            #         countdown_is_running = self.countdown_is_running,
+            #         fieldsize = self.fieldsize,
+            #         opacityValue = self.opacityValue,
+            #         screen_size = self.size, 
+            #         player = player)
                     
 
             if self.game_is_running == True:
-                for player in self.playerList:   
-                    self.allPoints_from_submission = player.getTrack()
-                #     if player == self._player:
-                #         if self.counter_update_players == 0:
-                #             self.counter_update_players += 1
-                #             # firstPoint = self.pointCreator_special_case()
-                #             firstPoint = player.getPosition().clone()
-                #             self.pointCreator(player)
-                #             player.addTrack(firstPoint, player.getPosition().clone())
-
-                #         self.pointCreator(player)
-                        
-                #         # if len(player.getTrack()) > 0:
-                #         #     allPoints_from_submission = player.getTrack()
-                            
-                #         allPoints_after_calculation = self.constructMissingPoints(player)
-
-                #     else:
-                #         # if self.counter_update_players_remote < len(UI.mainUI.GAME.getPlayers()):
-                #         if self.counter_update_players_remote < 3:
-                #             self.counter_update_players_remote += 1
-                #             # firstPoint = self.pointCreator_special_case()
-                #             player.addTrack(player.getPosition().clone(), player.getPosition().clone())
-
-                #         allPoints_after_calculation = self.constructMissingPoints_for_remote(player)
-                #         print(player.getPosition())
+                for player in self.client.match.players:   
+                    allPoints_from_submission = player.getTrack()
                     
                     Color(rgba = self.getPlayerColor(player))
                     HeadWidget(
@@ -99,7 +83,7 @@ class TrackWidget(Widget):
                     fieldsize = self.fieldsize,
                     player = player)
 
-                    for point in self.allPoints_from_submission:
+                    for point in allPoints_from_submission:
                         xPos2 = (self.size[0]/self.fieldsize[0]) * point.x
                         yPos2 = (self.size[1]/self.fieldsize[1]) * point.y
 
@@ -107,46 +91,6 @@ class TrackWidget(Widget):
                         ySize = self.size[1]/self.fieldsize[1]
 
                         Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
-
-
-
-    def constructMissingPoints_for_remote(self, player):
-        ## function who creates all missing points in between
-        allPoints_from_submission = player.getTrack()
-        allPoints_from_submission.append(player.getPosition())
-        allPoints = []
-        
-        pointCount = len(allPoints_from_submission)
-        for i in range(0, pointCount - 1):
-            startPoint = allPoints_from_submission[i]
-            endPoint = allPoints_from_submission[i + 1]
-
-            # startPoint = (10, 10)
-            # endPoint = (14, 10)
-
-            # (14 - 10) + (10 - 10) = 4
-            lineLength = abs((endPoint.x - startPoint.x) + (endPoint.y - startPoint.y))
-            if lineLength == 0:
-                lineLength = 1
-            if player == self._player and  self.counter_constructMissingPoints == 0:
-                lineLength = 1
-                self.counter_constructMissingPoints += 1
-
-            deltaX = (endPoint.x - startPoint.x) / lineLength
-            deltaY = (endPoint.y - startPoint.y) / lineLength
-
-            for j in range(0, lineLength):
-                xVal = round(startPoint.x + deltaX * j)
-                yVal = round(startPoint.y + deltaY * j)
-                allPoints.append(Vect2D(xVal, yVal))
-
-        allPoints.append(allPoints_from_submission[-1])
-
-        return allPoints
-
-
-
-
 
     def increaseOpacity(self):
         ## function for creating an increasing opacity with increasing time
@@ -162,63 +106,6 @@ class TrackWidget(Widget):
         addOpacity = list(colorId)
         addOpacity.append(self.opacityValue)
         return tuple(addOpacity)
-
-    
-    def pointCreator(self, player):
-        ## function for creating points in combination with the speed factor
-        ## PS: Speed factor is increasing with time
-        
-        velocity = player.getVelocity()
-        move = (
-            velocity.x * self.speed_factor, 
-            velocity.y * self.speed_factor
-        )
-        xVal = round(move[0] + player.getPosition().x)
-        yVal = round(move[1] + player.getPosition().y)
-        
-        self.detect_outbound(xVal, yVal)
-        self.counter += 1
-
-        player.setPosition(xVal, yVal)
-
-
-
-
-
-    def constructMissingPoints(self, player):
-        ## function who creates all missing points in between
-        self.allPoints.clear()
-        if player != self._player:
-            trackList = [player.getPosition()]
-        else:
-            trackList = player.getTrack()
-        trackList.append(player.getPosition())
-        
-        pointCount = len(trackList)
-        for i in range(0, pointCount - 1):
-            startPoint = trackList[i]
-            endPoint = trackList[i + 1]
-            # startPoint = (10, 10)
-            # endPoint = (14, 10)
-
-            # (14 - 10) + (10 - 10) = 4
-            lineLength = abs((endPoint.x - startPoint.x) + (endPoint.y - startPoint.y))
-            
-            if lineLength == 0:
-                lineLength = 1
-            deltaX = (endPoint.x - startPoint.x) / lineLength
-            deltaY = (endPoint.y - startPoint.y) / lineLength
-
-            for j in range(0, lineLength):
-                xVal = round(startPoint.x + deltaX * j)
-                yVal = round(startPoint.y + deltaY * j)
-                self.allPoints.append(Vect2D(xVal, yVal))
-
-        self.allPoints.append(trackList[-1])
-        return self.allPoints
-
-
-
 
     def getFieldsize(self, fieldsizeX, fieldsizeY):
         self.fieldsize = (fieldsizeX, fieldsizeY)
@@ -241,3 +128,10 @@ class TrackWidget(Widget):
         if xVar < 0 or xVar > self.fieldsize[0] or yVar < 0 or yVar > self.fieldsize[1]:
             print ("You hit one border")
             
+    def game_ended(self):
+        self.game_is_running = False
+        self.opacityValue = 0
+        self.clear_widgets()
+        #self.client = ObjectProperty()
+        self.exit()
+        
