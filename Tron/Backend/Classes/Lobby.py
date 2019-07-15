@@ -1,6 +1,7 @@
 from ..Core.globals import *
 from ..Core.Hook import Hook
 from ..Core.Event import Event
+from ..Core.Router import *
 from .BasicComm import BasicComm
 from .MatchServer import MatchServer
 from .HumanPlayer import HumanPlayer
@@ -58,6 +59,9 @@ class Lobby(object):
 	EMatchEnded : Event = None # Event to be called when the match is ended
 	OnMatchesUpdate: Event = None # Event, when the list of matches is updated
 
+	router: Router = None
+	__current_base = ""
+
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None, parent=None):
 		"""
 		Initialize a lobby on the server, to create games in
@@ -92,6 +96,15 @@ class Lobby(object):
 		self.__sendQ = queue.Queue()
 		self.__recvQ = queue.Queue()
 
+		# Initialzie Lobby commands
+		self.router = Router()
+		self.router.add_default(self.base_default)
+		self.router.add_route("ls", self.base_ls)
+		self.router.add_route('cd (\w+)', self.base_cd)
+		self.router.add_route('create (\w+) (\d+) (\d+)', self.base_create)
+		self.router.add_route('rem (\w+)', self.base_rem)
+		self.router.add_route('watch (\w+)', self.base_watch)
+
 		# Initialize own events
 		self.EError = Event('msg')
 		self.EMatchJoined = Event('matchname')
@@ -120,6 +133,100 @@ class Lobby(object):
 		else:
 			# Only for servers
 			self.__hook_lease_port = Hook(hook_lease_port)
+	
+	def base(self, base=""):
+		"""
+		Base command processor
+		"""
+		self.__current_base = base
+		while True:
+			ins = input("%s >>>" % base)
+			if ins == "cd ..":  # Go back to the parent
+				return
+			else:
+				self.router.run(ins)
+	
+	def base_ls(self):
+		"""
+		ls command inside a lobby
+
+		Lists all the matches in the lobby
+		"""
+		for m in self.matches:
+			m: MatchServer
+			print("{:20s}{}".format(m.name, m.get_feature_string()), flush=True)
+		print("----")
+		print("%d matches were listed." % len(self.matches), flush=True)
+	
+	def base_cd(self, matchname: str):
+		"""
+		cd command inside the lobby
+		
+		Args:
+			path (str): Path to switch to
+		"""
+		try:
+			for m in self.matches:
+				m: MatchServer
+				if m.name == matchname:
+					m.base(self.__current_base + "/matchname")
+					return
+			
+			logging.warn("Match %s does not exist.", matchname)
+		except:
+			logging.warn("Cannot switch to match")
+
+	def base_default(self):
+		"""
+		Command not recognized
+		"""
+		print("Command not recognized")
+	
+	def base_create(self, name, players, lifes):
+		"""
+		Create a new match
+		"""
+		try:
+			feat = ['Players', players, 'lifes', lifes]
+			self.handle_create_game(None, 'Tron', name, feat)
+		except:
+			logging.warn("Cannot create match")
+	
+	def base_rem(self, matchname):
+		"""
+		Remove a match from the lobby.
+		
+		Args:
+			match (str): Name of the match
+		"""
+		try:
+			for m in self.matches:
+				m: MatchServer
+				if m.name == matchname:
+					m.close(join=False)
+					return
+			
+			logging.warn("Match %s does not exist.", matchname)
+		except:
+			logging.warn("Cannot remove the match")
+	
+	def base_watch(self, matchname):
+		"""
+		Watch the selected match via command line on the server
+		
+		Args:
+			matchname (str): name of the match
+		"""
+		try:
+			for m in self.matches:
+				m: MatchServer
+				if m.name == matchname:
+					m.base_watch()
+					return
+			
+			logging.warn("Match %s does not exist.", matchname)
+		except:
+			logging.warn("Cannot watch the match")
 
 	@property
 	def parent(self):

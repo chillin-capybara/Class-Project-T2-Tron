@@ -196,6 +196,7 @@ class MatchClient(AbstractMatch):
 						packet = seq + packet
 						self.__last_direction_seq += 1
 						presock.sendto(packet, (self.host, self.port))
+					pid += 1 # Increment the PID
 			else:
 				# UPDATE THE LOCAL PLAYER
 				vel = self.__hook_me().getVelocity()
