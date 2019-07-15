@@ -168,7 +168,7 @@ class MainMenuFloat(Screen):
 			CLIENT.me.setName(playername)
 			CLIENT.me.setColor(playercolor)
 		except:
-			savedata = ("Enter_Name", (0,0,0))
+			savedata = ("Enter_Name", (0,0,0), 0, 0)
 			with open(datapath, 'w', encoding='utf-8') as outfile:
 				json.dump(savedata,outfile)
 
@@ -453,9 +453,6 @@ class SettingsMenuFloat(Screen):
 		else:
 			CLIENT.me.setName(playername)
 			print("Playername changed to: %s" % playername)
-		
-		# TODO Oliver: Wuerde mal darauf hinweisen, dass RGB von 0-255 die Werte hat.
-		# NOTE            Man sollte manchmal bissl die Code Dokumentation lesen...
 
 		r,g, b = color
 		color = (int(r), int(g), int(b))
@@ -470,7 +467,7 @@ class SettingsMenuFloat(Screen):
 			print("Color changed to: %s" % str(color))
 
 		#saves the current playername and color in the json file data.json
-		savedata = (playername, color)
+		savedata = (playername, color, loaddata[2], loaddata[3])
 		with open(datapath, 'w', encoding='utf-8') as outfile:
 			json.dump(savedata,outfile)
 
@@ -499,6 +496,8 @@ class StatisticsMenuFloat(Screen):
 		"""
 		Load the Player Name from data.json
 		Load the Player Color from data.json
+		Load Wincount
+		Load Lostcount
 
 		Args: -
 		Return: -
@@ -507,6 +506,8 @@ class StatisticsMenuFloat(Screen):
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
+		wincount = data[2]
+		lostcount = data[3]
 
 		outputname = "Player Name: %s" % playername
 		self.ids.nameLabel.text = outputname
@@ -515,6 +516,58 @@ class StatisticsMenuFloat(Screen):
 		playercolor = (color[0], color[1], color[2], 1)
 		self.ids.colorLabel.text = sol
 		self.ids.showcolorLabel.background_color = playercolor
+
+		outputwincount = "Wincount: %s" % str(wincount)
+		self.ids.wincountLabel.text = outputwincount
+
+		outputlostcount = "Lostcount: %s" % str(lostcount)
+		self.ids.lostcountLabel.text = outputlostcount
+
+	def reset_statistics(self) -> None:
+		"""
+		sets wincount and lostcount to 0 and saves it to data,json
+		"""
+		filef = open(datapath)
+		data = json.load(filef)
+		wincount = 0
+		lostcount = 0
+
+		outputwincount = "Wincount: %s" % str(wincount)
+		self.ids.wincountLabel.text = outputwincount
+
+		outputlostcount = "Lostcount: %s" % str(lostcount)
+		self.ids.lostcountLabel.text = outputlostcount
+
+		savedata = (data[0], data[1], wincount, lostcount)
+		with open(datapath, 'w', encoding='utf-8') as outfile:
+			json.dump(savedata,outfile)
+
+	def stat_add_win(self)-> None:
+		"""
+		adds 1 to the wincounter
+		"""
+		filef = open(datapath)
+		data = json.load(filef)
+		wincount = data[2]
+		wincount += 1
+
+		savedata = (data[0], data[1], wincount, data[3])
+		with open(datapath, 'w', encoding='utf-8') as outfile:
+			json.dump(savedata,outfile)
+
+	def stat_add_lost(self)-> None:
+		"""
+		adds 1 to the lostcounter
+		"""
+		filef = open(datapath)
+		data = json.load(filef)
+		lostcount = data[3]
+		lostcount += 1
+
+		savedata = (data[0], data[1], data[2], lostcount)
+		with open(datapath, 'w', encoding='utf-8') as outfile:
+			json.dump(savedata,outfile)
+
 
 class AboutMenuFloat(Screen):
     pass

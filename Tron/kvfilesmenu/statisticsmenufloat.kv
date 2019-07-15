@@ -29,21 +29,21 @@
             background_color: (0, 0, 0, 1)
     Label:
         id: wincountLabel
-        text: 'Wincount: (not yet implemented)'
+        text: 'Wincount: '
         pos_hint: {"x": .01, "y": .28}
         size_hint: ( .98, .08)
     Label:
-        id: timelivedLabel
-        text: 'Time lived: (not yet implemented)'
+        id: lostcountLabel
+        text: 'Lostcount: '
         pos_hint: {"x": .01, "y": .19}
         size_hint: ( .98, .08)
     Button:
         id: resetButton
-        text: 'Reset Statistics (not yet implemented)'
+        text: 'Reset Statistics'
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {"x": .01, "y": .1}
         size_hint: ( .98, .08)
-        #on_release: root.reset_statistics()
+        on_release: root.reset_statistics()
 
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
