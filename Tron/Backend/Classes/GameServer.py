@@ -63,9 +63,10 @@ class GameServer(object):
 		self.EStop = Event()
 
 		# Add the server command routes
+		# ANCHOR Command routes
 		self.ROOT_ROUTER.add_default(self.root_default)
 		self.ROOT_ROUTER.add_route('ls', self.root_ls)
-		self.ROOT_ROUTER.add_route('cd (\d+)', self.root_cd)
+		self.ROOT_ROUTER.add_route('cd lobby(\d+)', self.root_cd)
 		self.ROOT_ROUTER.add_route('log on', self.root_log_on)
 		self.ROOT_ROUTER.add_route('log off', self.root_log_off)
 		self.ROOT_ROUTER.add_route('shutdown', self.root_shutdown)
@@ -73,6 +74,8 @@ class GameServer(object):
 		self.ROOT_ROUTER.add_route('blacklist add ([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)', self.root_blacklist_add)
 		self.ROOT_ROUTER.add_route('blacklist rem ([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)', self.root_blacklist_rem)
 		self.ROOT_ROUTER.add_route('blacklist show', self.root_blacklist_show)
+		self.ROOT_ROUTER.add_route('blacklsit clear', self.root_blacklist_clear)
+
 	@property
 	def available_ports(self) -> LeasableList:
 		return self.__available_ports
@@ -156,7 +159,7 @@ class GameServer(object):
 		"""
 		lid = 0
 		for lobby in self.__lobbies:
-			print("{:<3d} Lobby {:<3d}    :{:<10d}".format(lid, lid, lobby.port), flush=True)
+			print("lobby{:<3d}   |:{:<10d}".format(lid, lobby.port), flush=True)
 			lid += 1
 
 	def root_cd(self, path: str):
@@ -225,6 +228,13 @@ class GameServer(object):
 			print("The ip %s was removed from the blacklist." % ip, flush=True)
 		else:
 			print("The ip %s is not blacklisted" % ip, flush=True)
+
+	def root_blacklist_clear(self):
+		"""
+		Clear all the items in the blacklist
+		"""
+		BackendConfig.blacklist.clear()
+		print("The blacklist was cleared.", flush=True)
 
 	def root_blacklist_show(self):
 		"""

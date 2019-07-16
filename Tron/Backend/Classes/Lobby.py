@@ -98,6 +98,7 @@ class Lobby(object):
 		self.__recvQ = queue.Queue()
 
 		# Initialzie Lobby commands
+		# ANCHOR COMMAND ROUTES
 		self.router = Router()
 		self.router.add_default(self.base_default)
 		self.router.add_route("ls", self.base_ls)
@@ -201,14 +202,18 @@ class Lobby(object):
 			match (str): Name of the match
 		"""
 		try:
+			# TODO rem * is not working yet
+			if matchname == '*':
+				for m in self.matches:
+					m.close(join=False)
+				print("All matches removed.", flush=True)
+				return
+
 			for m in self.matches:
 				m: MatchServer
-				if matchname == '*': # Close all matches
+				if m.name == matchname:
 					m.close(join=False)
-				else:
-					if m.name == matchname:
-						m.close(join=False)
-						return
+					return
 
 			print("Match %s does not exist.", matchname, flush=True)
 		except:
