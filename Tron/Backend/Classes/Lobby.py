@@ -500,7 +500,7 @@ class Lobby(object):
 		# Set the close flag -> Stop the sender and the processor threads
 		self.__require_close = True
 
-		self.__threadcollection.join_all()
+		#self.__threadcollection.join_all()
 		logging.info("Lobby all lobby client threads closed!")
 
 	def list_games(self):

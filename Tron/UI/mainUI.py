@@ -197,6 +197,10 @@ class MainMenuFloat(Screen):
 		#CreateServerMenuFloat.statusServer(self, False, 0)
 		#self.server.Stop()
 		#self.client.Stop()
+		try:
+			CLIENT.close()
+		except:
+			pass
 		exit()
 
 class CreateServerMenuFloat(Screen):
@@ -220,7 +224,7 @@ class CreateServerMenuFloat(Screen):
 
 		if self.statusswitch:
 			logging.info('UI Create Server Menu: Create Server with %d Lobbies, Width %d and Height %d' % (self.numberlobbies, self.fieldsize_x, self.fieldsize_y))
-			self.server = GameServer(self.numberlobbies)
+			self.server = GameServer(self.numberlobbies, (self.fieldsize_x, self.fieldsize_y))
 			# self.server = GameServer(self.numberlobbies, self.fieldsize_x, self.fieldsize_y) ## use when implemented in server
 			self.server.Start()
 			

@@ -245,7 +245,7 @@ class LobbyThread(threading.Thread):
 		"""
 		matches = self.__hook_get_matches()
 		for match in matches:
-			match : Match
+			match : Match  # TODO MATCH SLOTS NOT REFRESHING
 			if match.name == name:
 				# Match found
 				logging.info("Sending match features: %s %s %s " % (match.game, match.name, match.features))

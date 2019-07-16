@@ -236,7 +236,8 @@ class MatchServer(AbstractMatch):
 			self.__player_slots.free_all()
 
 			# Give back the port lease
-			self.__port_lease.free()
+			# BUG Don't give back the port lease
+			#self.__port_lease.free()
 		except:
 			pass
 
