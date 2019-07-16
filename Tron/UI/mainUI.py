@@ -16,6 +16,7 @@ from Backend.Classes.Game import Game
 from Backend.Classes.GameClient import GameClient
 from Backend.Classes.Arena import Arena
 from Backend.Classes.HumanPlayer import HumanPlayer
+from Backend.Classes.parser import *
 
 from UI.Widgets.CountdownWidget import CountdownWidget
 from UI.Widgets.TrackWidget import TrackWidget
@@ -642,27 +643,28 @@ class StatisticsMenuFloat(Screen):
 		with open(datapath, 'w', encoding='utf-8') as outfile:
 			json.dump(savedata,outfile)
 
-	def stat_add_win(self)-> None:
-		"""
-		adds 1 to the wincounter
-		"""
-		filef = open(datapath)
-		data = json.load(filef)
+# NOTE THESE CANNOT BE CLASS METHODS!!!
+def stat_add_win()-> None:
+	"""
+	adds 1 to the wincounter
+	"""
+	filef = open(datapath)
+	data = json.load(filef)
 
-		savedata = (data[0], data[1], data[2] + 1, data[3])
-		with open(datapath, 'w', encoding='utf-8') as outfile:
-			json.dump(savedata,outfile)
+	savedata = (data[0], data[1], data[2] + 1, data[3])
+	with open(datapath, 'w', encoding='utf-8') as outfile:
+		json.dump(savedata,outfile)
 
-	def stat_add_lost(self)-> None:
-		"""
-		adds 1 to the lostcounter
-		"""
-		filef = open(datapath)
-		data = json.load(filef)
+def stat_add_lost()-> None:
+	"""
+	adds 1 to the lostcounter
+	"""
+	filef = open(datapath)
+	data = json.load(filef)
 
-		savedata = (data[0], data[1], data[2], data[3] + 1)
-		with open(datapath, 'w', encoding='utf-8') as outfile:
-			json.dump(savedata,outfile)
+	savedata = (data[0], data[1], data[2], data[3] + 1)
+	with open(datapath, 'w', encoding='utf-8') as outfile:
+		json.dump(savedata,outfile)
 
 
 class AboutMenuFloat(Screen):
@@ -979,8 +981,25 @@ CLIENT.EMatchStarted += handle_ematchStarted
 
 def MatchEndedPopup(sender, reason='You Died!'):
 
+	# Process the reason and add to stats
+	# ANCHOR Process stat text
+	try:
+		mename = CLIENT.me.getName()
+		res = parser(reason, mename)
+		if res == 1:
+			stat_add_win()
+			logging.info("Win detected from GAME END TEXT")
+		elif res == -1:
+			stat_add_lost()
+			logging.info("Loose detected from GAME END TEXT")
+		else:
+			logging.info("No Stat value was detected GAME END TEXT")
+	except Exception as exc:
+		logging.warning("Cannot detect win/loose from text. Reason: %s", str(exc))
+
 	screen_manager.current = 'lobbymenudynamic'
 	popup = Popup(title='Match Ended', content=Label(text=reason), size_hint=(.8, .4))
+	# TODO Add Artem's function to store stats
 	popup.open()
 
 CLIENT.EMatchEnded += MatchEndedPopup

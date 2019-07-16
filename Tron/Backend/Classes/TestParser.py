@@ -57,6 +57,7 @@ class TestParser(unittest.TestCase):
 		# Test wins
 		self.assertEqual(parser("Marcell wins", "marcell"), 1)
 		self.assertEqual(parser("You won", "marcell"), 1)
+		self.assertEqual(parser("Congrats! You won", "marcell"), 1)
 		self.assertEqual(parser("marcell is the best", "marcell"), 1)
 		self.assertEqual(parser("marcell is the champion", "marcell"), 1)
 		self.assertEqual(parser("marcell is the winner", "marcell"), 1)
@@ -77,10 +78,6 @@ class TestParser(unittest.TestCase):
 		self.assertEqual(parser("You have no more lifes", "marcell"), -1)
 		self.assertEqual(parser("0 lifes left", "marcell"), -1)
 
-
-
-
-		pass
 	
 	def test_parser_exceptions(self):
 		with self.assertRaises(ValueError):

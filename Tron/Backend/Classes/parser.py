@@ -24,7 +24,6 @@ def parser (text:str, player_name:str)->int:
 		pass
 
 	word_list = shlex.split(text, comments=False, posix=True)
-	print (word_list)
 	answer = 0
 
 	for word in range (0, len(word_list)):
