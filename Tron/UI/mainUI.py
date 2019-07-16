@@ -215,7 +215,7 @@ class CreateServerMenu(Screen):
 
 	def statusServer(self, statusswitch, numberlobbies, fieldsize_x, fieldsize_y):
 		"""
-		Call open server function and sends number of lobbies
+		Call open server function and sends number of lobbies and fieldsize
 
 		Args:
 			statusswitch(boolean)
@@ -233,26 +233,21 @@ class CreateServerMenu(Screen):
 		if self.statusswitch:
 			logging.info('UI Create Server Menu: Create Server with %d Lobbies, Width %d and Height %d' % (self.numberlobbies, self.fieldsize_x, self.fieldsize_y))
 			self.server = GameServer(self.numberlobbies, (self.fieldsize_x, self.fieldsize_y))
-			# self.server = GameServer(self.numberlobbies, self.fieldsize_x, self.fieldsize_y) ## use when implemented in server
 			self.server.Start()
-			
+
 		else:
 			logging.info('Stopping Server...')
 			self.server.Stop()
 
 class SearchForLobbiesMenu(Screen):
 
-
 	lobby = 0
 	lobbies = []
-	lobbiesdummy = [
-    '198.168.0.1 - Lobby 1: 54001',
-    '198.168.0.1 - Lobby 2: 54002',
-    '198.168.0.1 - Lobby 3: 54003',
-    '198.168.0.1 - Lobby 4: 54004',
-    '198.168.0.1 - Lobby 5: 54005']
 
 	def getPlayerdata(self):
+		"""
+		Get the Playerdata from the current Player to display in headerlabel
+		"""
 
 		outputname = CLIENT.me.getName()
 		if outputname == '':
@@ -283,34 +278,28 @@ class SearchForLobbiesMenu(Screen):
 		for i in range(0,count_lobbies):
 			indexlobby = listlobbies[i]
 			currenthost = indexlobby.host
-			# if currenthost == lasthost:
-			# 	pass
-			# else:
-			# 	k = 0
 			self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port))
-			# if self.lobbies.count('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port)) == 0:
-			# 	self.lobbies.append('%s - Lobby %d: %s' % (indexlobby.host, i+1, indexlobby.port))
-			# else:
-			# 	pass
-			# lasthost = indexlobby.host
-			# k += 1
 
 		return self.lobbies
 
 	def update_list(self):
+		"""
+		Show the in getLobbyinformation created List in the Search for Lobby Menu
+		"""
 		self.ids.lobby_port.data = [{'text' : str(x)} for x in self.lobbies]
 
 	def clear_list(self):
+		"""
+		Clear the list with matches for preventing multiple listing of the same match
+		"""
 		self.lobbies.clear()
 
 	def updatechosenLobby(self, currentlobby):
 		"""
-		Sets variable for choosen Lobby
+		Updates variable for choosen Lobby
 
 		Args:
 			Lobby (int):
-		Return:
-			Lobby (int)
 		"""
 		self.currentlobby = currentlobby
 		self.lobby = int(self.currentlobby)
@@ -319,12 +308,7 @@ class SearchForLobbiesMenu(Screen):
 
 	def enterLobby(self):
 		"""
-		Sends Lobby to Server
-
-		Args:
-			-
-		Return:
-			-
+		Sends Enter Lobby with Index to Server
 		"""
 		logging.info('UI Search for Lobbies Menu: Player enters Lobby %s with Index %s' % (self.lobby+1, self.lobby))
 		CLIENT.enter_lobby(self.lobby)
@@ -405,12 +389,7 @@ class LobbyMenu(Screen):
 
 	def get_matchlist_from_server(self):
 		"""
-		Get the Information of the available Lobbies
-
-		Args:
-			Lobbies (list): name; game; features
-		Return:
-			-
+		Get the Information of the available Matches
 		"""
 		self.clear_list()
 		logging.info('UI Lobby Menu: Getting current list of Matches from Server')
@@ -431,10 +410,6 @@ class LobbyMenu(Screen):
 		for i in range(0,count_matches):
 			match = listmatches[i]
 			self.matchlist.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
-			# if self.matches.count('%s       %s       %s' % (match.name, match.game, match.get_feature_string())) == 0: ## was ment to prevent several listings of the same match --> no always clearing whole list
-			# 	self.matches.append("%s       %s       %s" % (match.name, match.game, match.get_feature_string()))
-			# else:
-			# 	pass
 		
 		self.update_shown_list()
 
@@ -454,12 +429,12 @@ class LobbyMenu(Screen):
 
 	def updatechosenMatch(self, currentmatch=0):
 		"""
-		Sets variable for choosen Lobby
+		Updates variable for choosen Lobby
 
 		Args:
-			Lobby (int):
+			Match (int):
 		Return:
-			Lobby (int)
+			Match (int)
 		"""
 		self.currentmatch = currentmatch
 
@@ -487,7 +462,14 @@ class CreateMatchMenu(Screen):
 	i = 1
 
 	def createMatch(self, numberplayer, numberlifes, matchname='DefaultGame'):
+		"""
+		Create a Match with Number of Players, Number of Lifes and Matchname
 
+		Args:
+			numberplayer (int):
+			numberlifes (int):
+			matchname (str)
+		"""
 		self.numberplayer = numberplayer
 		self.numberlifes = numberlifes
 		self.matchname = matchname
@@ -505,33 +487,26 @@ class CreateMatchMenu(Screen):
 		}
 		CLIENT.lobby.create_match('Tron', self.matchname, settings)
 
-	def validateInput(self, inpt):
+	def validateInput(self, inpt:str)->None:
+		"""
+		Validates the input of the Matchname text field
 
+		Args: input (str): the matchname
+		"""
 		self.inpt = inpt
 
 		try:
 			lastcharacter = self.inpt[-1:]
 			x = re.findall("[a-zA-Z0-9_]", lastcharacter)
 			if len(x) == 1:
-			#if len(parsspace) == 1:
 				self.ids.gamenameTextInput.text = inpt
 
 			else:
-				#self.openBubble(lastcharacter)
 				rightstring = self.inpt[:-1]
 				self.ids.gamenameTextInput.text = rightstring
 
 		except Exception as e:
 			logging.warning(str(e))
-
-	def openBubble(self, character):
-
-		#arrow_pos='top_mid', text='Character %s is not allowed' % character
-		self.bubble = Bubble()
-
-		self.add_widget(self.bubble)
-		time.sleep(1)
-		self.bubble.clear_widgets()
 
 class SettingsMenu(Screen):
 	def loadplayerdata(self) -> None:
@@ -593,7 +568,6 @@ class SettingsMenu(Screen):
 		Validates the input of the playername text field
 
 		Args: input (str): the playername
-		Return: -
 		"""
 		self.inpt = inpt
 		try:
