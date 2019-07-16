@@ -356,29 +356,39 @@ class LobbyThread(threading.Thread):
 			match: MatchServer
 			if match.name == name:
 				# Found the match
-				self.__leased_player_id = match.lease_player_id(player)
-				self.__local_player = player # Make sure to have a binding to the player object
-				pid: int = self.__leased_player_id.getObj() # Get the id of the player
+				try:
+					# ValueError can come from here
+					self.__leased_player_id = match.lease_player_id(player)
 
-				# NOTE BIND THE PLAYER ID TO THE HOST
-				#match.bind_host_to_player_id(self.__connection[0], pid)
+					self.__local_player = player # Make sure to have a binding to the player object
+					pid: int = self.__leased_player_id.getObj() # Get the id of the player
 
-				# Tell the client the player id and the success of the join
-				packet = self.__comm.match_joined(pid)
-				self.send(packet)
+					# NOTE BIND THE PLAYER ID TO THE HOST
+					#match.bind_host_to_player_id(self.__connection[0], pid)
 
-				match.EStart += self.handle_match_started
+					# Tell the client the player id and the success of the join
+					packet = self.__comm.match_joined(pid)
+					self.send(packet)
 
-				# Event to send away life updates
-				match.ELifeUpdate         += self.handle_OnLifeUpdate
+					match.EStart += self.handle_match_started
 
-				# Handle when a match gets terminated
-				match.OnMatchTerminated   += self.on_match_terminated
-				match.OnPlayerWin         += self.on_player_win
+					# Event to send away life updates
+					match.ELifeUpdate         += self.handle_OnLifeUpdate
 
-				# Check for the Event to start
-				match.check_for_start()
-				return
+					# Handle when a match gets terminated
+					match.OnMatchTerminated   += self.on_match_terminated
+					match.OnPlayerWin         += self.on_player_win
+
+					# Check for the Event to start
+					match.check_for_start()
+					return
+
+				except ValueError as vex:
+					# When playername or color is already taken
+					reason = str(vex)
+					packet = self.__comm.failed_to_join(reason)
+					self.send(packet)
+
 
 		# Failed to join
 		packet = self.__comm.failed_to_join("The match %s does not exists in the lobby!" % name)

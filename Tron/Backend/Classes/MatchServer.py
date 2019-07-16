@@ -442,7 +442,17 @@ class MatchServer(AbstractMatch):
 
 		Returns:
 			LeasableObject: Leased player id, wrapped in a LeaseableObject
+		Raises:
+			ValueError: When the playername or color is already taken in the match
 		"""
+
+		# Check if the playername & color is already taken
+		for pl in self.players:
+			if (pl.getName() is not "") and (pl.getColor() == player.getColor()):
+				raise ValueError("The color {} is already taken".format(str(player.getColor())))
+			if pl.getName() == player.getName():
+				raise ValueError("The playername {} is already taken".format(player.getName()))
+		
 		# Let all the player properties to be taken from the Lobby
 		lease = self.__player_slots.lease()
 		pid = lease.getObj()
