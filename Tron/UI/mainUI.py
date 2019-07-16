@@ -181,6 +181,8 @@ class MainMenuFloat(Screen):
 			data = json.load(filef)
 			playername = data[0]
 			color = data[1]
+			wincount = data[2]
+			lostcount = data[3]
 			playercolor = (color[0], color[1], color[2])
 			CLIENT.me.setName(playername)
 			CLIENT.me.setColor(playercolor)
@@ -565,7 +567,7 @@ class SettingsMenuFloat(Screen):
 			print("Color changed to: %s" % str(color))
 
 		#saves the current playername and color in the json file data.json
-		savedata = (playername, color)
+		savedata = (playername, color, loaddata[2], loaddata[3])
 		with open(datapath, 'w', encoding='utf-8') as outfile:
 			json.dump(savedata,outfile)
 
@@ -604,8 +606,8 @@ class StatisticsMenuFloat(Screen):
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
-		wincount = 0
-		lostcount = 0
+		wincount = data[2]
+		lostcount = data[3]
 
 		outputname = "Player Name: %s" % playername
 		self.ids.nameLabel.text = outputname
@@ -647,7 +649,7 @@ class StatisticsMenuFloat(Screen):
 		filef = open(datapath)
 		data = json.load(filef)
 
-		savedata = (data[0], data[1])
+		savedata = (data[0], data[1], data[2] + 1, data[3])
 		with open(datapath, 'w', encoding='utf-8') as outfile:
 			json.dump(savedata,outfile)
 
@@ -658,7 +660,7 @@ class StatisticsMenuFloat(Screen):
 		filef = open(datapath)
 		data = json.load(filef)
 
-		savedata = (data[0], data[1])
+		savedata = (data[0], data[1], data[2], data[3] + 1)
 		with open(datapath, 'w', encoding='utf-8') as outfile:
 			json.dump(savedata,outfile)
 
