@@ -19,13 +19,29 @@ import time
 import random
 import os
 
+# Coloring the matrix
+from colorama import init
+from colorama import Fore, Back, Style
+init()
+
 # TODO REMOVE THIS
 def draw_matrix(matrix):
 	os.system('clear')
 	linestr = ""
 	for row in matrix:
 		for col in row:
-			linestr += "%d " % col
+			if col == 1:
+				linestr += Back.RED + Fore.WHITE +  ("%d " % col) + Style.RESET_ALL
+			elif col == 2:
+				linestr += Back.GREEN + Fore.WHITE + ("%d " % col) + Style.RESET_ALL
+			elif col == 3:
+				linestr += Back.BLUE + Fore.WHITE + ("%d " % col) + Style.RESET_ALL
+			elif col == 4:
+				linestr += Back.YELLOW +  Fore.BLACK +("%d " % col) + Style.RESET_ALL
+			elif col == 5:
+				linestr += Back.CYAN + Fore.WHITE + ("%d " % col) + Style.RESET_ALL
+			else:
+				linestr += "%d " % col
 		print(linestr, flush=True)
 		linestr = ""
 
