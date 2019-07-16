@@ -6,6 +6,7 @@ from .Lobby import Lobby
 from ..Core.Event import Event
 from ..Core.Hook import Hook
 from ..Core.globals import *
+from ..Core.BackendConfig import BackendConfig
 
 class Broadcaster(object):
 	"""
@@ -95,13 +96,19 @@ class Broadcaster(object):
 			while True:
 				# Receive a discovery request
 				packet, conn = self.__sockfd.recvfrom(LOBBY_DISCOVERY_RECV_SIZE)
-				self.__resp_to = conn
 
-				try:
-					self.__comm.process_response(packet)
-				except Exception as e:
-					logging.warning(str(e))
-					logging.warning('Invalid message received: %s' % (str(packet)))
+				ipaddr, port = conn
+				if ipaddr in BackendConfig.blacklist:
+					# DONT DO ANYTHING WHEN THE IP IS BLACKLISTED
+					pass
+				else:
+					self.__resp_to = conn
+
+					try:
+						self.__comm.process_response(packet)
+					except Exception as e:
+						logging.warning(str(e))
+						logging.warning('Invalid message received: %s' % (str(packet)))
 		except Exception as e:
 			# Error occured
 			logging.error("The discovery protocol aborted. Reason: %s" % str(e))

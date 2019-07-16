@@ -14,7 +14,7 @@ import threading
 class GameServer(object):
 	"""
 	Game server class of the Python game project
-	"""	
+	"""
 
 	__broadcaster: Broadcaster = None
 	__lobbies : List[Lobby] = None
@@ -30,7 +30,7 @@ class GameServer(object):
 	def __init__(self, num_lobbies: int, arena_size: tuple):
 		"""
 		Initialize a Game Server with a given amount of lobbies
-		
+
 		Args:
 			num_lobbies (int): Number of lobbies
 
@@ -51,12 +51,12 @@ class GameServer(object):
 		# Create the given amout of lobbies
 		if type(num_lobbies) is not int:
 			raise TypeError
-		
+
 		for i in range(0, num_lobbies):
 			self.create_lobby()
-		
+
 		logging.info("%d lobbies created." % num_lobbies)
-		
+
 		# Initialize the Broadcaster
 		self.__broadcaster = Broadcaster(self.get_lobbies)
 
@@ -70,7 +70,9 @@ class GameServer(object):
 		self.ROOT_ROUTER.add_route('log off', self.root_log_off)
 		self.ROOT_ROUTER.add_route('shutdown', self.root_shutdown)
 		self.ROOT_ROUTER.add_route('resize (\d+) (\d+)', self.root_resize)
-	
+		self.ROOT_ROUTER.add_route('blacklist add ([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)', self.root_blacklist_add)
+		self.ROOT_ROUTER.add_route('blacklist rem ([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)', self.root_blacklist_rem)
+		self.ROOT_ROUTER.add_route('blacklist show', self.root_blacklist_show)
 	@property
 	def available_ports(self) -> LeasableList:
 		return self.__available_ports
@@ -87,21 +89,21 @@ class GameServer(object):
 	def create_lobby(self):
 		"""
 		Create a new lobby and add it to the collection of lobbies on the server
-		"""	
+		"""
 		leased_port = self.__available_ports.lease()
 		host : str = "" # On the server, lobbys have empty host
 		port: int = leased_port.getObj()
 		self.__lobbies.append(Lobby(host, port, hook_lease_port=self.hook_lease_port, parent=self))
-	
+
 	def get_lobbies(self) -> List[Lobby]:
 		"""
 		Get the list of lobbies available on the server.
-		
+
 		Returns:
 			List[Lobby]: List of active lobbies
 		"""
 		return self.__lobbies
-	
+
 	def Start(self, loop = False):
 		"""
 		Start the game server with all the lobbies and discovery protocols
@@ -127,11 +129,11 @@ class GameServer(object):
 
 		try:
 			while loop:
-				ins = input('>>>')
+				ins = input('/server >>>')
 				self.ROOT_ROUTER.run(ins)
 		except KeyboardInterrupt:
 			self.Stop() # Close up all the stuff
-	
+
 	def __keepalive(self):
 		"""
 		Keep-alive thread for the server to check status
@@ -143,7 +145,7 @@ class GameServer(object):
 				time.sleep(1)
 		except:
 			self.EStop(self)
-		
+
 		self.__isRunning = False
 		self.EStop.reset_called()
 		logging.info("The game server was stopped!")
@@ -160,43 +162,43 @@ class GameServer(object):
 	def root_cd(self, path: str):
 		"""
 		CD command on the server
-		
+
 		Args:
 			path (str): Directory to switch to
 		"""
 		lobby_nr = int(path)
 		try:
 			# Call the base command of the lobby
-			self.__lobbies[lobby_nr].base("/lobbies/lobby%d"%lobby_nr)
+			self.__lobbies[lobby_nr].base("/server/lobbies/lobby%d"%lobby_nr)
 		except:
 			logging.error("The lobby %d is not found on the server." % lobby_nr)
-	
+
 	def root_default(self):
 		"""
 		Default command route to call when a command is not recognized
 		"""
 		print("Command not recognizeable")
-	
+
 	def root_log_off(self):
 		"""
 		Turns off the logging
 		"""
 		logger = logging.getLogger()
-		logger.propagate = False
+		logger.disabled = True
 		print("Logging turned OFF.", flush=True)
-	
+
 	def root_log_on(self):
 		"""
 		Turns the logging on again
 		"""
 		logger = logging.getLogger()
-		logger.propagate = False
+		logger.disabled = False
 		print("Logging turned ON.", flush=True)
 
 	def root_resize(self, sx: str, sy: str):
 		"""
 		Resize the new arenas on the server
-		
+
 		Args:
 			sx (str): Size X: width
 			sy (str): Size Y: height
@@ -206,6 +208,33 @@ class GameServer(object):
 
 		BackendConfig.arena_sizex = sxi
 		BackendConfig.arena_sizey = syi
+
+	def root_blacklist_add(self, ip:str):
+		"""
+		Add a new ip adress to the blacklist to block it
+		"""
+		BackendConfig.blacklist.append(ip)
+		print("{} was blacklisted.".format(ip), flush=True)
+
+	def root_blacklist_rem(self, ip:str):
+		"""
+		Remove an ip adress from the blacklist
+		"""
+		if ip in BackendConfig.blacklist:
+			BackendConfig.blacklist.remove(ip)
+			print("The ip %s was removed from the blacklist." % ip, flush=True)
+		else:
+			print("The ip %s is not blacklisted" % ip, flush=True)
+
+	def root_blacklist_show(self):
+		"""
+		Show the blacklisted IP adresses on the server
+		"""
+		if len(BackendConfig.blacklist) > 0:
+			for ip in BackendConfig.blacklist:
+				print(ip, flush=True)
+		else:
+			print("The blacklist is empty.", flush=True)
 
 	def root_shutdown(self):
 		"""
@@ -220,14 +249,12 @@ class GameServer(object):
 		"""
 		# Only call the stop Event
 		self.EStop(self)
-	
+
 	def isRunning(self) -> bool:
 		"""
 		Get if the server is still running
-		
+
 		Returns:
 			bool: True = RUNNING, False = NOT RUNNING
 		"""
 		return self.__isRunning
-
-

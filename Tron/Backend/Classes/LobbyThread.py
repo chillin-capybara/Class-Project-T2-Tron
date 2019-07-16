@@ -321,7 +321,6 @@ class LobbyThread(threading.Thread):
 			except:
 				pass
 
-
 	def handle_join_match(self, sender, name: str, player: HumanPlayer):
 		"""
 		Handle when a client wants to join a match

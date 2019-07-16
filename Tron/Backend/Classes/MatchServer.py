@@ -359,8 +359,10 @@ class MatchServer(AbstractMatch):
 					if player.is_alive():
 						self.OnPlayerWin(self, player_id=pid)
 						logging.info("Player %s won the game. Closing the server...", player.getName())
-						break  # Exit the player updater
 					pid +=1
+
+				# Stop the thread
+				break
 			elif alive == 0:
 				# If there is no players alive, stop the match...
 				logging.info("All player are dead. Closing the server...")
