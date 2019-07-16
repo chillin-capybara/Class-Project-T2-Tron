@@ -5,7 +5,7 @@
 # About
 # Quit
 
-<MainMenuFloat>:
+<MainMenu>:
     on_pre_enter: root.loadplayerdata()
     HeaderLabel:
         text: 'Main Menu'
@@ -17,35 +17,35 @@
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {"x": .005, "y": .775}
         size_hint: ( .99, .165)
-        on_release: root.manager.current = 'createservermenufloat'
+        on_release: root.manager.current = 'createservermenu'
     Button:
         id: searchforlobbiesmenuButton
         text: 'Search for Lobbies'
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {"x": .005, "y": .605}
         size_hint: ( .99, .165)
-        on_release: root.manager.current = 'searchforlobbiesmenudynamic'
+        on_release: root.manager.current = 'searchforlobbiesmenu'
     Button:
         id: settingsButton
         text: 'Settings'
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {"x": .005, "y": .435}
         size_hint: ( .99, .165)
-        on_release: root.manager.current = 'settingsmenufloat'
+        on_release: root.manager.current = 'settingsmenu'
     Button:
         id: statisticsButton
         text: 'Statistics'
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {"x": .005, "y": .265}
         size_hint: ( .99, .165)
-        on_release: root.manager.current = 'statisticsmenufloat'
+        on_release: root.manager.current = 'statisticsmenu'
     Button:
         id: aboutButton
         text: 'About'
         background_color: (0.1,0.3,0.7,1)
         pos_hint: {"x": .005, "y": .095}
         size_hint: ( .99, .165)
-        on_release: root.manager.current = 'aboutmenufloat'
+        on_release: root.manager.current = 'aboutmenu'
     Button:
         id: quitButton
         text: 'Quit'

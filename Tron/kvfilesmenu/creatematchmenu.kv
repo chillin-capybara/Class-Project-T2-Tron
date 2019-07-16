@@ -7,7 +7,7 @@
 #operations:
 #    -
 
-<CreateMatchMenuFloat>:
+<CreateMatchMenu>:
 
     on_enter:
         gamenameTextInput.focus = True
@@ -83,7 +83,7 @@
         background_color: (0.1,0.3,0.7,1)
         text: 'Create Match'
         on_release:
-            root.manager.current = 'lobbymenudynamic'
+            root.manager.current = 'lobbymenu'
             root.createMatch(numberplayersSlider.value, numberlifesSlider.value, gamenameTextInput.text)
     
     Button:
@@ -93,7 +93,7 @@
         background_color: (0.1,0.3,0.7,1)
         text: 'Back to Lobby Menu'
         on_release:
-            root.manager.current = 'lobbymenudynamic'
+            root.manager.current = 'lobbymenu'
             
     BackToMenuButton:
         pos_hint: {"x": .01, "y": .01}
