@@ -37,6 +37,8 @@ class GameServer(object):
 			("blacklist rem [IP]", "Remove an IP from the blacklist"),
 			("blacklist clear", "Remove all blacklisted IP addresses"),
 			("create", "Create a new lobby on the server"),
+			("speed", "Show the speed of the matches"),
+			("speed [value]", "Set a new speed for the matches in float"),
 			("help", "Show all the available commands")
 		]
 
@@ -93,6 +95,8 @@ class GameServer(object):
 		self.ROOT_ROUTER.add_route('blacklsit clear', self.root_blacklist_clear)
 		self.ROOT_ROUTER.add_route('create', self.root_create)
 		self.ROOT_ROUTER.add_route('help', self.root_help)
+		self.ROOT_ROUTER.add_route('speed', self.root_speed)
+		self.ROOT_ROUTER.add_route('speed (\d[[\.]*\d+]*)', self.root_speed_set)
 
 	@property
 	def available_ports(self) -> LeasableList:
@@ -229,7 +233,7 @@ class GameServer(object):
 
 		BackendConfig.arena_sizex = sxi
 		BackendConfig.arena_sizey = syi
-	
+
 	def root_size(self):
 		"""
 		Show the size of the arena on the server
@@ -277,14 +281,36 @@ class GameServer(object):
 		"""
 		# This will effect the main loop and shut the server down
 		raise KeyboardInterrupt
-	
+
 	def root_create(self):
 		"""
 		Create a new lobby on the server
 		"""
 		self.create_lobby()
 		print("lobby%d created!" % len(self.__lobbies))
-	
+
+	def root_speed(self):
+		"""
+		Show the speed of the matches
+		"""
+		print("The current speed is %f seconds." % BackendConfig.fudp_sleep, flush=True)
+
+	def root_speed_set(self, value):
+		"""
+		Set the value of the match speed
+		"""
+		try:
+			fspeed = float(value)
+			if fspeed >= 0.1 and fspeed <= 2.0:
+				BackendConfig.fudp_sleep = fspeed
+				print("Match speed set to %f" % BackendConfig.fudp_sleep, flush=True)
+			else:
+				printf("The speed has to be in the range of (0.1, 2.0)", flush=True)
+		except:
+			print("The entered speed is invalid!", flush=True)
+
+
+
 	def root_help(self):
 		"""
 		List the available commands
