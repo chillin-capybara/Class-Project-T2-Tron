@@ -149,7 +149,7 @@ class GameServer(object):
 
 		self.__isRunning = True
 
-		thread = threading.Thread(target=self.__keepalive)
+		thread = threading.Thread(target=self.__keepalive, name="Server keepalive")
 		thread.start()
 
 		try:

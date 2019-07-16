@@ -39,7 +39,7 @@ class Broadcaster(object):
 		self.__hook_lobbies.delegate(hook_lobbies)
 
 		# Setup the thread
-		self.__thread = threading.Thread(target=self.__thread_handler)
+		self.__thread = threading.Thread(target=self.__thread_handler, name="Broadcaster")
 
 
 	def Start(self, host: str = "", port:int = LOBBY_DISCOVERY_PORT):
