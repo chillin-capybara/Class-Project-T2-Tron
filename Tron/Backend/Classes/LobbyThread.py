@@ -307,7 +307,7 @@ class LobbyThread(threading.Thread):
 		try:
 			# When the player is the player
 			if self.__leased_player_id.getObj() == player_id:
-				packet = self.__comm.game_ended("Congratulations! You won the match %s!" % sender.getName())
+				packet = self.__comm.game_ended("Congratulations! You won the match %s!" % sender.name)
 				self.send(packet)
 			else:
 				playername = sender.players[player_id - 1].getName()

@@ -182,7 +182,7 @@ class MatchClient(AbstractMatch):
 					if pid != self.__player_id:
 						# Update other players MOUHAHAHA
 						player.setVelocity(GODMODE_X, GODMODE_Y)  # TODO MAKE IT A GLOBAL
-						vel = self.__hook_me().getVelocity()
+						vel = player.getVelocity()
 						packet = self.__comm.new_direction(pid, (vel.x, vel.y))
 						seq = bytes("%d " % self.__last_direction_seq, "UTF-8")
 						packet = seq + packet

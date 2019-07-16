@@ -444,7 +444,8 @@ class MatchServer(AbstractMatch):
 			vel = requester_player.getVelocity() # Vect2D
 			if vel.x != direction[0] and vel.y != direction[1]:
 				# Log when a player really changes the direction
-				logging.info("Player ID=%d, NAME=%s has a new direction %s" % (player_id, requester_player.getName(), str(direction)))
+				#logging.info("Player ID=%d, NAME=%s has a new direction %s" % (player_id, requester_player.getName(), str(direction)))
+				pass
 
 			dx, dy = requester_player.getVelocity().to_tuple()
 			dxnew, dynew = direction
