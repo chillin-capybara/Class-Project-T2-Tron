@@ -454,7 +454,7 @@ class LobbyMenuDynamic(Screen):
 		Join the Match
 		"""
 		logging.info('UI Lobby Menu: Player joins Match %s with Index %s' % (self.match+1, self.match))
-		CLIENT.join_match(self.match - 1)
+		CLIENT.join_match(self.match)
 
 	def leaveMatch(self):
 		"""
