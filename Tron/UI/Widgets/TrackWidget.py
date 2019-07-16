@@ -95,7 +95,7 @@ class TrackWidget(Widget):
 				# Draw the grid
                 for colgrid in range(1, self.fieldsize[0]):
 					# Set the color of the grid
-                    Color(rgba=( 0, 0, 0, 0.3))
+                    Color(rgba=( 0, 0, 0, 0.5))
                     xpos = (self.size[0]/self.fieldsize[0]) * colgrid
                     ypos = 0
                     xsize = 1
@@ -104,7 +104,7 @@ class TrackWidget(Widget):
 
                 for rowgrid in range(1, self.fieldsize[1]):
 					# Set the color of the grid
-                    Color(rgba=( 0, 0, 0, 0.3))
+                    Color(rgba=( 0, 0, 0, 0.5))
                     xpos = 0
                     ypos = (self.size[1]/self.fieldsize[1]) * rowgrid
                     xsize = self.size[0] 
