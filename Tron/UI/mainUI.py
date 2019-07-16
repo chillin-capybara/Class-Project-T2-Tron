@@ -185,7 +185,7 @@ class MainMenu(Screen):
 		Args: -
 		Return: -
 		"""
-		try:
+		try: # in case no or a wrong data.json is specified
 			filef = open(datapath)
 			data = json.load(filef)
 			playername = data[0]
@@ -195,7 +195,7 @@ class MainMenu(Screen):
 			playercolor = (color[0], color[1], color[2])
 			CLIENT.me.setName(playername)
 			CLIENT.me.setColor(playercolor)
-		except:
+		except: # a new basic data.json is created
 			savedata = ("Enter_Name", (0,0,0), 0, 0)
 			with open(datapath, 'w', encoding='utf-8') as outfile:
 				json.dump(savedata,outfile)
@@ -521,7 +521,7 @@ class SettingsMenu(Screen):
 		data = json.load(filef)
 		playername = data[0]
 		color = data[1]
-		playercolor = (color[0], color[1], color[2], 1)
+		playercolor = (color[0]/255, color[1]/255, color[2]/255, 1) # kivy defines colors between 0-1; python between 0-255
 		self.ids.nameTextInput.hint_text=("Current Playername: %s" % playername)
 		self.ids.colordisplayLabel.background_color=playercolor
 		
@@ -529,6 +529,7 @@ class SettingsMenu(Screen):
 		"""
 		Saves the Player Name to backend and data.json
 		Saves the Player Color to backend and data.json 
+		Also saves the loaded win- and lostcount again to bypass errors
 
 		Args:
 			playername (str): new playername / old playername from data.json
@@ -568,6 +569,7 @@ class SettingsMenu(Screen):
 		Validates the input of the playername text field
 
 		Args: input (str): the playername
+		Return: -
 		"""
 		self.inpt = inpt
 		try:
@@ -587,8 +589,8 @@ class StatisticsMenu(Screen):
 		"""
 		Load the Player Name from data.json
 		Load the Player Color from data.json
-		Load Wincount
-		Load Lostcount
+		Load Wincount from data.json
+		Load Lostcount from data.json
 
 		Args: -
 		Return: -
@@ -604,7 +606,7 @@ class StatisticsMenu(Screen):
 		self.ids.nameLabel.text = outputname
 
 		sol = "Color: %s" % str(color)
-		playercolor = (color[0], color[1], color[2], 1)
+		playercolor = (color[0]/255, color[1]/255, color[2]/255, 1) # kivy defines colors between 0-1; python between 0-255
 		self.ids.colorLabel.text = sol
 		self.ids.showcolorLabel.background_color = playercolor
 
@@ -616,7 +618,11 @@ class StatisticsMenu(Screen):
 
 	def reset_statistics(self) -> None:
 		"""
-		sets wincount and lostcount to 0 and saves it to data,json
+		sets wincount to 0 and saves it to data.json
+		sets lostcount to 0 and saves it to data.json
+
+		Args: -
+		Return: -
 		"""
 		filef = open(datapath)
 		data = json.load(filef)
