@@ -172,7 +172,7 @@ class MatchServer(AbstractMatch):
 	def on_update_slots(self, sender:LeasableList):
 		"""
 		Update the available slots on the server
-		
+
 		Args:
 			sender (LeasableList): Caller object of the event
 		"""
@@ -218,7 +218,8 @@ class MatchServer(AbstractMatch):
 
 		# Destroy the socket
 		try:
-			self.__udpsock.close()
+			self.__udpsock.shutdown(socket.SHUT_RDWR)  # Shutdown both ends of the socket
+			self.__udpsock.close()                     # Close the socket, as is
 		except:
 			pass # Ignorable error
 
@@ -311,7 +312,7 @@ class MatchServer(AbstractMatch):
 			for player in self.players:
 				if not player.is_ready():
 					all_ready = False
-		
+
 		logging.info("All players ready, starting the match.")
 		while True:
 			try:
@@ -340,7 +341,7 @@ class MatchServer(AbstractMatch):
 					finally:
 						#print("%d; %s \t| %s | %s | %d" % (pid, player.getName(), str(player.getVelocity()), str(player.getPosition()), player.lifes), flush=True)
 						pid += 1
-					
+
 					# TODO REMOVE THIS DUMMY PRINTOUT
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
@@ -375,7 +376,7 @@ class MatchServer(AbstractMatch):
 	def kick_player(self, player_id:int):
 		"""
 		Kick a player from the match by the player ID
-		
+
 		Args:
 			player_id (int): Player ID of the player
 		"""
@@ -465,11 +466,11 @@ class MatchServer(AbstractMatch):
 				return False
 		else:
 			return False
-	
+
 	def handle_lobby_stop(self, sender):
 		"""
 		Handle when the lobby thread was stopped, and stop the game server
-		
+
 		Args:
 			sender (Lobby): Caller of the event
 		"""
@@ -488,7 +489,7 @@ class MatchServer(AbstractMatch):
 			print("%d players were listed" % len(self.players))
 		except:
 			print("Players cannot be listed.", flush=True)
-	
+
 	def base_stat(self):
 		"""
 		Show the stats of the match
@@ -498,7 +499,7 @@ class MatchServer(AbstractMatch):
 			print("Size of the arena is %d x %d" % (self.arena.sizeX, self.arena.sizeY), flush=True)
 		except:
 			print("Cannot show the match stats", flush=True)
-	
+
 	def base_watch(self):
 		"""
 		Display the current match in the terminal
@@ -515,13 +516,13 @@ class MatchServer(AbstractMatch):
 			pass # Close the watcher
 		except:
 			print("Error while watching the game.", flush=True)
-	
+
 	def base_default(self):
 		"""
 		Command not recognizeable
 		"""
 		print("Command cannot be recognized", flush=True)
-	
+
 	def base(self, base=""):
 		"""
 		Base command processor

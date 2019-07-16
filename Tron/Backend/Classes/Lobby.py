@@ -103,7 +103,7 @@ class Lobby(object):
 		self.router.add_route("ls", self.base_ls)
 		self.router.add_route('cd (\w+)', self.base_cd)
 		self.router.add_route('create (\w+) (\d+) (\d+)', self.base_create)
-		self.router.add_route('rem (\w+)', self.base_rem)
+		self.router.add_route('rem (\w+|\*)', self.base_rem)
 		self.router.add_route('watch (\w+)', self.base_watch)
 
 		# Initialize own events
@@ -134,7 +134,7 @@ class Lobby(object):
 		else:
 			# Only for servers
 			self.__hook_lease_port = Hook(hook_lease_port)
-	
+
 	def base(self, base=""):
 		"""
 		Base command processor
@@ -146,7 +146,7 @@ class Lobby(object):
 				return
 			else:
 				self.router.run(ins)
-	
+
 	def base_ls(self):
 		"""
 		ls command inside a lobby
@@ -158,11 +158,11 @@ class Lobby(object):
 			print("{:20s}{}".format(m.name, m.get_feature_string()), flush=True)
 		print("----")
 		print("%d matches were listed." % len(self.matches), flush=True)
-	
+
 	def base_cd(self, matchname: str):
 		"""
 		cd command inside the lobby
-		
+
 		Args:
 			path (str): Path to switch to
 		"""
@@ -172,7 +172,7 @@ class Lobby(object):
 				if m.name == matchname:
 					m.base(self.__current_base + "/matchname")
 					return
-			
+
 			logging.warn("Match %s does not exist.", matchname)
 		except:
 			logging.warn("Cannot switch to match")
@@ -182,7 +182,7 @@ class Lobby(object):
 		Command not recognized
 		"""
 		print("Command not recognized")
-	
+
 	def base_create(self, name, players, lifes):
 		"""
 		Create a new match
@@ -192,29 +192,32 @@ class Lobby(object):
 			self.handle_create_game(None, 'Tron', name, feat)
 		except:
 			print("Cannot create match", flush=True)
-	
+
 	def base_rem(self, matchname):
 		"""
 		Remove a match from the lobby.
-		
+
 		Args:
 			match (str): Name of the match
 		"""
 		try:
 			for m in self.matches:
 				m: MatchServer
-				if m.name == matchname:
+				if matchname == '*': # Close all matches
 					m.close(join=False)
-					return
-			
+				else:
+					if m.name == matchname:
+						m.close(join=False)
+						return
+
 			print("Match %s does not exist.", matchname, flush=True)
 		except:
 			print("Cannot remove the match", flush=True)
-	
+
 	def base_watch(self, matchname):
 		"""
 		Watch the selected match via command line on the server
-		
+
 		Args:
 			matchname (str): name of the match
 		"""
@@ -224,7 +227,7 @@ class Lobby(object):
 				if m.name == matchname:
 					m.base_watch()
 					return
-			
+
 			print("Match %s does not exist.", matchname, flush=True)
 		except:
 			print("Cannot watch the match", flush=True)

@@ -72,7 +72,6 @@ logging.info("GameApp loaded")
 
 # class GameUI(Widget):
 class GameUI(Screen):
-	playerList = ListProperty([])
 	countdown_is_running = BooleanProperty(False)
 	game_is_running = BooleanProperty(False)
 	playPos = ObjectProperty(Vect2D(10, 0))
@@ -82,7 +81,6 @@ class GameUI(Screen):
 
 	def init_onenter(self, **kwargs):
 		super(GameUI, self).__init__(**kwargs)
-		self.playerList.clear()
 		self.__client = CLIENT
 		CLIENT.EMatchEnded += self.on_match_ended
 		self.playerList = self.__client.match.players
@@ -90,7 +88,7 @@ class GameUI(Screen):
 		# ## creates update function for all uses, ensures synchronized update trigger
 
 		Clock.schedule_interval(self.update, 1 / UPDATES_PER_SECOND)
-		logging.info("GameApp initialized")
+		logging.info("GameApp ENTERED")
 
 
 	def update(self, *args):
@@ -120,7 +118,10 @@ class GameUI(Screen):
 
 	def getPlayerWidgetSize(self):
 		## creates the hight for the widget in duty of displaying all players online
-		playerCount = len(self.playerList)
+		try:
+			playerCount = CLIENT.match.feat_players  # NOTE Playercount changed acc. to match
+		except:
+			playerCount = 0
 		return (100, playerCount * 20)
 
 	def do_finished(self):
@@ -922,6 +923,7 @@ class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, Recycle
 	pass
 
 ######## Add Screens to the ScreenManager ############################
+# ANCHOR ADD ALL THE WIDGETS
 screen_manager = WindowManager()
 screen_manager.add_widget(MainMenuFloat(name='mainmenufloat'))
 screen_manager.add_widget(CreateServerMenuFloat(name='createservermenufloat'))
@@ -935,7 +937,9 @@ screen_manager.add_widget(GameStartMenu(name='gamestartmenu'))
 screen_manager.add_widget(PauseMenu(name='pausemenu'))
 screen_manager.add_widget(ConnectionLostMenuFloat(name='connectionlostmenufloat'))
 screen_manager.add_widget(GameOverMenuFloat(name='gameovermenufloat'))
-screen_manager.add_widget(GameUI(name='gameui'))
+
+WIDGET_GAMEUI = GameUI(name='gameui')
+screen_manager.add_widget(WIDGET_GAMEUI)
 
 ######## Error and  Event Handlers ############################
 def ErrorPopup(sender, msg):
@@ -958,9 +962,13 @@ def handle_ematchJoined(sender, matchname):
 CLIENT.EMatchJoined += handle_ematchJoined
 
 def handle_ematchStarted(sender):
-
+	global WIDGET_GAMEUI
 	timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	logging.info('EMatchStarted received by client %s' % timestamp)
+	screen_manager.remove_widget(WIDGET_GAMEUI)
+	WIDGET_GAMEUI = None
+	WIDGET_GAMEUI = GameUI(name='gameui')
+	screen_manager.add_widget(WIDGET_GAMEUI)
 	screen_manager.current = 'gameui'
 	MyKeyboardListener(client=CLIENT)
 	try:
