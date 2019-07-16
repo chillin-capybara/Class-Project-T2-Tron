@@ -63,6 +63,16 @@ class Lobby(object):
 	router: Router = None
 	__current_base = ""
 
+	BASE_COMMANDS = [
+		("ls", "list the available matches"),
+		("cd [match]|..", "Switch into a match | Switch back to /server"),
+		("create [match] [players] [lifes]", "Create a new match with players and lifes"),
+		("rem [match]", "Remove a match from the server"),
+		("watch [match]", "Watch the live updated game matrix of the selected match"),
+		("help", "Show all the available commands")
+	]
+
+
 	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None, parent=None):
 		"""
 		Initialize a lobby on the server, to create games in
@@ -106,6 +116,7 @@ class Lobby(object):
 		self.router.add_route('create (\w+) (\d+) (\d+)', self.base_create)
 		self.router.add_route('rem (\w+|\*)', self.base_rem)
 		self.router.add_route('watch (\w+)', self.base_watch)
+		self.router.add_route('help', self.base_help)
 
 		# Initialize own events
 		self.EError = Event('msg')
@@ -171,10 +182,10 @@ class Lobby(object):
 			for m in self.matches:
 				m: MatchServer
 				if m.name == matchname:
-					m.base(self.__current_base + "/matchname")
+					m.base(self.__current_base + ("/%s" %matchname))
 					return
 
-			logging.warn("Match %s does not exist.", matchname)
+			logging.warn("Match %s does not exist." % matchname)
 		except:
 			logging.warn("Cannot switch to match")
 
@@ -215,7 +226,7 @@ class Lobby(object):
 					m.close(join=False)
 					return
 
-			print("Match %s does not exist.", matchname, flush=True)
+			print("Match %s does not exist." % matchname, flush=True)
 		except:
 			print("Cannot remove the match", flush=True)
 
@@ -233,9 +244,17 @@ class Lobby(object):
 					m.base_watch()
 					return
 
-			print("Match %s does not exist.", matchname, flush=True)
+			print("Match %s does not exist." % matchname, flush=True)
 		except:
 			print("Cannot watch the match", flush=True)
+
+	def base_help(self):
+		"""
+		List the available commands
+		"""
+		print("---- Available commands ----")
+		for syntax, desc in self.BASE_COMMANDS:
+			print("{:<40s}   : {}".format(syntax, desc))
 
 	@property
 	def parent(self):

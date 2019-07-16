@@ -25,6 +25,21 @@ class GameServer(object):
 	ROOT_DIRECTORIES = ['config', 'lobbies', 'firewall']
 	ROOT_ROUTER = Router()
 
+	ROOT_COMMANDS = [
+			("ls", "list the available lobbies"),
+			("cd [lobby]", "Switch into a lobby"),
+			("log on|off", "Turn on/off the server logging"),
+			("shutdown", "Shut down the server"),
+			("size", "Show the size of the match arenas"),
+			("size [x] [y]", "Set a new size to the server arena"),
+			("blacklist show", "Show the blacklisted IP adresses"),
+			("blacklist add [IP]", "Add an IP Adress to the blacklist"),
+			("blacklist rem [IP]", "Remove an IP from the blacklist"),
+			("blacklist clear", "Remove all blacklisted IP addresses"),
+			("create", "Create a new lobby on the server"),
+			("help", "Show all the available commands")
+		]
+
 	EStop : Event = None # Stop Event for the server
 
 	def __init__(self, num_lobbies: int, arena_size: tuple):
@@ -70,11 +85,14 @@ class GameServer(object):
 		self.ROOT_ROUTER.add_route('log on', self.root_log_on)
 		self.ROOT_ROUTER.add_route('log off', self.root_log_off)
 		self.ROOT_ROUTER.add_route('shutdown', self.root_shutdown)
-		self.ROOT_ROUTER.add_route('resize (\d+) (\d+)', self.root_resize)
+		self.ROOT_ROUTER.add_route('size', self.root_size)
+		self.ROOT_ROUTER.add_route('size (\d+) (\d+)', self.root_resize)
 		self.ROOT_ROUTER.add_route('blacklist add ([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)', self.root_blacklist_add)
 		self.ROOT_ROUTER.add_route('blacklist rem ([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)', self.root_blacklist_rem)
 		self.ROOT_ROUTER.add_route('blacklist show', self.root_blacklist_show)
 		self.ROOT_ROUTER.add_route('blacklsit clear', self.root_blacklist_clear)
+		self.ROOT_ROUTER.add_route('create', self.root_create)
+		self.ROOT_ROUTER.add_route('help', self.root_help)
 
 	@property
 	def available_ports(self) -> LeasableList:
@@ -172,7 +190,7 @@ class GameServer(object):
 		lobby_nr = int(path)
 		try:
 			# Call the base command of the lobby
-			self.__lobbies[lobby_nr].base("/server/lobbies/lobby%d"%lobby_nr)
+			self.__lobbies[lobby_nr].base("/server/lobby%d"%lobby_nr)
 		except:
 			logging.error("The lobby %d is not found on the server." % lobby_nr)
 
@@ -211,6 +229,13 @@ class GameServer(object):
 
 		BackendConfig.arena_sizex = sxi
 		BackendConfig.arena_sizey = syi
+	
+	def root_size(self):
+		"""
+		Show the size of the arena on the server
+		"""
+		print("--- Size configuration of the match arenas ---")
+		print("With: %d, Height: %d" % (BackendConfig.arena_sizex, BackendConfig.arena_sizey), flush=True)
 
 	def root_blacklist_add(self, ip:str):
 		"""
@@ -252,6 +277,22 @@ class GameServer(object):
 		"""
 		# This will effect the main loop and shut the server down
 		raise KeyboardInterrupt
+	
+	def root_create(self):
+		"""
+		Create a new lobby on the server
+		"""
+		self.create_lobby()
+		print("lobby%d created!" % len(self.__lobbies))
+	
+	def root_help(self):
+		"""
+		List the available commands
+		"""
+		print("---- Available commands ----")
+		for syntax, desc in self.ROOT_COMMANDS:
+			print("{:<40s}   : {}".format(syntax, desc))
+
 
 	def Stop(self):
 		"""

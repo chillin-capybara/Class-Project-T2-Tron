@@ -103,6 +103,15 @@ class MatchServer(AbstractMatch):
 	OnPlayerWin: Event  = None  # Event to be called when a player wins
 	OnMatchTerminated: Event = None # Event to be called when the match is close by admin
 
+	BASE_COMMANDS = [
+		("watch", "Watch the match live"),
+		("ls", "List the available players"),
+		("stat", "Show match & player stats"),
+		("cd ..", "Change back to lobby"),
+		("help", "List all the available commands")
+	]
+
+
 	def __init__(self, available_ports: LeasableList, name: str, features: List[str]):
 		"""
 		Initialize a new match server with the necessary parameters
@@ -160,6 +169,7 @@ class MatchServer(AbstractMatch):
 			self.router.add_route('watch', self.base_watch)
 			self.router.add_route('ls', self.base_ls)
 			self.router.add_route('stat', self.base_stat)
+			self.router.add_route('help', self.base_help)
 
 		except LeaseError as err_lease:
 			err_msg = "Cannot create match, the server has run out of ports. %s" % str(err_lease)
@@ -550,6 +560,14 @@ class MatchServer(AbstractMatch):
 		Command not recognizeable
 		"""
 		print("Command cannot be recognized", flush=True)
+
+	def base_help(self):
+		"""
+		List the available commands
+		"""
+		print("---- Available commands ----")
+		for syntax, desc in self.BASE_COMMANDS:
+			print("{:<40s}   : {}".format(syntax, desc))
 
 	def base(self, base=""):
 		"""
