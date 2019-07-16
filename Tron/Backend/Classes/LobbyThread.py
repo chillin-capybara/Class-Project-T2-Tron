@@ -311,7 +311,7 @@ class LobbyThread(threading.Thread):
 				self.send(packet)
 			else:
 				playername = sender.players[player_id - 1].getName()
-				packet = self.__comm.game_ended("You lost! %s won the match %s!" % (playername, sender.getName()))
+				packet = self.__comm.game_ended("You lost! %s won the match %s!" % (playername, sender.name))
 				self.send(packet)
 		except Exception as exc:
 			logging.warning("Error while notifying the winning player. Reason: %s", str(exc))
@@ -388,6 +388,7 @@ class LobbyThread(threading.Thread):
 					reason = str(vex)
 					packet = self.__comm.failed_to_join(reason)
 					self.send(packet)
+					return
 
 
 		# Failed to join
