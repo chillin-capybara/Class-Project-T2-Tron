@@ -12,6 +12,7 @@ from ..Core.Event import Event
 from ..Core.Hook import Hook
 from ..Core.globals import *
 from ..Core.matrix import matrix_split
+from ..Core.BackendConfig import BackendConfig
 import threading
 import logging
 import socket
@@ -319,7 +320,7 @@ class MatchServer(AbstractMatch):
 
 						# Increment the index of the connection
 						cindex += 1
-					time.sleep(0.1)
+					time.sleep(BackendConfig.fudp_sleep / 5) # Always do 5x sendes per update
 
 				except Exception as e:
 					logging.warning("Error while sending. %s" , str(e))
@@ -372,7 +373,7 @@ class MatchServer(AbstractMatch):
 			except Exception as e:
 				logging.warning("Error while updating player positions. Reason: %s" % str(e))
 
-			time.sleep(0.5) # 2 Updates per second
+			time.sleep(BackendConfig.fudp_sleep)  # 2 Updates per second
 
 			if self.__require_close:
 				logging.info("Closing the field updater on request")
@@ -481,7 +482,7 @@ class MatchServer(AbstractMatch):
 				raise ValueError("The color {} is already taken".format(str(player.getColor())))
 			if pl.getName() == player.getName():
 				raise ValueError("The playername {} is already taken".format(player.getName()))
-		
+
 		# Let all the player properties to be taken from the Lobby
 		lease = self.__player_slots.lease()
 		pid = lease.getObj()
