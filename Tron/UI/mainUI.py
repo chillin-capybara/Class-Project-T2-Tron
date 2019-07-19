@@ -258,7 +258,7 @@ class SearchForLobbiesMenu(Screen):
 			self.ids.explainmenuLabel.text = ('Here you can Enter the Lobby as %s' % outputname)
 
 		color = CLIENT.me.getColor()
-		playercolor = (color[0]*255, color[1]*255, color[2]*255, 1)
+		playercolor = (color[0]/255, color[1]/255, color[2]/255, 1)
 		self.ids.explainmenuLabel.background_color = playercolor
 
 	def getavailableLobbies(self):
@@ -334,7 +334,7 @@ class LobbyMenu(Screen):
 			self.ids.explainmenuLabel.text = ('Here you can join a Match as %s' % outputname)
 
 		color = CLIENT.me.getColor()
-		playercolor = (color[0]*255, color[1]*255, color[2]*255, 1)
+		playercolor = (color[0]/255, color[1]/255, color[2]/255, 1)
 		self.ids.explainmenuLabel.background_color = playercolor
 
 	def logging(self):
@@ -552,7 +552,7 @@ class SettingsMenu(Screen):
 
 		if color == (0, 0, 0):
 			playercolor = loaddata[1]
-			color = (int(playercolor[0]), int(playercolor[1]), int(playercolor[2]))
+			color = (playercolor[0], playercolor[1], playercolor[2])
 			CLIENT.me.setColor(color)
 			print("Color stayed: %s" % str(color))
 		else:

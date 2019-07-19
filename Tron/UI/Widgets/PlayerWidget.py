@@ -20,6 +20,7 @@ Builder.load_string("""
     BoxLayout:
         id: boxLayout1
         orientation: "vertical"
+        color: (0,0,0,1)
 """)
 
 class PlayerWidget(Widget):
@@ -32,7 +33,8 @@ class PlayerWidget(Widget):
         for player in self.playerList:
             self.ids.boxLayout1.add_widget(Label(
                 text = 'Lifes: %d' % player.lifes,
-                color = [player.getColor()[0]*255, player.getColor()[1]*255, player.getColor()[2]*255, 1]
+                #color = (0, 0, 0, 1) # does NOT CHANGE the color of the player ??
+                color = (player.getColor()[0]*255, player.getColor()[1]*255, player.getColor()[2]*255, 1)
             ))
     
   
