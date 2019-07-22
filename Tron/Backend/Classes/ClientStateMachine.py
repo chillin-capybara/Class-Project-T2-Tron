@@ -3,7 +3,7 @@ import logging
 
 class StateMaschine:
 	"""
-	TODO:DOCSTRING
+	state machine for the client
 	"""
 
 	INIT               = 0
@@ -22,7 +22,10 @@ class StateMaschine:
 	@staticmethod
 	def change(newstate):
 		"""
-		TODO: DOCSTRING
+		update current client state
+
+		Args:
+			newstate(int): new state of the client
 		"""
 		if (type(newstate) is not int):
 			raise TypeError
@@ -35,7 +38,13 @@ class StateMaschine:
 	
 def on_state_change(sender, oldstate, newstate):
 	"""
-	TODO: DOCSTRING
+	update the current state
+
+	Args: 
+		sender: object
+		oldstate(int): old client state
+		newstate(int): new client state
+
 	"""
 
 	if newstate == StateMaschine.INIT:
@@ -57,5 +66,3 @@ def on_state_change(sender, oldstate, newstate):
 	elif newstate == StateMaschine.EXIT_STATE: 
 		pass
 
-
-#StateMaschine.change(2)
