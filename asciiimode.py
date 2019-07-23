@@ -28,8 +28,8 @@ WELCOME = """
 ROUTER = Router()
 CLIENT = GameClient()
 
-CLIENT.me.setName("ASCIII")
-CLIENT.me.setColor((255,255,0))
+CLIENT.me.setName("ASCIII-M")
+CLIENT.me.setColor((255,0,0))
 CLIENT.me.setVelocity(1,0)
 
 game_running = False
@@ -184,6 +184,7 @@ def base_ingame(win):
 				else:
 					win.addstr(h, wstart, "|  Player {:<2d}  {:<2d} / {}".format(pid, pl.lifes, CLIENT.match.feat_lifes), curses.color_pair(pid+1))
 				win.addstr(h+1, wstart, "| ")
+				pid += 1
 				h += 2
 
 	except KeyboardInterrupt:
