@@ -124,8 +124,6 @@ def getActPos (matix:List[list], old_matrix:List[list], player_id) -> tuple:
 	"""
 	get the actual Positions of the players on the
 	game field.
-	if there are no difference between old and new game fields detected,
-	(-666,-666) tuple returns
 
 	Args:
 		matrix(nested list) - actual game field matrix

@@ -112,9 +112,6 @@ class ReceiverClientThread(threading.Thread):
 		"""
 		logging.debug("Receiver thread started...")
 		while True:
-			
-			
-			
 			try:
 				data = self.__sockfd.recv(1500)
 				self.__Comm.process_response(data)
@@ -127,23 +124,3 @@ class ReceiverClientThread(threading.Thread):
 				logging.error("You got disconnected from the server.")
 		logging.debug("Receiver thread stopped stopped")
 
-	# def clientFSM (self):
-	# 	"""
-	# 	TODO: DOCSTRING
-
-	# 		Args: newState (int) New State
-	# 	"""
-	# 	# FSM
-	# 	if self.__stateFSM == makros.INIT_STATE:
-	# 		pass
-
-	# 	elif self.__stateFSM == makros.CLIENT_READY:
-	# 		logging.info ("Ready, waiting for ACK")
-
-	# 	elif self.__stateFSM == makros.CLEINT_READY_ACK:
-	# 		logging.info ("Ready ACK recieved")
-
-	# 	elif self.__stateFSM == makros.CLIENT_ERROR:
-	# 		self.__sockfd.close()
-	# 		logging.info ("Client ERROR")
-	# 	pass

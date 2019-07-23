@@ -5,6 +5,7 @@ from parser import parser
 
 class TestParser(unittest.TestCase):
 	"""
+	unittest for the parser
 	"""
 	def test_parser (self):
 

@@ -13,7 +13,7 @@ class Client(object):
 
 	def __init__(self):
 		"""
-		TODO: DOCSTRING
+		initialize Client 
 		"""
 		#my own Client Events
 		self.ECClientError    = Event()

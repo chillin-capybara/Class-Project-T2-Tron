@@ -63,7 +63,7 @@ class Vect2D(object):
 
 		Returns:
 			Vect2D
-  		"""
+		"""
 		if type(other) == Vect2D:
 			self.x += other.x
 			self.y += other.y
@@ -101,8 +101,8 @@ class Vect2D(object):
 		"""
 		Check if 2 Vect2D objects are identical
 		"""
-
-		# Check the equality
+		if type(other) is not Vect2D:
+			return False
 		if self.x == other.x and self.y == other.y:
 			return True
 		else:

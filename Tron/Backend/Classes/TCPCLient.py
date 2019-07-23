@@ -158,7 +158,6 @@ class TCPCLient(Client):
 			sender (CommProt): Caller of the event
 			msg (str): Error message sent by the server
 		"""
-		# TODO: Artem -> behandlung von error messages
 		self.ECClientError(self, msg)
 		StateMaschine.change(StateMaschine.CLIENT_ERROR)
 		self.__sock.close()
@@ -178,14 +177,15 @@ class TCPCLient(Client):
 		"""
 		Handle server notification
 		Args:
-			sender
-
+			sender: sender object
 		"""
 		logging.info(msg)
 	def requestPause (self, sender):
 		"""
 		Function to handle Pause request 
 
+		Args:
+			sender: sender object
 		"""
 		StateMaschine.change(StateMaschine.CLIENT_PAUSE)
 		logging.info("Client in Pause")

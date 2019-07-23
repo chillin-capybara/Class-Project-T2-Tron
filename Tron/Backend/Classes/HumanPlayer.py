@@ -186,7 +186,10 @@ class HumanPlayer(Player):
 		return self.__Position
 	def getVelocity(self) -> Vect2D:
 		"""
-		TODO: Artem -> DOKU
+		Get the current Velocity vector
+
+		Returns:
+		Player velocity as Vect2D
 		"""
 		return self.__Velocity
 
@@ -318,8 +321,10 @@ class HumanPlayer(Player):
 		Raises:
 		CommError: Error while communicating the pause request
 		"""
-		self.__IsInPause = True
-		#TODO Error while communicating the pause request
+		try:
+			self.__IsInPause = True
+		except Exception as e:
+			logging.error ("CommError: Error while communicating the pause request " + e)
 
 	def move(self, time):
 		"""
@@ -330,6 +335,9 @@ class HumanPlayer(Player):
 		Raises:
 			TODO TYPE CHECKING
 		"""
+		if (type(time) != int):
+			raise ValueError
+
 		self.__Position.x += self.__Velocity.x * time
 		self.__Position.y += self.__Velocity.y * time
 	

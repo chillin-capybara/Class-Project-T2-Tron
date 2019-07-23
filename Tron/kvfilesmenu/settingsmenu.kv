@@ -1,7 +1,7 @@
 # Color Input (Tupel)
 # Back to Main Menu
 # Name Input
-<SettingsMenuFloat>:
+<SettingsMenu>:
     on_enter: root.loadplayerdata()
     HeaderLabel:
         text: 'Settings Menu'
@@ -88,4 +88,4 @@
         pos_hint: {"x": .01, "y": .01}
         size_hint: ( .98, .08)
         on_press: root.savechanges(nameTextInput.text, (redcolorSlider.value, greencolorSlider.value, bluecolorSlider.value))
-        on_release: root.manager.current = 'mainmenufloat'
+        on_release: root.manager.current = 'mainmenu'

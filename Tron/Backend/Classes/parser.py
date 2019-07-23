@@ -5,6 +5,12 @@ def parser (text:str, player_name:str)->int:
 	"""
 	trying to understand, if the message is about
 	player's death or win or ist it something else
+
+	Args: 
+		text(str): text to parse
+		player_name(str): name of the player, who recieves the message
+	Return:
+		answer(int): if win +1, if lost -1 otherweise 0 
 	"""
 
 	if len(text) < 1 or len(player_name) < 1 :
@@ -34,9 +40,6 @@ def parser (text:str, player_name:str)->int:
 		except:
 			pass
 
-		# for letter in range (0, len(word_list[word])):
-		# 	if word_list[word] == "'":
-		# 		word_list[word] = word_list[word][0:letter-1]
 
 	# built string
 		string = word_list[word].lower() + "*" 
