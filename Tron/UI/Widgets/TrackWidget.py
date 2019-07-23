@@ -91,6 +91,25 @@ class TrackWidget(Widget):
                         ySize = self.size[1]/self.fieldsize[1]
 
                         Rectangle(pos=(xPos2, yPos2), size=(xSize, ySize))
+				
+				# Draw the grid
+                for colgrid in range(1, self.fieldsize[0]):
+					# Set the color of the grid
+                    Color(rgba=( 0, 0, 0, 0.5))
+                    xpos = (self.size[0]/self.fieldsize[0]) * colgrid
+                    ypos = 0
+                    xsize = 1
+                    ysize = self.size[1]
+                    Rectangle(pos=(xpos, ypos), size=(xsize, ysize))
+
+                for rowgrid in range(1, self.fieldsize[1]):
+					# Set the color of the grid
+                    Color(rgba=( 0, 0, 0, 0.5))
+                    xpos = 0
+                    ypos = (self.size[1]/self.fieldsize[1]) * rowgrid
+                    xsize = self.size[0] 
+                    ysize = 1
+                    Rectangle(pos=(xpos, ypos), size=(xsize, ysize))
 
     def increaseOpacity(self):
         ## function for creating an increasing opacity with increasing time
