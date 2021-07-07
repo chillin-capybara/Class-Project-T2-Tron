@@ -1,6 +1,8 @@
 from .Player import Player
 from .Track import Track, LightTrack
 from ..Core.Vect2D import Vect2D
+from typing import List
+from ..Core.matrix import *
 
 # todo: Implement the Human player according to the UML
 #TODO: Makros definition
@@ -19,13 +21,15 @@ class HumanPlayer(Player):
 	__Color = None  # Color of the player
 	__Position = None
 	__Velocity = None
+	__Lifes = 0 # Number of lifes, the player has
 	# __Track = #TODO
-	__IsAlive = False
+
 	__IpAdress = None
 	__IsConnected = False
 	__IsInPause = False
 
-	__track = None
+	__track : List[Vect2D] = None
+	__last_velocity : Vect2D = None
 
 # input check Velocity.x
 	@property
@@ -65,13 +69,80 @@ class HumanPlayer(Player):
 
 
 	def __init__(self):
-		self.__track = LightTrack()
+		self.__track = []
 		self.__Position = Vect2D(0,0)
 		self.__Velocity = Vect2D(0,0)
+		self.__last_velocity = Vect2D(0,0)
 		self.__IpAdress = "0.0.0.0"
 
-	def getTrack(self):
+		# Set the color to black as default
+		self.__Color = (0,0,0)
+
+
+	def getTrack(self) -> List[Vect2D]:
+		"""
+		Get the track points of the current player via a list of Vect2D
+		
+		Returns:
+			List[Vect2D]: Track of the current player
+		"""
 		return self.__track
+	
+	@property
+	def track(self) -> List[Vect2D]:
+		"""
+		Track points of the current player via a list of Vect2D
+		"""
+		return self.__track
+	
+	@property
+	def lifes(self) -> int:
+		"""
+		Lifes of the player has
+		"""
+		return self.__Lifes
+	
+	@lifes.setter
+	def lifes(self, value:int):
+		"""
+		Setter for player's life
+		"""
+		self.set_lifes(value)
+	
+	def set_lifes(self, value:int):
+		"""
+		Set the lifes of the current player based on the match properties
+		
+		Args:
+			value (int): Life of the player
+		Raises:
+			TypeError: Invalid value type
+			ValueError: Negative life
+		"""
+		if type(value) is int:
+			if value >= 0:
+				self.__Lifes = value
+			else:
+				raise ValueError
+		else:
+			raise TypeError
+	
+	def die(self):
+		"""
+		Negate 1 from the lifes of the player, until it's zero
+		"""
+		if self.is_alive:
+			# Only negate when the player is still alive
+			self.__Lifes -= 1
+	
+	def is_alive(self):
+		"""
+		Check if the player is alive or not
+		
+		Returns:
+			int: True = Alive, False = Dead
+		"""
+		return (self.__Lifes > 0)
 
 	def getLine(self):
 		return self.__track.getLine()
@@ -111,29 +182,6 @@ class HumanPlayer(Player):
 		TODO: Artem -> DOKU
 		"""
 		return self.__Velocity
-
-
-	def getTrack(self):
-		"""
-		Get the track made by the player cruising on the arena.
-
-		Returns:
-		LightTrack as Track object
-		"""
-
-		return self.__track.getLine()
-
-
-
-	def isAlive(self) -> bool:
-		"""
-		Get if the Player is alive
-
-		Returns:
-		True or False
-		"""
-		return self.__IsAlive
-
 
 	def isInPause(self) -> bool:
 		"""
@@ -235,24 +283,13 @@ class HumanPlayer(Player):
 		Args: 
 		velocity: velocity as Vect2D
 		"""
+		# Store the old velocity
+		self.__last_velocity.x = self.__Velocity.x
+		self.__last_velocity.y = self.__Velocity.y
+
+		# Set the new velocity
 		self.__Velocity.x = x
 		self.__Velocity.y = y
-
-
-	def addTrack(self, start, end):
-		"""
-		Add a new track element to the pulled "light-track" of the player
-
-		Args:
-		track (track_segment): New track element to be added
-
-		Raises:
-		TrackError: The given track is invalid
-
-		Note:
-		TrackError is defined in Core.Exceptions
-		"""
-		self.__track.addElement(start, end)
 
 
 	def enterPause(self):
@@ -263,8 +300,7 @@ class HumanPlayer(Player):
 		CommError: Error while communicating the pause request
 		"""
 		self.__IsInPause = True
-		#TODO: Error while communicating the pause request
-
+		#TODO Error while communicating the pause request
 
 	def move(self, time):
 		"""
@@ -277,6 +313,24 @@ class HumanPlayer(Player):
 		"""
 		self.__Position.x += self.__Velocity.x * time
 		self.__Position.y += self.__Velocity.y * time
+	
+	def step(self):
+		"""
+		Step the player forward in the direction of it's velocity
+		"""
+		self.__Position.x += self.__Velocity.x
+		self.__Position.y += self.__Velocity.y
+	
+	def update_player_track(self, matrix: list, player_id: int):
+		"""
+		Update the track of the current player
+		
+		Args:
+			matrix (list): Matrix of the game field
+			player_id (int): ID of the current player on the server
+		"""
+		self.__track = get_player_track(matrix, player_id)
+
 
 # # test Player implementation
 # testPlayer = HumanPlayer()

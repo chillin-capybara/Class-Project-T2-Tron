@@ -3,8 +3,11 @@ from .Lobby import Lobby
 
 from ..Core.leasable_collections import *
 from ..Core.globals import *
+from ..Core.Event import Event
 from typing import List
 import logging
+import time
+import threading
 
 class GameServer(object):
 	"""
@@ -14,6 +17,10 @@ class GameServer(object):
 	__broadcaster: Broadcaster = None
 	__lobbies : List[Lobby] = None
 	__available_ports : LeasableList = None # Collection for available ports
+
+	__isRunning = False
+
+	EStop : Event = None # Stop Event for the server
 
 	def __init__(self, num_lobbies: int):
 		"""
@@ -43,7 +50,13 @@ class GameServer(object):
 		
 		# Initialize the Broadcaster
 		self.__broadcaster = Broadcaster(self.get_lobbies)
+
+		self.EStop = Event()
 	
+	@property
+	def available_ports(self) -> LeasableList:
+		return self.__available_ports
+
 	def hook_lease_port(self) -> LeasableObject:
 		"""
 		Lease a port from the collections of ports on the server.
@@ -60,7 +73,7 @@ class GameServer(object):
 		leased_port = self.__available_ports.lease()
 		host : str = "" # On the server, lobbys have empty host
 		port: int = leased_port.getObj()
-		self.__lobbies.append(Lobby(host, port, hook_lease_port=self.hook_lease_port))
+		self.__lobbies.append(Lobby(host, port, hook_lease_port=self.hook_lease_port, parent=self))
 	
 	def get_lobbies(self) -> List[Lobby]:
 		"""
@@ -80,11 +93,57 @@ class GameServer(object):
 		# Start the discovery
 		self.__broadcaster.Start()
 
+		# Add the stop event to close all the threads
+		self.EStop += self.__broadcaster.handle_server_stop
+
 		# Start the lobby threads
 		for lobby in self.__lobbies:
+			# Add the stop event to close all the threads
+			self.EStop += lobby.handle_server_stop
 			lobby.start_server()
 
-		while True:
-			pass
+		self.__isRunning = True
+
+		thread = threading.Thread(target=self.__keepalive)
+		thread.start()
+
+		try:
+			while True:
+				time.sleep(1)
+		except KeyboardInterrupt:
+			self.Stop() # Close up all the stuff
+	
+	def __keepalive(self):
+		"""
+		Keep-alive thread for the server to check status
+		"""
+		try:
+			while True:
+				if self.EStop.was_called():
+					break
+				time.sleep(1)
+		except:
+			self.EStop(self)
+		
+		self.__isRunning = False
+		self.EStop.reset_called()
+		logging.info("The game server was stopped!")
+
+
+	def Stop(self):
+		"""
+		Stop the server with all the threads
+		"""
+		# Only call the stop Event
+		self.EStop(self)
+	
+	def isRunning(self) -> bool:
+		"""
+		Get if the server is still running
+		
+		Returns:
+			bool: True = RUNNING, False = NOT RUNNING
+		"""
+		return self.__isRunning
 
 

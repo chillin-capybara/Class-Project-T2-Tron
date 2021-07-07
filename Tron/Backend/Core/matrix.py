@@ -1,8 +1,12 @@
+import numpy as np
+from .Vect2D import Vect2D
+from typing import List
+
 def partial(a: list, max_row:int, max_col:int, dim_row:int, dim_col:int, i:int,j:int):
 	"""
 	Get a partial matrix of the matrix a using the sizes of a and the maximal
 	size of the partial matrices
-	
+
 	Args:
 		a (list): Matrix to get partials of
 		max_row (int): Maximal number of rows in the partial
@@ -11,7 +15,7 @@ def partial(a: list, max_row:int, max_col:int, dim_row:int, dim_col:int, i:int,j
 		dim_col (int): Count of columns in the matrix
 		i (int): Partial matrix row index
 		j (int): Partial matrix column index
-	
+
 	Returns:
 		list: (i,j) Partial matrix in list representation
 	"""
@@ -31,12 +35,12 @@ def partial(a: list, max_row:int, max_col:int, dim_row:int, dim_col:int, i:int,j
 def matrix_split(a: list, max_row:int, max_col:int):
 	"""
 	Split a matrix into partial matrices with limitations regarding each partial matrix
-	
+
 	Args:
 		a (list): Matrix to split
 		max_row (int): Maximal number of rows in a partial matrix
 		max_col (int): Maximal number of columns in a partial matrix
-	
+
 	Returns:
 		dict: {(1,1): [[],[],...], (1,2): ..., (2,3): ... ...}
 	"""
@@ -61,17 +65,113 @@ def matrix_split(a: list, max_row:int, max_col:int):
 	for i in range (1, i_max+1):
 		for j in range(1, j_max+1):
 			result[(i,j)] = partial(a,max_row,max_col,dim_row,dim_col,i,j)
-	
+
 	return result
 
 
-def matrix_collapse(s: dict):
+def split_tostr(split:dict)-> str:
 	"""
-	Collapse a splitted matrix
-	
+	Turn the splitted version of the matrix (dict) into a string
+
 	Args:
-		s (dict): Splitted matrix in format of matrix_slits output
+		split (dict): Splitted matrix
+
+	Returns:
+		str: String representation of the splitted matrix
 	"""
-	# Take the first array and add everything to it
-	oneone = s[(1,1)]
-	
+	pass
+
+def matrix_to_string(matrix:list) -> str:
+	"""
+	Convert a (partial) matrix into a string
+
+	Args:
+		matrix (list): Matrix to format as string
+
+	Returns:
+		str: String formatted matrix
+	"""
+	first = True
+	out = ""
+	for row in matrix:
+		if first:
+			out += str(row).strip('[]\'').replace("'", "").replace(" ", "")
+			first = False
+		else:
+			out += ";"+str(row).strip('[]\'').replace("'", "").replace(" ", "")
+	return out
+
+def string_to_matrix(string:str) -> list:
+	"""
+	Convert a string formatted matrix into a matrix
+
+	Args:
+		string (str): String formatted matrix representations
+
+	Returns:
+		list: List representation of the matrix
+	"""
+	out = []
+	rows = string.split(";")
+	for each_row in rows:
+		rowlist = each_row.split(",")
+		rowlist = list(map(int, rowlist))
+		out.append(rowlist)
+
+	return out
+
+def getActPos (matix, old_matrix, player_id) -> tuple:
+	"""
+	get the actual Positions of the players on the
+	game field
+
+	Args:
+		matrix(nested list) - actual game field matrix
+		old_matrix(list): last game field matrix
+		player_id(int): the player id
+	Returns:
+		playersPos (tuple): actual player position
+	"""
+
+	if type( player_id ) != int:
+		raise TypeError
+	else:
+		if player_id < 0:
+			raise ValueError
+
+	# init
+	matrix = np.array((matix))
+	old_matrix = np.array ((old_matrix))
+
+	difference = matrix - old_matrix
+
+
+	playerTrack = np.where (difference == player_id, difference, difference*0) # we assume for now that player Track consist of one tuple
+	actualPosition = np.nonzero(playerTrack)
+
+	try:
+		actualPositionTuple = (actualPosition[0][0] + 1, actualPosition[1][0] + 1 )
+	except Exception as e:
+		raise e
+	return actualPositionTuple
+
+def get_player_track(matrix: List[list], player_id:int) -> List[Vect2D]:
+	"""
+	Get the list of points a player already visited
+
+	Args:
+		matrix (list): Matrix representation of the game fields
+		player_id (int): ID of the player
+
+	Returns:
+		List[Vect2D]: list of positions on the arena, the player already visited
+	"""
+	mylist = []
+	for row in range(0, len(matrix)):
+		# Go through all the rows and find the indexes
+		for col in range(0, len(matrix[0])):
+			# Go through the columns of the matrix
+			if matrix[row][col] == player_id:
+				mylist.append(Vect2D(row, col))
+
+	return mylist

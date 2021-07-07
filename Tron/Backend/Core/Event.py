@@ -1,6 +1,10 @@
-class Event(object):
+import threading
+
+class Event(threading.Event):
 	"""
-	Event definitions for event based programming in Python
+	Event definitions for event based programming in Python.
+	Extends the threading.Event base class for high performance Event
+	handling
 	"""
 
 	__callables = None
@@ -25,12 +29,16 @@ class Event(object):
 			# Add the prototype arguments to the arg list
 			for carg in args:
 				self.__args.append(carg)
-	
+
+		# Initialize the threading event
+		super().__init__()
+
 	def reset_called(self):
 		"""
 		Reset the called status of the event.
 		"""
 		self.__called = False
+		self.clear() # Clear the event flag
 
 	def was_called(self):
 		"""
@@ -43,6 +51,7 @@ class Event(object):
 	def __set_called(self):
 		"""
 		"""
+		self.set()  # Set the call event of the event
 		self.__called = True
 
 	def attach(self, callback):
@@ -51,19 +60,33 @@ class Event(object):
 
 		Args:
 			callback (callable): Callable to call, when an event fires
-		
+
 		Raises:
 			TypeError: The passed argument is not a callable
 		"""
 		if not callable(callback):
 			raise TypeError
-		
+
 		# If the Event handler prototype is invalid
 		if not self.matches_prototype(callback):
-			raise SyntaxError("Invalid Event Handler. Correct prototype: %s" % self.get_prototype_string())
+			raise SyntaxError("Invalid Event Handler: %s. Correct prototype: %s" % (callback.__name__, self.get_prototype_string()))
 
 		self.__callables.append(callback)
-	
+
+	def wait_clear(self, timeout: float=None):
+		"""
+		Await until the event gets called by an object.
+
+		NOTE:
+			Automatically clear its event flag
+
+		Args:
+			timeout (float, optional): Timeout in seconds to wait at maximum. Default: None
+		"""
+
+		super().wait(timeout)
+		super().clear()   # Clear the event flag automatically
+
 	def matches_prototype(self, callback):
 		"""
 		Check if the callble has all the arguments, the event requires
@@ -79,14 +102,15 @@ class Event(object):
 		for arg in self.__args:
 			if arg not in callable_args:
 				return False
-		
+
 		# Check arguments in prototype
+		# TODO: Extend prototype checking
 		#for arg in callable_args:
 		#	if (arg is not "self") and (arg not in self.__args): # Remove the self parameter
 		#		return False
 
 		return True
-	
+
 	def get_prototype_string(self):
 		"""
 		Gets the Event handler prototype as a string
@@ -101,7 +125,7 @@ class Event(object):
 			else:
 				output += ",%s=" % arg
 			i += 1
-		
+
 		output += ")"
 		return output
 
@@ -111,7 +135,7 @@ class Event(object):
 
 		Args:
 			callback (callable): Callable to detach
-		
+
 		Raises:
 			TypeError: The passed argument is not a callable
 			ValueError: The callback is not attached to the event
@@ -120,40 +144,40 @@ class Event(object):
 			self.__callables.remove(callback)
 		else:
 			raise TypeError
-	
+
 	def detachAll(self):
 		"""
 		Detach all callbacks from the event
 		"""
 		self.__callables.clear()
-	
+
 	def __iadd__(self, other):
 		"""
 		Operator Overloading for +=
 
 		Args:
 			other (callback): Callable to call, when an event fires
-		
+
 		Raises:
 			TypeError: other is not callable
 		"""
 		self.attach(other)
 		return self
-	
+
 	def __isub__(self, other):
 		"""
 		Operator Overloading for -=
 
 		Args:
 			other (callback): Callable to call, when an event fires
-		
+
 		Raises:
 			TypeError: other is not callable
 			ValueError: other is not attached to the event
 		"""
 		self.detach(other)
 		return self
-	
+
 	def call(self, sender, *args, **kwargs):
 		"""
 		Call the event with all the attached event handlers
@@ -163,7 +187,7 @@ class Event(object):
 			...
 			...
 			Free parameters
-			
+
 		Raises:
 			Anything that event handlers can raise
 		"""
@@ -172,9 +196,9 @@ class Event(object):
 
 		for cb in self.__callables:
 			cb(**kwargs)          # Call with values
-		
+
 		self.__set_called()
-	
+
 	def __call__(self, sender, *args, **kwargs):
 		"""
 		Call the event with all the attached event handlers
@@ -184,7 +208,7 @@ class Event(object):
 			...
 			...
 			Free parameters
-			
+
 		Raises:
 			Anything that event handlers can raise
 		"""

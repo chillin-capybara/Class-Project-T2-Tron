@@ -1,13 +1,21 @@
 from ..Core.globals import *
 from ..Core.Hook import Hook
+from ..Core.Event import Event
 from .BasicComm import BasicComm
+from .MatchServer import MatchServer
 from .HumanPlayer import HumanPlayer
 from .LobbyThread import LobbyThread
+from .MatchClient import MatchClient
+from ..Core.ThreadCollection import ThreadCollection
 from .Match import Match
 import socket
 import logging
 import threading
 from typing import List
+import queue
+
+
+# TODO Call UI Events only from the UI Thread
 
 class Lobby(object):
 	"""
@@ -19,19 +27,32 @@ class Lobby(object):
 	__port = 0 # Change is not allowed after initialization
 
 	__games : list   = None # List of games Here only Tron
-	__matches : List[Match] = None # List of matches in the Lobby 
+	__matches : List[MatchClient] = None # List of matches in the Lobby 
 
 	__sock : socket.socket = None # Socket connection to the lobby
 	__comm : BasicComm = None
 
 	__hook_me : Hook = None
 
+	__selected_match : MatchClient = None # Selected match to join
+
 	__hook_lease_port : Hook = None
 	__server_thread : threading.Thread = None
 	__server_sock : socket.socket = None
 	__server_threads : List[threading.Thread] = None
 
-	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None):
+	__sendQ: queue.Queue() = None
+	__recvQ: queue.Queue() = None
+	__threadcollection : ThreadCollection = None
+
+	__require_close = False
+
+	EError : Event = None
+	EMatchJoined : Event = None
+	ELobbyStop : Event = None # Event to spread, when the server gets stopped
+	EMatchStarted : Event = None
+
+	def __init__(self, host: str, port: int, hook_me = None, hook_lease_port = None, parent=None):
 		"""
 		Initialize a lobby on the server, to create games in
 		
@@ -56,15 +77,35 @@ class Lobby(object):
 		self.__host = host
 		self.__port = port
 
+		self.__parent__ = parent
+
 		# Initialize the array of matches
 		self.__matches = []
 
-		# Intialize communication protocol
+		# Initialize the collection of threads
+		self.__threadcollection = ThreadCollection()
+
+		# Initialize send und receiver queues
+		self.__sendQ = queue.Queue()
+		self.__recvQ = queue.Queue()
+
+		# Initialize own events
+		self.EError = Event('msg')
+		self.EMatchJoined = Event('matchname')
+		self.ELobbyStop = Event()
+		self.EMatchStarted = Event() # Detalt event to start the GAME itself
+
+		# Intialize communication protocol : CLIENT EVENTS!!!!
 		self.__comm = BasicComm()
 		self.__comm.EWelcome += self.handle_welcome
 		self.__comm.EAvailableGames += self.handle_available_games
 		self.__comm.EMatchCreated += self.handle_match_created
 		self.__comm.EGames += self.handle_list_matches
+		self.__comm.EMatch += self.handle_match
+		self.__comm.EServerError += self.handle_server_error
+		self.__comm.EMatchStarted += self.handle_match_started
+		self.__comm.EMatchJoined += self.handle_match_joined
+		self.__comm.ELifeUpdate += self.handle_life_update
 
 		# Initialize hook : Only for clients
 		if hook_me != None:
@@ -74,6 +115,10 @@ class Lobby(object):
 			# Only for servers
 			self.__hook_lease_port = Hook(hook_lease_port)
 	
+	@property
+	def parent(self):
+		return self.__parent__
+
 	@property
 	def port(self) -> int:
 		"""
@@ -88,6 +133,20 @@ class Lobby(object):
 		"""
 		return self.__host
 	
+	@property
+	def matches(self) -> List[Match]:
+		"""
+		Active matches in the lobby
+		"""
+		return self.__matches
+	
+	@property
+	def match(self) -> MatchClient:
+		"""
+		Selected match for waiting to start...
+		"""
+		return self.__selected_match
+
 	def hook_get_games(self):
 		"""
 		Get the list of games in the lobby
@@ -114,6 +173,25 @@ class Lobby(object):
 		self.__server_thread = threading.Thread(target=self.__server)
 		self.__server_thread.start()
 	
+	def Stop(self):
+		"""
+		Stop the lobby server with all it's parent threads
+		"""
+		logging.info("Stopping the lobby server was requested")
+		# Trigger a socket close
+		self.__server_sock.close()
+
+		self.ELobbyStop(self)
+
+	def handle_server_stop(self, sender):
+		"""
+		Handle the server stop
+		
+		Args:
+			sender ([type]): GameServer
+		"""
+		self.Stop()
+
 	def __server(self):
 		"""
 		Server thread of the lobby on the server
@@ -128,30 +206,96 @@ class Lobby(object):
 			while True:
 				# Wait for incoming connections
 				thread_sock, addr = self.__server_sock.accept()
-				self.__create_thread(thread_sock)
+				self.__create_thread(thread_sock, addr)
 		except Exception as e:
 			logging.error(str(e))
 	
-	def __create_thread(self, sock: socket.socket):
+	def __create_thread(self, sock: socket.socket, conn):
 		"""
 		Create a thread on the server to handle client requests and responses simultaniously
 		Args:
 			sock (socket): Socket of the connection to handle
+			conn (Addr):   Address struct of the connection
 		"""
 		# Initialzie all the thread hooks
 		thread = LobbyThread(
-							sock,
+							sock, conn,
 							hook_get_games=self.hook_get_games,
 							hook_get_matches=self.hook_get_matches
 							)
 		# Add event handlers for the Lobby thread
-		thread.ECreateGame += self.handle_create_match
+		thread.ECreateGame += self.handle_create_game
+
+		# Add Lobby stop event handler
+		self.ELobbyStop += thread.handle_lobby_stop
 
 		# Add the thread to the collections
 		self.__server_threads.append(thread)
 		# Start the thread
 		thread.start()
 
+
+	def __client_receiver_thread(self):
+		"""
+		Receiver thread, that receives message from the server asynchronously
+		"""
+		logging.info("Starting the receiver thread for the control protocoll...")
+		try:
+			while not self.__require_close:
+				# Receive the data and forward it to the message processor
+				packet = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
+				self.__recvQ.put(packet) # Enqueue the packet for processing
+		except OSError:
+			logging.info("Closing down the client's receiver")
+		except Exception as exc:
+			logging.error("Error occured while asynchronous receive. Reasor: %s", str(exc))
+		
+		logging.info("Control receiver thread closed.")
+	
+	def __client_sender_thread(self):
+		"""
+		Sender thread to send requests asynchronously
+		"""
+		try:
+			logging.info("Client sender thread started")
+			while not self.__require_close:
+				if not self.__sendQ.empty():
+					self.__sock.send(self.__sendQ.get())
+		except OSError:
+			logging.info("Stopping the clients lobby sender thread.")
+		except Exception as exc:
+			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+
+		logging.info("Control sender thread closed.")
+	
+	def __message_processor(self):
+		"""
+		Process messages that are received by the client thread.
+		NOTE:
+			This is the caller thread of every Client operation in the Lobby!
+		"""
+		try:
+			logging.info("Lobby client message processor thread started!")
+			while not self.__require_close: # For active thread
+				if not self.__recvQ.empty():
+					# Block this thread, until there is anything in the queue
+					self.__comm.process_response(self.__recvQ.get())
+		except Exception as exc:
+			logging.error("Error occured while asynchronous send. Reasor: %s", str(exc))
+
+		logging.info("Control message processor thread closed.")
+	
+	def send(self, packet:bytes):
+		"""
+		Send a message over the client's socket to the server
+		NOTE:
+			This enqueues the packet for a send by the sender thread
+		
+		Args:
+			packet (bytes): Message as bytes
+		"""
+		logging.info("Packet enqueued: %s", str(packet))
+		self.__sendQ.put(packet)
 
 	def say_hello(self):
 		"""
@@ -167,17 +311,41 @@ class Lobby(object):
 			self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
 			self.__sock.connect((self.host, self.port))
 
+			# Here to start the receiver thread
+			# TODO Make a Stop client threads function
+			receiver = threading.Thread(target=self.__client_receiver_thread)
+			sender = threading.Thread(target=self.__client_sender_thread)
+			processor = threading.Thread(target=self.__message_processor)
+			self.__threadcollection += receiver
+			self.__threadcollection += sender
+			self.__threadcollection += processor
+
+
+			# Start all the threads
+			self.__threadcollection.start_all()
+
 			# Send Hello message
 			packet = self.__comm.hello(self.__hook_me(), CLIENT_FEATURES)
-			self.__sock.send(packet)
+			self.send(packet)
 
-			# Receive the answer
-			resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
-			self.__comm.process_response(resp)
-			logging.info(resp)
 		except Exception as e:
 			logging.error("Error occured while saying hello: %s" % str(e))
 	
+	def close(self):
+		"""
+		Event handler for closing the client with all it's threads
+		"""
+		logging.info("Closing the Lobby client...")
+
+		# Destroying the socket will close the receiver thread
+		self.__sock.close()
+
+		# Set the close flag -> Stop the sender and the processor threads
+		self.__require_close = True
+
+		self.__threadcollection.join_all()
+		logging.info("Lobby all lobby client threads closed!")
+
 	def list_games(self):
 		"""
 		Send a request to the server to list the available games
@@ -185,12 +353,8 @@ class Lobby(object):
 		try:
 			# Create and send the request
 			packet = self.__comm.list_games()
-			self.__sock.send(packet)
+			self.send(packet)
 
-			# Process the response
-			resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
-			logging.debug(resp)
-			self.__comm.process_response(resp)
 		except Exception as e:
 			logging.error(str(e))
 	
@@ -215,10 +379,8 @@ class Lobby(object):
 			packet = self.__comm.create_match(game, name, features)
 
 			# Send the request to the server
-			self.__sock.send(packet)
+			self.send(packet)
 
-			# Wait and process response
-			self.__process_response()
 		except Exception as e:
 			logging.error("Error creating match: %s" % str(e))
 	
@@ -229,21 +391,30 @@ class Lobby(object):
 		Args:
 			game (str): Tron / Pong
 		"""
+		# Empty the list of matches
+		self.__matches.clear()
+
 		logging.info("Listing matches for %s" % game)
 		packet = self.__comm.list_matches(game)
-		self.__sock.send(packet)
+		self.send(packet)
 
-		# Wait and process the response
-		self.__process_response()
+		# Wait until the server lists the matches
+		self.__comm.EMatch.wait_clear(0.3)
 	
-	def __process_response(self):
+	def join_match(self, index: int):
 		"""
-		Get and process the response of the server
+		Join the selected match from the list
+		
+		Args:
+			index (int): Index of the match in the list
 		"""
-		# Process the response
-		resp = self.__sock.recv(CONTROL_PROTOCOL_RECV_SIZE)
-		logging.debug(resp)
-		self.__comm.process_response(resp)
+		# Send a request to join the game
+		logging.info("joining the match %s ..." % self.matches[index].name)
+		packet = self.__comm.join_match(self.matches[index].name, self.__hook_me())
+		self.send(packet)
+
+		# Set the selected match
+		self.__selected_match = self.matches[index]
 	
 	def handle_welcome(self, sender, features: list):
 		"""
@@ -287,7 +458,11 @@ class Lobby(object):
 		"""
 		try:
 			logging.debug("Match listed: %s" % name )
-			self.__matches.append(Match(name, ['BASIC', 'Players', '3', 'Lifes', '2'])) # // TODO Get features for every match
+			self.__matches.append(MatchClient(self.__host, name, self, self.__hook_me)) # // TODO Get features for every match
+
+			# Send a request to query match features
+			packet = self.__comm.match_features(name)
+			self.send(packet)
 		except Exception as e:
 			logging.error("Error appending match %s. Reason: %s" % (name, str(e)))
 	
@@ -326,6 +501,99 @@ class Lobby(object):
 			features (List[str]): List of the features
 		"""
 		# Create a new match object and lease a port from the server's collection
-		new_match = Match(name, features, self.__hook_lease_port())
+		new_match = MatchServer(self.parent.available_ports, name, features)
+		new_match.EClose += self.handle_match_close #Add event call back to remove the match
 		self.__matches.append(new_match)
 		logging.info("Match created!")
+	
+	def handle_match_close(self, sender: MatchServer):
+		"""
+		Handle, when a match is closed on the server and remove it from the collection
+		
+		Args:
+			sender (MatchServer): Caller of the event
+		"""
+		self.__matches.remove(sender)
+		logging.info("The match %s was removed from the server.", sender.name)
+
+	def handle_match(self, sender, game:str, name:str, features: List[str]):
+		"""
+		Event handler for getting the match features
+		
+		Args:
+			sender ([type]): Caller of the event
+			game (str): Name of the game
+			name (str): Name of the match
+			features (List[str]): Match features
+		"""
+		try:
+			for match in self.__matches:
+				if match.game == game and match.name == name:
+					match.set_features(features)
+					logging.debug("Match %s has the features: %s" % (name, features))
+					return
+			
+			logging.warning("Match %s not found in the lobby." % name)
+		except Exception as e:
+			logging.error("Error while setting the match features of %s to %s. Reason: %s" % (name, str(features), str(e)))
+	
+	def handle_server_error(self, sender, msg:str):
+		"""
+		Handle the error message from the server
+		
+		Args:
+			sender ([type]): Caller of the event
+			message (str): Error message
+		"""
+		# Simply log the error
+		logging.error(msg)
+		
+		# Pass the error along to the client class
+		self.EError(self, msg=msg)
+	
+	def handle_match_joined(self, sender, player_id:int):
+		"""
+		Handle a match_joined resposne from the server
+		
+		Args:
+			sender (Any): Caller of the event
+			player_id (int): Player id of the current player
+		"""
+		logging.info("The server accepted you to join the game with id=%d" % player_id)
+
+		# Set the player id in the match
+		self.__selected_match.set_current_player_id(player_id)
+
+		# Call the Lobby's event -> With the name of the match
+		self.EMatchJoined(self, matchname=self.__selected_match.name)
+	
+	def handle_match_started(self, sender, port:int, players:list):
+		"""
+		Handle the event, when the match starts
+		
+		Args:
+			sender ([type]): Caller of the event
+			port (int): Port of the starting match
+			pclist (list): list of player ids and colors
+		"""
+		logging.info("Match started on port %d with (pid,r,g,b): %s" % (port, str(players)))
+		# Connect to the match server via udp and tcp for the control
+		# Set the port of the match
+		self.__selected_match.set_port(port)
+
+		# Start match client
+		self.__selected_match.open()
+
+		# Notifty the UI to show the game
+		self.EMatchStarted(self)
+	
+	def handle_life_update(self, sender, player_id:int, lifes:int):
+		"""
+		Handle life updates for every player in the current match.
+		
+		Args:
+			sender (CommProt): Caller of the event
+			player_id (int): ID of the player in the game
+			score (int): Lives of the player left.
+		"""
+		self.match.life_udpate(player_id, lifes)

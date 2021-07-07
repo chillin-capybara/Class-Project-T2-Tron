@@ -35,18 +35,6 @@ class TCPCLient(Client):
 		self.__hook = hook
 
 		self.__Comm: CommProt = JSONComm()
-		#self.__RecieverThread = ReceiverClientThread()
-
-		# Attach client_ready ack handler to event
-		self.__Comm.EClientReadyAck += self.handle_ready_ack
-		self.__Comm.ECountdown += self.handle_countdown
-		self.__Comm.EIngame += self.handle_ingame #+ self.handle_ingame_update
-		self.__Comm.EServerError += self.handle_server_error
-
-
-		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
-		#self.__RecieverThread.EServerNotification += handle_serever_notification
-		self.__Comm.EServerNotification += self.handle_serever_notification
 
 		super().__init__()
 

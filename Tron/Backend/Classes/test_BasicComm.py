@@ -21,7 +21,7 @@ class test_BasicComm(unittest.TestCase):
 	Test the basic communication protocoll
 	"""
 
-	def test_client_ready(self):
+	def test_join_match(self):
 		"""
 		Test the client_ready function
 		"""
@@ -29,8 +29,8 @@ class test_BasicComm(unittest.TestCase):
 		# Test Random player data 1
 		PLAYER.setName('Joe')
 		PLAYER.setColor((25,25,25))
-		packet = COMM.client_ready(PLAYER)
-		original = utf8("JOIN_MATCH Joe 25,25,25")
+		packet = COMM.join_match('game1', PLAYER)
+		original = utf8("JOIN_MATCH game1 25,25,25")
 		self.assertEqual(
 			packet,
 			original
@@ -39,8 +39,8 @@ class test_BasicComm(unittest.TestCase):
 		# Test Random player data 1
 		PLAYER.setName('Jesus')
 		PLAYER.setColor((2,2,2))
-		packet = COMM.client_ready(PLAYER)
-		original = utf8("JOIN_MATCH Jesus 2,2,2")
+		packet = COMM.join_match('godgame', PLAYER)
+		original = utf8("JOIN_MATCH godgame 2,2,2")
 		self.assertEqual(
 			packet,
 			original
@@ -54,50 +54,52 @@ class test_BasicComm(unittest.TestCase):
 		# Sampel DATA
 		PLAYER.setName('Jesus')
 		PLAYER.setColor((2,2,2))
-		packet = COMM.client_ready(PLAYER)
-		ptype, player = COMM.process_response(packet)
+		packet = COMM.join_match('game1', PLAYER)
+		ptype, match, player = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY)
-		self.assertTrue(player == PLAYER)
+		self.assertEqual(match, "game1")
+		self.assertTrue(player.getColor() == PLAYER.getColor())
 
 		# Test with sample data 2
 		PLAYER.setName('EverydayJoe')
 		PLAYER.setColor((1,1,1))
-		packet = COMM.client_ready(PLAYER)
-		ptype, player = COMM.process_response(packet)
+		packet = COMM.join_match('JoeMatch', PLAYER)
+		ptype, match, player = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY)
-		self.assertTrue(player == PLAYER)
+		self.assertEqual(match, "JoeMatch")
+		self.assertTrue(player.getColor() == PLAYER.getColor())
 
-	def test_client_ready_ack(self):
+	def test_match_joined(self):
 		"""
 		Test the client_ready ack message
 		"""
 		# Test with ID=0
-		packet = COMM.client_ready_ack(0)
+		packet = COMM.match_joined(0)
 		original = utf8("MATCH_JOINED 0")
 		self.assertEqual(
 			packet,
 			original
 		)
 		# Test with ID=1
-		packet = COMM.client_ready_ack(1)
+		packet = COMM.match_joined(1)
 		original = utf8("MATCH_JOINED 1")
 		self.assertEqual(
 			packet,
 			original
 		)
 	
-	def test_process_client_ready_ack(self):
+	def test_process_match_joined(self):
 		"""
 		Process the client_ready acknowledgement
 		"""
 		# Test with random data 0
-		packet = COMM.client_ready_ack(0)
+		packet = COMM.match_joined(0)
 		ptype, player_id = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY_ACK)
 		self.assertEqual(player_id, 0)
 
 		# Test with random data 100
-		packet = COMM.client_ready_ack(100)
+		packet = COMM.match_joined(100)
 		ptype, player_id = COMM.process_response(packet)
 		self.assertEqual(ptype, COMM.CLIENT_READY_ACK)
 		self.assertEqual(player_id, 100)
@@ -441,11 +443,6 @@ class test_BasicComm(unittest.TestCase):
 			utf8("LOBBY 54100")
 		)
 
-		# Test invalid port range
-		with self.assertRaises(ValueError):
-			COMM.lobby(54009)
-		with self.assertRaises(ValueError):
-			COMM.lobby(54101)
 
 		# Test invalid port type
 		with self.assertRaises(TypeError):
@@ -881,6 +878,162 @@ class test_BasicComm(unittest.TestCase):
 		self.assertEqual(mport, 50449)
 		self.assertEqual(lists, [(0,50,50,50), (1,99,99,99)])
 		self.assertTrue(COMM.EMatchStarted.was_called())
+	
+	def test_update_field(self):
+		"""
+		Test the update field message
+		"""
+		# Test data 1
+		matrix = [[1,2,3],[4,5,6],[7,8,9]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+		self.assertEqual(
+			packet,
+			utf8("UPDATE_FIELD 1,1 1,2,3;4,5,6;7,8,9")
+		)
+
+		# Test data 2
+		matrix = [[9,9],[8,8],[7,7]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+		self.assertEqual(
+			packet,
+			utf8("UPDATE_FIELD 1,1 9,9;8,8;7,7")
+		)
+	
+	def test_process_update_field(self):
+		"""
+		Test the message processor of the UPDATE_FIELD
+		"""
+		matrix = [[1,2,3],[4,5,6],[7,8,9]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+
+		mtype, mkey, mmatrix = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.UPDATE_FIELD)
+		self.assertEqual(mkey, (1,1))
+		self.assertEqual(mmatrix, matrix)
+
+		# Test data 2
+		matrix = [[9,9],[8,8],[7,7]]
+		key = (1,1)
+
+		packet = COMM.update_field(key, matrix)
+		mtype, mkey, mmatrix = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.UPDATE_FIELD)
+		self.assertEqual(mkey, (1,1))
+		self.assertEqual(mmatrix, matrix)
+	
+	def test_new_direction(self):
+		"""
+		Test the message generation for NEW_DIRECTIOn
+		"""
+		packet = COMM.new_direction(1, (0,1))
+		self.assertEqual(
+			packet,
+			utf8("NEW_DIRECTION 1 0,1")
+		)
+
+		packet = COMM.new_direction(9, (1,1))
+		self.assertEqual(
+			packet,
+			utf8("NEW_DIRECTION 9 1,1")
+		)
+	
+	def test_process_new_direction(self):
+		"""
+		Test the message processor of the direction change
+		"""
+		packet = COMM.new_direction(1, (0,1))
+		mtype, pid, mdir = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.NEW_DIRECTION)
+		self.assertEqual(pid, 1)
+		self.assertEqual(mdir, (0,1))
+
+		packet = COMM.new_direction(90, (2,7))
+		mtype, pid, mdir = COMM.process_response(packet)
+		self.assertEqual(mtype, COMM.NEW_DIRECTION)
+		self.assertEqual(pid, 90)
+		self.assertEqual(mdir, (2,7))
+	
+	def test_i_am_ready(self):
+		"""
+		Test the I am ready message generation
+		"""
+		# JUST 1 signle test
+		packet = COMM.i_am_ready()
+		self.assertEqual(
+			packet,
+			utf8("I_AM_READY")
+		)
+	
+	def test_process_i_am_ready(self):
+		"""
+		Test the message processing from i am ready
+		"""
+		packet = COMM.i_am_ready()
+		ptype,__ = COMM.process_response(packet)
+		self.assertEqual(ptype, COMM.CLIENT_READY)
+
+	def test_life_update(self):
+		"""
+		Test the life update message generation
+		"""
+		pass
+		# Test for randum sampe data
+		packet = COMM.life_update(1, 2)
+		self.assertEqual(
+			packet,
+			utf8("LIFE_UPDATE 1 2")
+		)
+
+		packet = COMM.life_update(9, 12)
+		self.assertEqual(
+			packet,
+			utf8("LIFE_UPDATE 9 12")
+		)
+
+		# Test some error cases
+		with self.assertRaises(TypeError):
+			COMM.life_update("asd", "aSd")
+
+		with self.assertRaises(TypeError):
+			COMM.life_update(2.3, 2+6j)
+		
+	def test_process_life_update(self):
+		"""
+		Test the processing of life update messages
+		"""
+		# Test with random data
+		packet = COMM.life_update(1,2)
+		COMM.ELifeUpdate.reset_called()
+		mmtype, pid, score = COMM.process_response(packet)
+		self.assertEqual(
+			mmtype,
+			COMM.LIFE_UPDATE
+		)
+		self.assertEqual(
+			pid, 1
+		)
+		self.assertEqual(score, 2)
+		self.assertTrue(COMM.ELifeUpdate.was_called())
+
+		# Test with random data
+		packet = COMM.life_update(12,99)
+		COMM.ELifeUpdate.reset_called()
+		mmtype, pid, score = COMM.process_response(packet)
+		self.assertEqual(
+			mmtype,
+			COMM.LIFE_UPDATE
+		)
+		self.assertEqual(
+			pid, 12
+		)
+		self.assertEqual(score, 99)
+		self.assertTrue(COMM.ELifeUpdate.was_called())
 	
 if __name__ == '__main__':
 	unittest.main()

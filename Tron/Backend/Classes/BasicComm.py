@@ -6,6 +6,10 @@ from ..Core.globals import *
 from typing import Tuple
 import logging
 
+# Import the matrix splitting functionalities
+from ..Core.matrix import matrix_split, matrix_to_string, string_to_matrix
+from ..Core.matrix_splitter import MatrixSplitter
+
 def c2b(func):
 	"""
 	Decorate a function to return byte data, converted to byte instead of string
@@ -76,8 +80,8 @@ class BasicComm(CommProt):
 
 	def __init__(self):
 		self.POLICY = {
-			'JOIN_MATCH'               : self.__process_client_ready,
-			'MATCH_JOINED'             : self.__process_client_ready_ack,
+			'JOIN_MATCH'               : self.__process_join_match,
+			'MATCH_JOINED'             : self.__process_match_joined,
 			'ERR_CMD_NOT_UNDERSTOOD'   : self.__process_error_incorrect_cmd,
 			'ERR_FAILED_TO_CREATE'     : self.__process_failed_to_create,
 			'ERR_FAILED_TO_JOIN'       : self.__process_failed_to_join,
@@ -97,7 +101,11 @@ class BasicComm(CommProt):
 			'GAMES'                    : self.__process_games,
 			'MATCH'                    : self.__process_match,
 			'MATCH_STARTED'            : self.__process_match_started,
-			'MATCH_FEATURES'           : self.__process_match_features
+			'MATCH_FEATURES'           : self.__process_match_features,
+			'UPDATE_FIELD'             : self.__process_update_field,
+			'NEW_DIRECTION'            : self.__process_new_direction,
+			'LIFE_UPDATE'              : self.__process_life_update,
+			'I_AM_READY'               : self.__process_i_am_ready
 			}
 		
 		# Initialize the events, and the abstract class
@@ -124,21 +132,21 @@ class BasicComm(CommProt):
 			raise MessageError(str(e)) # Failed to convert into message and params
 
 	@c2b
-	def client_ready(self, player: Player):
+	def join_match(self, match:str, player: Player):
 		"""
 		Join the match using the client_ready function
 		Args:
+			match (str) : Name of the match to join
 			player (Player): Current Player
 		NOTE
-			JOIN_MATCH [player] [color]
+			JOIN_MATCH [match] [color]
 		"""
-		name = player.getName()
 		r,g,b = player.getColor()
 
-		return "JOIN_MATCH %s %d,%d,%d" % (name, r, g, b)
+		return "JOIN_MATCH %s %d,%d,%d" % (match, r, g, b)
 
 	@c2b
-	def client_ready_ack(self, player_id: int):
+	def match_joined(self, player_id: int):
 		"""
 		Acknowledge by server that the player is accepted on the match
 		Args:
@@ -457,6 +465,60 @@ class BasicComm(CommProt):
 		
 		str_list = list_to_strlist(full_list)
 		return "MATCH_STARTED %d %s" % (port, str_list)
+	
+	@c2b
+	def update_field(self, key: str, matrix: list) -> str:
+		"""
+		Generate an UPDATE_FILED message
+		
+		Args:
+			key (str): (i,j) index of the part matrix
+			matrix (list): Partial (matrix) to send
+		
+		Returns:
+			str: Message
+		"""
+		matrix_str = matrix_to_string(matrix)
+		message = "UPDATE_FIELD %d,%d %s" % (key[0],key[1],matrix_str)
+		return message
+	
+	@c2b
+	def new_direction(self, player_id: int, direcion: tuple) -> str:
+		"""
+		Get a change direction message from the client
+		
+		Args:
+			player_id (int): ID of the player who sends the packet
+			direction (tuple): New direction as x,y
+		
+		Returns:
+			str: Message string
+		"""
+		return "NEW_DIRECTION %d %d,%d" % (player_id, direcion[0], direcion[1])
+
+	@c2b
+	def i_am_ready(self) -> str:
+		"""
+		Get an I'm ready message to send to the server to start updating the client
+
+		Returns:
+			str: Message string
+		"""
+		return "I_AM_READY"
+	
+	@c2b
+	def life_update(self, player_id:int, score:int)->str:
+		"""
+		Get a life update message with player id and the amount of lives the player has
+		
+		Args:
+			player_id (int): Player ID of the player in the match
+			score (int): Amount of lifes the player has
+		
+		Returns:
+			str: Generated message
+		"""
+		return "LIFE_UPDATE %d %d" % (player_id, score)
 
 	def process_response(self, response: bytes):
 		"""
@@ -474,16 +536,15 @@ class BasicComm(CommProt):
 		except Exception as e:
 			raise e
 
-	def __process_client_ready(self, params: str) -> (str, int, int, int):
+	def __process_join_match(self, params: str) -> (str, int, int, int):
 		"""
 		Process JOIN_MATCH requests
 		Args:
 			params (str): Parameters of the command
-		TODO: NOT PLAYERNAME, GAME NAME
 		"""
 		try:
 			spl1 = params.split(" ", 1)
-			playername = spl1[0]
+			matchname = spl1[0]
 			
 			spl2 = spl1[1].split(",")
 			r = int(spl2[0])
@@ -491,17 +552,16 @@ class BasicComm(CommProt):
 			b = int(spl2[2])
 
 			player = HumanPlayer()
-			player.setName(playername)
 			player.setColor((r,g,b))
 
 			# Trigger Event
-			self.EClientReady(self, player=player)
-			return self.CLIENT_READY, player
+			self.EJoinMatch(self, name=matchname, player=player)
+			return self.CLIENT_READY, matchname, player
 		except Exception as e:
 			raise e
 			raise MessageError("Error processing JOIN_MATCH")
 
-	def __process_client_ready_ack(self, params: str) -> (int, int):
+	def __process_match_joined(self, params: str) -> (int, int):
 		"""
 		Process a MATCH_JOINED message and return the sent ID
 		Args:
@@ -514,12 +574,12 @@ class BasicComm(CommProt):
 			player_id = int(params)
 
 			# Trigger the event for processing
-			self.EClientReadyAck(self, player_id=player_id)
+			self.EMatchJoined(self, player_id=player_id)
 
 			# Return the data
 			return self.CLIENT_READY_ACK, player_id
-		except:
-			raise MessageError("Invalid MATCH_JOINED received.")
+		except Exception as e:
+			raise MessageError("Invalid MATCH_JOINED received. Reason: %s" % str(e))
 
 	def __process_error_incorrect_cmd(self, params: None):
 		"""
@@ -831,11 +891,18 @@ class BasicComm(CommProt):
 			game, str_matches = params.split(' ', 1)
 			matches = str_matches.split(',')
 
+			if matches == ['']: # Replace the array with empty string to an empty array
+				matches = []
+
+			self.EGames.reset_called()
 			self.EGames(self, game=game, matches=matches)
 
 			return self.GAMES, game, matches
 		except Exception as e:
-			raise MessageError("Syntax error in GAMES [...]: %s" % str(e))
+			if not self.EGames.was_called():
+				self.EGames(self, game=game, matches=matches) # Call the event with empty list of games
+			else:
+				raise MessageError("Syntax error in GAMES [...]: %s" % str(e))
 
 	def __process_match_features(self, params: str) -> Tuple[int, list]:
 		"""
@@ -892,9 +959,84 @@ class BasicComm(CommProt):
 				for i in range(0, int(len(mylist) / 4)):
 					pre.append((int(mylist[4*i]), int(mylist[4*i+1]), int(mylist[4*i+2]), int(mylist[4*i+3])))
 
-				self.EMatchStarted(self, port=int(str_port), list=pre)
+				self.EMatchStarted(self, port=int(str_port), players=pre)
 				return self.MATCH_STARTED, int(str_port), pre
 			else:
 				raise MessageError("Invalid syntax for MATCH_STARTED")
 		except:
 			MessageError("Invalid Syntax for MATCH_STARTED!")
+	
+	def __process_update_field(self, params:str) -> Tuple[int, tuple, list]:
+		"""
+		Process an update field request
+		
+		Args:
+			params (str): Partial index and string representation of the matrix
+		
+		Returns:
+			Tuple[int, tuple, list]: Comm.UPDATE_FIELD, (i,j), matrix
+		"""
+		keys, str_matrix = params.split(" ", 1)
+		i,j = keys.split(",")
+		i = int(i)
+		j = int(j)
+
+		matrix = string_to_matrix(str_matrix)
+
+		# Call the event
+		self.EUpdateField(self, key=(i,j), matrix=matrix)
+
+		return self.UPDATE_FIELD, (i,j), matrix
+	
+	def __process_new_direction(self, params: str):
+		"""
+		Process a new direction request from the client on the server
+		
+		Args:
+			params (str): Player id x,y
+		"""
+		pid, sdir = params.split(" ", 1)
+		x,y = sdir.split(',', 1)
+
+		pid = int(pid)
+		x = int(x)
+		y = int(y)
+
+		# Call the event
+		self.ENewDirection(self, player_id = pid, direction=(x,y))
+
+		return self.NEW_DIRECTION, pid, (x,y)
+	
+	def __process_i_am_ready(self, params:str):
+		"""
+		Process an I_AM_READY request on the server side
+		
+		Args:
+			params (str): Ignored, empty string
+		Returns:
+			int: Commprot.CLIENT_READY
+			str: I_AM_READY
+		"""
+		self.EClientReady(self)
+
+		return self.CLIENT_READY, 'I_AM_READY'
+
+		#LIFE_UPDATE [PLAYER] [SCORE]
+
+	def __process_life_update(self, params:str):
+		"""
+		Process a life update message on the client side
+		
+		Args:
+			params (str): player_id lifes
+		"""
+		str_pid, str_lifes = params.split(' ', 1)
+
+		# Parse the parameters from integer
+		pid = int(str_pid)
+		lifes = int(str_lifes)
+
+		# Make the event call
+		self.ELifeUpdate(self, player_id=pid, lifes=lifes)
+
+		return self.LIFE_UPDATE, pid, lifes
