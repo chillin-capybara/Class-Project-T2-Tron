@@ -1,5 +1,8 @@
-from Arena import Arena
+from .Arena import Arena
+from ..Core.Vect2D import Vect2D
 import logging
+from ..Core.matrix_splitter import MatrixSplitter
+from typing import List
 #from dill.source import getname
 
 MAX_ARENA_SIZE = 1000
@@ -7,6 +10,11 @@ MIN_ARENA_SIZE = 4
 MAX_ARENA_NAME_LENGTH = 20
 MIN_ARENA_NAME_LENGTH = 2
 
+class DieError(Exception):
+	"""
+	Exception for signaling when a player dies
+	"""
+	pass
 
 class RectangleArena(Arena):
 	"""
@@ -17,6 +25,8 @@ class RectangleArena(Arena):
 	__sizeY = MAX_ARENA_SIZE
 	__skin = 0
 	__mode = 0 
+
+	__matrix : List = None # Matrix representation of the arena
 
 	
 	#Size setter implementation
@@ -71,6 +81,13 @@ class RectangleArena(Arena):
 	# 	else:
 	# 		raise TypeError
 
+	@property
+	def matrix(self) -> list:
+		"""
+		Matrix representation of the arena
+		"""
+		return self.__matrix
+	
 
 	def __init__(self, name: str, size, skin: int, mode: int):
 		"""
@@ -97,6 +114,48 @@ class RectangleArena(Arena):
 			raise TypeError
 		else:
 			self.mode = mode
+
+		
+		# Create an arena matrix filled with zeros
+		zrow = []
+		for i in range(0, self.sizeY):
+			zrow.append(0)
+
+		self.__matrix = []
+		self.__matrix.clear()  # Make sure that the list is empty
+		for j in range(0, self.sizeX):
+			self.__matrix.append(zrow.copy()) # Make a x * y zero matrix for the game
+	
+	def player_stepped(self, player_id:int, pos: Vect2D):
+		"""
+		Step a player onto a field. If it was not successfull, the raise an error
+		
+		Args:
+			player_id (int): ID Of the player
+			pos (Vect2D): Position on the field
+		"""
+		# If anything bad happens, you die
+		if pos.x < 0 or pos.y < 0:
+			raise DieError("Player out of border")
+		
+		if pos.x > self.sizeX or pos.y > self.sizeY:
+			raise DieError("Player out of border")
+		
+		if self.__matrix[self.sizeY - 1 - pos.y][pos.x] == 0:
+			# Field is still free, you can step on it
+			self.__matrix[self.sizeY - 1 - pos.y][pos.x] = player_id
+		else:
+			raise DieError("Player crossed a track")
+	
+	def update_matrix(self, reconstructed_matrix: list):
+		"""
+		Update the matrix of the aren
+		
+		Args:
+			reconstructed_matrix (list): New matrix
+		"""
+		self.__matrix = reconstructed_matrix
+
 
 	def getName(self) -> str:
 		"""

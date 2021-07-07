@@ -1,6 +1,10 @@
 from .Player import Player
+from .RectangleArena import DieError
 from .Track import Track, LightTrack
 from ..Core.Vect2D import Vect2D
+from typing import List
+from ..Core.matrix import *
+import logging
 
 # todo: Implement the Human player according to the UML
 #TODO: Makros definition
@@ -17,15 +21,18 @@ class HumanPlayer(Player):
 
 	__Name = ""  # Name of the player
 	__Color = None  # Color of the player
-	__Position = None
+	__Position: Vect2D = None
 	__Velocity = None
+	__Lifes = 0 # Number of lifes, the player has
 	# __Track = #TODO
-	__IsAlive = False
+
 	__IpAdress = None
 	__IsConnected = False
 	__IsInPause = False
 
-	__track = None
+	__track : List[Vect2D] = None
+	__last_velocity : Vect2D = None
+	__ready = False
 
 # input check Velocity.x
 	@property
@@ -65,13 +72,84 @@ class HumanPlayer(Player):
 
 
 	def __init__(self):
-		self.__track = LightTrack()
+		self.__track = []
+		self.__track.clear()
 		self.__Position = Vect2D(0,0)
 		self.__Velocity = Vect2D(0,0)
+		self.__last_velocity = Vect2D(0,0)
 		self.__IpAdress = "0.0.0.0"
 
-	def getTrack(self):
+		# Set the color to black as default
+		self.__Color = (0,0,0)
+
+
+	def getTrack(self) -> List[Vect2D]:
+		"""
+		Get the track points of the current player via a list of Vect2D
+		
+		Returns:
+			List[Vect2D]: Track of the current player
+		"""
 		return self.__track
+	
+	@property
+	def track(self) -> List[Vect2D]:
+		"""
+		Track points of the current player via a list of Vect2D
+		"""
+		return self.__track
+	
+	@property
+	def lifes(self) -> int:
+		"""
+		Lifes of the player has
+		"""
+		return self.__Lifes
+	
+	@lifes.setter
+	def lifes(self, value:int):
+		"""
+		Setter for player's life
+		"""
+		self.set_lifes(value)
+	
+	def set_lifes(self, value:int):
+		"""
+		Set the lifes of the current player based on the match properties
+		
+		Args:
+			value (int): Life of the player
+		Raises:
+			TypeError: Invalid value type
+			ValueError: Negative life
+		"""
+		if type(value) is int:
+			if value >= 0:
+				self.__Lifes = value
+			else:
+				raise ValueError
+		else:
+			raise TypeError
+	
+	def die(self):
+		"""
+		Negate 1 from the lifes of the player, until it's zero
+		"""
+		if self.is_alive():
+			# Only negate when the player is still alive
+			self.__Lifes -= 1
+	
+	def is_alive(self):
+		"""
+		Check if the player is alive or not
+		
+		Returns:
+			int: True = Alive, False = Dead
+		"""
+		if self.__Lifes > 0:
+			return True
+		else:
+			return False
 
 	def getLine(self):
 		return self.__track.getLine()
@@ -108,32 +186,12 @@ class HumanPlayer(Player):
 		return self.__Position
 	def getVelocity(self) -> Vect2D:
 		"""
-		TODO: Artem -> DOKU
+		Get the current Velocity vector
+
+		Returns:
+		Player velocity as Vect2D
 		"""
 		return self.__Velocity
-
-
-	def getTrack(self):
-		"""
-		Get the track made by the player cruising on the arena.
-
-		Returns:
-		LightTrack as Track object
-		"""
-
-		return self.__track.getLine()
-
-
-
-	def isAlive(self) -> bool:
-		"""
-		Get if the Player is alive
-
-		Returns:
-		True or False
-		"""
-		return self.__IsAlive
-
 
 	def isInPause(self) -> bool:
 		"""
@@ -196,7 +254,19 @@ class HumanPlayer(Player):
 		"""
 		if type(color) is not tuple:
 			raise TypeError
-		self.__Color = color
+
+		r,g,b = color
+
+		if type(r) is int and type(g) is int and type(b) is int:
+
+			if r in range(0,256) and b in range (0, 256) and g in range(0, 256):
+				self.__Color = color
+			else:
+				logging.critical("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
+				raise ValueError("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
+		else:
+			logging.critical("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
+			raise TypeError("RGB IST VON 0 bis 255!!!!!!!!!!!!!!!")
 
 
 	def setPosition(self, x: int, y: int):
@@ -235,24 +305,13 @@ class HumanPlayer(Player):
 		Args: 
 		velocity: velocity as Vect2D
 		"""
+		# Store the old velocity
+		self.__last_velocity.x = self.__Velocity.x
+		self.__last_velocity.y = self.__Velocity.y
+
+		# Set the new velocity
 		self.__Velocity.x = x
 		self.__Velocity.y = y
-
-
-	def addTrack(self, start, end):
-		"""
-		Add a new track element to the pulled "light-track" of the player
-
-		Args:
-		track (track_segment): New track element to be added
-
-		Raises:
-		TrackError: The given track is invalid
-
-		Note:
-		TrackError is defined in Core.Exceptions
-		"""
-		self.__track.addElement(start, end)
 
 
 	def enterPause(self):
@@ -262,9 +321,10 @@ class HumanPlayer(Player):
 		Raises:
 		CommError: Error while communicating the pause request
 		"""
-		self.__IsInPause = True
-		#TODO: Error while communicating the pause request
-
+		try:
+			self.__IsInPause = True
+		except Exception as e:
+			logging.error ("CommError: Error while communicating the pause request " + e)
 
 	def move(self, time):
 		"""
@@ -275,10 +335,37 @@ class HumanPlayer(Player):
 		Raises:
 			TODO TYPE CHECKING
 		"""
+		if (type(time) != int):
+			raise ValueError
+
 		self.__Position.x += self.__Velocity.x * time
 		self.__Position.y += self.__Velocity.y * time
+	
+	def step(self, sizeX: int, sizeY: int):
+		"""
+		Step the player forward in the direction of it's velocity
+		"""
+		nx = self.__Position.x + self.__Velocity.x
+		ny = self.__Position.y + self.__Velocity.y
 
-# # test Player implementation
-# testPlayer = HumanPlayer()
-# testPlayer.__Name = "Max Mustermann"
-# testPlayer.__Color = 2
+		if nx in range(0, sizeX) and ny in range(0, sizeY):
+			self.__Position.x = nx
+			self.__Position.y = ny
+		else:
+			raise DieError
+	
+	def update_player_track(self, matrix: list, player_id: int):
+		"""
+		Update the track of the current player
+		
+		Args:
+			matrix (list): Matrix of the game field
+			player_id (int): ID of the current player on the server
+		"""
+		self.__track = get_player_track(matrix, player_id)
+
+	def ready(self):
+		self.__ready = True
+	
+	def is_ready(self):
+		return self.__ready

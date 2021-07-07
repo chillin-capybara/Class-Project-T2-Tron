@@ -11,5 +11,5 @@ coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(messa
 from Backend.Classes.GameServer import GameServer
 
 if __name__ == "__main__":
-	server = GameServer(1) # With 5 lobbies
-	server.Start()
+	server = GameServer(1, (20,20)) # With 5 lobbies
+	server.Start(loop = True)

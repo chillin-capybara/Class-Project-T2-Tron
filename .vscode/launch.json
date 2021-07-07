@@ -20,9 +20,23 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "TRON SERVER",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Tron/main_server.py",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python: Aktuelle Datei",
             "type": "python",
             "request": "launch",
             "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "MAIN MENU",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Tron/mainMenuMerge.py",
             "console": "integratedTerminal"
         }

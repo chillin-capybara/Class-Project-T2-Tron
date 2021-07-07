@@ -34,37 +34,45 @@ class CommProt:
 	MATCH_FEATURES         = 26
 	MATCH                  = 27
 	MATCH_STARTED          = 28
+	UPDATE_FIELD           = 29
+	NEW_DIRECTION          = 30
+	CLIENT_READY           = 31
+	LIFE_UPDATE            = 32
 
 
 	# Create events for processing responsees
-	EClientError       : Event    = None # (sender=, msg=)
-	EServerError       : Event    = None # (sender=, msg=)
-	EClientReady       : Event    = None # (sender=, player=)
-	EClientReadyAck    : Event    = None # (sender=, player_id=)
-	EServerReady       : Event    = None # (sender=)
-	ECountdown         : Event    = None
-	EIngame            : Event    = None
-	EClientIngame      : Event    = None # (sender=, player=)
-	EPause             : Event    = None # (sender=)
-	ERevenge           : Event    = None # (sender=)
-	ERevengeAck        : Event    = None # (sender=)
-	EExitGame          : Event    = None # (sender=)
-	EServerNotification: Event    = None
-	EClientChat        : Event    = None
-	EGameEnded         : Event    = None # (sender=, msg=)
-	EDiscoverLobby     : Event    = None
-	ELobby             : Event    = None # (sender=, port=)
-	EListGames         : Event    = None
-	EAvailableGames    : Event    = None
-	EHello             : Event    = None
-	EWelcome           : Event    = None
-	ECreateMatch       : Event    = None
-	EMatchCreated      : Event    = None
-	EListMatches       : Event    = None
-	EGames : Event = None
-	EMatchFeatures: Event = None
-	EMatch : Event = None
-	EMatchStarted : Event = None
+	EClientError           : Event    = None # (sender=, msg=)
+	EServerError           : Event    = None # (sender=, msg=)
+	EJoinMatch             : Event    = None # (sender=, name=, player=)
+	EMatchJoined           : Event    = None # (sender=, player_id=)
+	EServerReady           : Event    = None # (sender=)
+	ECountdown             : Event    = None
+	EIngame                : Event    = None
+	EClientIngame          : Event    = None # (sender=, player=)
+	EPause                 : Event    = None # (sender=)
+	ERevenge               : Event    = None # (sender=)
+	ERevengeAck            : Event    = None # (sender=)
+	EExitGame              : Event    = None # (sender=)
+	EServerNotification    : Event    = None
+	EClientChat            : Event    = None
+	EGameEnded             : Event    = None # (sender=, msg=)
+	EDiscoverLobby         : Event    = None
+	ELobby                 : Event    = None # (sender=, port=)
+	EListGames             : Event    = None
+	EAvailableGames        : Event    = None
+	EHello                 : Event    = None
+	EWelcome               : Event    = None
+	ECreateMatch           : Event    = None
+	EMatchCreated          : Event    = None
+	EListMatches           : Event    = None
+	EGames                 : Event    = None
+	EMatchFeatures         : Event    = None
+	EMatch                 : Event    = None
+	EMatchStarted          : Event    = None
+	EUpdateField           : Event    = None
+	ENewDirection          : Event    = None
+	EClientReady           : Event    = None
+	ELifeUpdate            : Event    = None
 
 
 	def __init__(self):
@@ -75,8 +83,8 @@ class CommProt:
 		"""
 		self.EClientError           = Event('msg') # (sender=, msg=)
 		self.EServerError           = Event('msg') # (sender=, msg=)
-		self.EClientReady           = Event('player') # (sender=, player=)
-		self.EClientReadyAck        = Event('player_id') # (sender=, player_id=)
+		self.EJoinMatch             = Event('name', 'player') # (sender=, name=, player=)
+		self.EMatchJoined           = Event('player_id') # (sender=, player_id=)
 		self.EServerReady           = Event() # (sender=)
 		self.ECountdown             = Event('seconds')
 		self.EIngame                = Event('players')
@@ -100,7 +108,11 @@ class CommProt:
 		self.EGames                 = Event('game', 'matches')
 		self.EMatchFeatures         = Event('name')
 		self.EMatch                 = Event('game', 'name', 'features')
-		self.EMatchStarted          = Event('port', 'list') # the list is formatted as (id, r, g, b)
+		self.EMatchStarted          = Event('port', 'players') # the list is formatted as (id, r, g, b)
+		self.EUpdateField           = Event('key', 'matrix')
+		self.ENewDirection          = Event('player_id', 'direction')
+		self.EClientReady           = Event() # Event to call when a client is ready
+		self.ELifeUpdate            = Event('player_id', 'lifes')
 
 	def client_ready(self, player):
 		"""

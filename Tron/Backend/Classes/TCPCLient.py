@@ -35,18 +35,6 @@ class TCPCLient(Client):
 		self.__hook = hook
 
 		self.__Comm: CommProt = JSONComm()
-		#self.__RecieverThread = ReceiverClientThread()
-
-		# Attach client_ready ack handler to event
-		self.__Comm.EClientReadyAck += self.handle_ready_ack
-		self.__Comm.ECountdown += self.handle_countdown
-		self.__Comm.EIngame += self.handle_ingame #+ self.handle_ingame_update
-		self.__Comm.EServerError += self.handle_server_error
-
-
-		#self.__RecieverThread.EIngameUpdate += handle_ingame_update
-		#self.__RecieverThread.EServerNotification += handle_serever_notification
-		self.__Comm.EServerNotification += self.handle_serever_notification
 
 		super().__init__()
 
@@ -170,7 +158,6 @@ class TCPCLient(Client):
 			sender (CommProt): Caller of the event
 			msg (str): Error message sent by the server
 		"""
-		# TODO: Artem -> behandlung von error messages
 		self.ECClientError(self, msg)
 		StateMaschine.change(StateMaschine.CLIENT_ERROR)
 		self.__sock.close()
@@ -190,14 +177,15 @@ class TCPCLient(Client):
 		"""
 		Handle server notification
 		Args:
-			sender
-
+			sender: sender object
 		"""
 		logging.info(msg)
 	def requestPause (self, sender):
 		"""
 		Function to handle Pause request 
 
+		Args:
+			sender: sender object
 		"""
 		StateMaschine.change(StateMaschine.CLIENT_PAUSE)
 		logging.info("Client in Pause")

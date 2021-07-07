@@ -1,10 +1,12 @@
 # Client for Tron game
 import sys
+import os
 sys.path.append('/Users/marcellpigniczki/Documents/GitHub/Class-Project-T2-Tron')
 
 # IMPORT LOGGING AND MAIN FRAMEWORKS
 import click # Click for command framework
 import logging, coloredlogs
+import time
 
 logger = logging.getLogger()
 coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(message)s', level='DEBUG', hostname=False)
@@ -12,26 +14,83 @@ coloredlogs.install(fmt='%(asctime)s %(name)s[%(process)d] %(levelname)s %(messa
 # Import dependencies
 from Tron.Backend.Classes.GameClient import GameClient
 
+def draw_matrix(matrix):
+	os.system('clear')
+	linestr = ""
+	for row in matrix:
+		for col in row:
+			linestr += "%d " % col
+		print(linestr, flush=True)
+		linestr = ""
+
 if __name__ == '__main__':
 	client = GameClient()
-	while True:
-		print("(1) Discover lobbies")
-		print("(2) Enter the first lobby")
 
-		user_in = input("Select an option: ")
-		if user_in == "1":
-			client.discover_lobby()
-		elif user_in == "2":
-			client.lobbies[0].say_hello()
-			while True:
-				print("(1) List available games")
-				print("(2) Create sample match Tron/CoolMatch Players,3,Lifes,2")
-				print("(3) List matches")
-				user_in = input("Select an option:")
+	client.me.setColor((255,0,0))
 
-				if user_in == "1":
-					client.lobbies[0].list_games()
-				elif user_in == "2":
-					client.lobbies[0].create_match('Tron', 'CoolMatch', {'Players': 3, 'Lifes' : 2})
-				elif user_in == "3":
-					client.lobbies[0].list_matches('Tron')
+	logging.info("Discovering Lobbies")
+	client.discover_lobby()
+	time.sleep(1)
+
+	logging.info("Entering lobby 1")
+	client.enter_lobby(0)
+	time.sleep(1)
+
+	# Create a new game
+	logging.info("Creating match")
+	client.lobby.create_match("Tron", "Testmatch", {'Players': 1, 'Lifes': 10})
+	time.sleep(1)
+
+	# Join  the match
+	logging.info("Joining the match")
+	client.lobby.list_matches('Tron')
+	time.sleep(2)
+	client.join_match(0)
+
+	client.me.setVelocity(1,0)
+
+	time.sleep(2)
+	client.i_am_ready()
+
+	# First game only for 10 secs
+	starter = time.perf_counter()
+	while time.perf_counter() - starter < 10:
+		# TODO Update the game matrix every second
+		matrix = client.match.arena.matrix
+		draw_matrix(matrix)
+		players = client.match.players
+		for player in players:
+			print("PLAYER POS: %s" % str(player.getPosition()))
+			print("PLAYER VEL: %s" % str(player.getVelocity()))
+			print("PLAYER LIF: %s" % str(player.lifes))
+			print("TRACKS %d" % len(player.getTrack()))
+
+	# Create a new game
+	logging.info("Creating seconds match")
+	client.lobby.create_match("Tron", "mathy", {'Players': 1, 'Lifes': 10})
+	client.lobby.create_match("Tron", "mathy2", {'Players': 1, 'Lifes': 10})
+	time.sleep(1)
+
+	# Join  the match
+	logging.info("Joining the match")
+	client.lobby.list_matches('Tron')
+	time.sleep(2)
+	client.join_match(1)
+
+	client.me.setVelocity(1,0)
+
+	time.sleep(2)
+	client.i_am_ready()
+
+	# First game only for 10 secs
+	starter = time.perf_counter()
+	while time.perf_counter() - starter < 10:
+		# TODO Update the game matrix every second
+		matrix = client.match.arena.matrix
+		draw_matrix(matrix)
+		players = client.match.players
+		for player in players:
+			print("PLAYER POS: %s" % str(player.getPosition()))
+			print("PLAYER VEL: %s" % str(player.getVelocity()))
+			print("PLAYER LIF: %s" % str(player.lifes))
+			print("TRACKS %d" % len(player.getTrack()))

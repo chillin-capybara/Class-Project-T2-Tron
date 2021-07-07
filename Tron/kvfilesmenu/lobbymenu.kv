@@ -1,0 +1,93 @@
+#
+#attributs:
+#Players_online_list: str
+#input_IP
+#connect_to_server_Button
+#Back_to_menu_Button
+#waiting_for _other_player_if_waiting_Anzeige
+
+#operations:
+
+<LobbyMenu>:
+
+    # on_pre_enter:
+    #     root.refresh_matches_list()
+    on_enter:
+        root.getPlayerdata()
+        root.get_matchlist_from_server() ## now it will be automatically updated by an event --> when it will work ;-)
+        # root.update_shown_list() ## is now directly called in get_matchlist_from_server()
+    # on_leave:
+    #     root.clear_list() ## is now directly called in get_matchlist_from_server()
+
+    HeaderLabel:
+        text: 'Lobby Menu'
+        pos_hint: {"x": .01, "y": .94}
+
+    ColoredLabel:
+        id: explainmenuLabel
+        size_hint: ( .98, .08)
+        pos_hint: {'x': .01, 'y': .85}
+        background_color: (.1,.3,.7,1)
+        text: 'Here you can join a Match'
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: (.98, .57)
+        pos_hint: {'x': .01, 'y': .23}
+        spacing: 1
+        padding: 1
+
+        RecycleView:
+            id: lobby_match
+            viewclass: 'SelectableLabelMatch'
+            SelectableRecycleBoxLayout:
+                default_size: None, dp(26)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+                multiselect: False
+                touch_multiselect: True
+
+    Button:
+        id: creatematchButton
+        size_hint: (.395, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .01, 'y': .1}
+        text: 'Create match'
+        on_release:
+            root.manager.current = 'creatematchmenu'
+
+    Button:
+        id: joinmatchButton
+        size_hint: (.225, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .415, 'y': .1}
+        text: 'Join match'
+        on_release:
+            root.joinMatch()
+    
+    Button:
+        id: leavematchButton
+        size_hint: (.225, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .65, 'y': .1}
+        text: 'Leave match'
+        on_release:
+            root.leaveMatch()
+    
+    Button:
+        id: refreshButton
+        size_hint: (.1, .08)
+        pos_hint: {"x": .89, "y": .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Refresh'
+        on_release:
+            root.logging()
+            # root.clear_list() ## is now directly called in get_matchlist_from_server()
+            root.get_matchlist_from_server() ## now it will be automatically updated by an event
+            # root.refresh_matches_list() ## trigger the event to update list with current games
+            # root.update_shown_list() ## is now directly called in get_matchlist_from_server()
+
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}

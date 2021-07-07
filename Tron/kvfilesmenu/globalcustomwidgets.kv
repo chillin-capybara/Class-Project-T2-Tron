@@ -9,8 +9,8 @@
             pos: self.pos
 
 <HeaderLabel@Label+BackgroundColor>
-    size_hint: (.98, .08)
-    background_color: (.3,.4,.5,1)
+    size_hint: (.98, .05)
+    background_color: (.0,.6,.2,1)
     pos_hint: {"x": 0, "y": 0}
 
 <ColoredLabel@Label+BackgroundColor>
@@ -18,11 +18,50 @@
 <BackToMenuButton>:
     Button:
         id: backtomenuButton
-        text: 'Back to Mainmenu'
+        text: 'Back to Main Menu'
         size_hint: (.98,.08)
         pos_hint: {"x": 0, "y": 0}
-        background_color: (1, 0, 0,1)
-        #pos_hint: {"bottom":1}
+        background_color: (1, 0, 0, 1)
         on_release: root.changeScreen()
 
 <ListLabel@Label>
+
+<SelectableLabel>:
+    # Draw a background to indicate selection
+    canvas.before:
+        Color:
+            rgba: (1, 0, 0, 1) if self.selected else (.0, 0.9, .1, .3)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: (0, 0.9, .1, .3)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SelectableLabelMatch>:
+    # Draw a background to indicate selection
+    canvas.before:
+        Color:
+            rgba: (1, 0, 0, 1) if self.selected else (.0, 0.9, .1, .3)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: (0, 0.9, .1, .3)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+# <ematchJoinedPopup>:
+#     id: ematchjoinedPopup
+#     title: 'ERROR'
+#     Label:
+#         text: 'Waiting for match to start...'
+#         size_hint: (None, None)
+#         size: (400, 400)
+
+#     Button:
+#         text: 'Cancel'
+#         on_press: ematchjoinedPopup.dismiss()

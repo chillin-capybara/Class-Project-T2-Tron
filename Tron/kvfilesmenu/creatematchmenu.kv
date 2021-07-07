@@ -1,0 +1,99 @@
+#
+#attributs:
+#Game_start_Button
+#Back_to_menu_Button
+#players_connected_Anzeige
+
+#operations:
+#    -
+
+<CreateMatchMenu>:
+
+    on_enter:
+        gamenameTextInput.focus = True
+        gamenameTextInput.text = ''
+
+    HeaderLabel:
+        text: 'Create Match Menu'
+        pos_hint: {"x": .01, "y": .94}
+
+    ColoredLabel:
+        id: explainmenuLabel
+        size_hint: ( .98, .08)
+        pos_hint: {"x": .01, "y": .85}
+        background_color: (.1,.3,.7,1)
+        text: 'Here you can create a Match'
+
+    BoxLayout:
+    ##Input Playername
+        orientation: "horizontal"
+        size_hint: ( .98, .2)
+        pos_hint: {"x": .01, "y": .61}
+        spacing: 1
+
+        Label:
+            size_hint: (.35, 1)
+            text: 'Give a Name for the new Game'
+        
+        TextInput:
+            size_hint: (.65, 1)
+            id: gamenameTextInput
+            multiline: False
+            valign: "center"
+            focus: True
+            hint_text: 'Only_one_word_is_allowed'
+
+            on_text:
+                root.validateInput(self.text)
+
+    BoxLayout:
+    ## Number of Players Silder
+        orientation: "vertical"
+        size_hint: ( .98, .2)
+        pos_hint: {"x": .01, "y": .40}
+
+        Label:
+            text: 'Number of Players ' + str(int(numberplayersSlider.value))
+
+        Slider:
+            id: numberplayersSlider
+            min: 1
+            max: 10
+            step: 1
+
+    BoxLayout:
+    ##Number of Lifes Slider
+        orientation: "vertical"
+        size_hint: ( .98, .2)
+        pos_hint: {"x": .01, "y": .19}
+
+        Label:
+            text: 'Number of Lifes ' + str(int(numberlifesSlider.value))
+
+        Slider:
+            id: numberlifesSlider
+            min: 1
+            max: 10
+            step: 1
+
+    Button:
+        id: creatematchButton
+        size_hint: (.485, .08)
+        pos_hint: {'x': .01, 'y': .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Create Match'
+        on_release:
+            root.manager.current = 'lobbymenu'
+            root.createMatch(numberplayersSlider.value, numberlifesSlider.value, gamenameTextInput.text)
+    
+    Button:
+        id: backtolobbymenuButton
+        size_hint: (.485, .08)
+        pos_hint: {'x': .5, 'y': .1}
+        background_color: (0.1,0.3,0.7,1)
+        text: 'Back to Lobby Menu'
+        on_release:
+            root.manager.current = 'lobbymenu'
+            
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}

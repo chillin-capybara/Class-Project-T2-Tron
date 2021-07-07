@@ -8,121 +8,78 @@
 #    -
 
 <CreateServerMenu>:
+
+    HeaderLabel:
+        text: 'Create Server Menu'
+        pos_hint: {"x": .01, "y": .94}
+
+    ColoredLabel:
+        id: explainmenuLabel
+        size_hint: ( .98, .08)
+        pos_hint: {'x': .01, 'y': .85}
+        background_color: (.1,.3,.7,1)
+        text: 'Here you can create a Server'
+
     BoxLayout:
         orientation: 'vertical'
-        spacing: 10
-        padding: 10
+        size_hint: ( .98, .16)
+        pos_hint: {'x': .01, 'y': .65}
+
 
         Label:
-            id: menunameLabel
-            text: 'Create Server Menu'
-            size_hint: 1, .3
-            color: 0, 1, 0, 1
+            text: 'Number of Lobbies ' + str(int(numberlobbiesSlider.value))
+
+        Slider:
+            id: numberlobbiesSlider
+            min: 1
+            max: 100
+            step: 1
+    
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: ( .98, .16)
+        pos_hint: {'x': .01, 'y': .48}
 
         Label:
-            id: connectedplayersLabel
-            text: 'Noone wants to play with you. Even computer says NO'
-            color: 0, 0, 0, 1
+            text: 'Server status:'
+        Label:
+            text: 'running' if statusserverSwitch.active else 'not running'
+        Switch:
+            id: statusserverSwitch
+            on_active:
+                root.statusServer(self.active, numberlobbiesSlider.value, widthSlider.value, heightSlider.value)
 
-        BoxLayout:
-            orientation: 'horizontal'
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: ( .98, .29)
+        pos_hint: {'x': .01, 'y': .19}
 
-            Label:
-                id: arenadifficultyLabel
-                text: 'Please choose Arenatype here'
-                size_hint_x: .50
-        
-            CheckBox:
-                id: arenadifficultyoneCheckbox
-                group: "arenadifficultyCheckbox"
-                size_hint_x: .08
-                on_active:
-                    root.updateArenatype(1)
+        Label:
+            text: 'Fieldsize: Width ' + str(int(widthSlider.value))
 
-            Label:
-                id: arenadifficultyoneheckboxLabel
-                text: 'Arenatype 1'
-                size_hint_x: .17
-            
-            CheckBox:
-                id: arenadifficultytwoCheckbox
-                group: "arenadifficultyCheckbox"
-                size_hint_x: .08
-                on_active:
-                    root.updateArenatype(2)
-            
-            Label:
-                id: arenadifficultytwocheckboxLabel
-                text: 'Arenatype 2'
-                size_hint_x: .17
+        Slider:
+            id: widthSlider
+            min: 10
+            max: 100
+            step: 5
 
-        BoxLayout:
-            orientation: 'horizontal'
+        Label:
+            text: 'Fieldsize: Height ' + str(int(heightSlider.value))
 
-            Label:
-                id: difficultyLabel
-                text: 'Please choose the diffculty'
-                size_hint_x: .50
-        
-            CheckBox:
-                id: difficultyoneCheckbox
-                group: "difficultyCheckbox"
-                size_hint_x: .08
-                on_active:
-                    root.updateDifficulty(1)
-            
+        Slider:
+            id: heightSlider
+            min: 10
+            max: 100
+            step: 5
 
-            Label:
-                id: difficultyoneheckboxLabel
-                text: 'Diffculty 1'
-                size_hint_x: .17
-            
-            CheckBox:
-                id: difficultytwoCheckbox
-                group: "difficultyCheckbox"
-                size_hint_x: .08
-                on_active:
-                    root.updateDifficulty(2)
-            
-            Label:
-                id: difficultytwocheckboxLabel
-                text: 'Diffculty 2'
-                size_hint_x: .17
+    Button:
+        id: searchforlobbiesButton
+        size_hint: (.98, .08)
+        background_color: (0.1,0.3,0.7,1)
+        pos_hint: {'x': .01, 'y': .1}
+        text: 'Search for lobbies'
+        on_release:
+            root.manager.current = 'searchforlobbiesmenu'
 
-        BoxLayout:
-            orientation: 'vertical'
-
-            Label:
-                text: 'Number of Players ' + str(int(numberplayersSlider.value))
-
-            Slider:
-                id: numberplayersSlider
-                min: 2
-                max: 10
-                step: 1
-
-        BoxLayout:
-            orientation: 'vertical'
-
-            Label:
-                id: serverstatusLabel
-                text: 'Server is running/not running(Has to be implemented)'
-
-            Button:
-                id: destroyserverButton
-                text: 'Destroy the Server'
-                on_release:
-                    root.destroyServer()
-
-        Button:
-            id: serverstartButton
-            text: 'Start the Server and Game(TODO) '
-            on_release:
-                root.createServer(int(numberplayersSlider.value))
-            #    root.startGame
-                root.manager.current = 'gamestartmenu'
-
-        Button:
-            id: backtomenuButton
-            text: 'Return to the Main Menu'
-            on_release: root.manager.current = 'mainmenu'
+    BackToMenuButton:
+        pos_hint: {"x": .01, "y": .01}

@@ -6,6 +6,7 @@ from .Lobby import Lobby
 from ..Core.Event import Event
 from ..Core.Hook import Hook
 from ..Core.globals import *
+from ..Core.BackendConfig import BackendConfig
 
 class Broadcaster(object):
 	"""
@@ -38,7 +39,7 @@ class Broadcaster(object):
 		self.__hook_lobbies.delegate(hook_lobbies)
 
 		# Setup the thread
-		self.__thread = threading.Thread(target=self.__thread_handler)
+		self.__thread = threading.Thread(target=self.__thread_handler, name="Broadcaster")
 
 
 	def Start(self, host: str = "", port:int = LOBBY_DISCOVERY_PORT):
@@ -60,12 +61,22 @@ class Broadcaster(object):
 		# Start the thread
 		self.__thread.start()
 	
+	def handle_server_stop(self, sender):
+		"""
+		Handle the event, when the complete server is stopped
+		
+		Args:
+			sender ([type]): GameServer object
+		"""
+		self.Stop()
+
 	def Stop(self):
 		"""
 		Stop the discovery broadcaster.
 		NOTE:
 			Closing the socket causes the thread to close.
 		"""
+		logging.info("Stoppign the broadcasted")
 		# Close the socket
 		self.__sockfd.close()
 	
@@ -85,13 +96,19 @@ class Broadcaster(object):
 			while True:
 				# Receive a discovery request
 				packet, conn = self.__sockfd.recvfrom(LOBBY_DISCOVERY_RECV_SIZE)
-				self.__resp_to = conn
 
-				try:
-					self.__comm.process_response(packet)
-				except Exception as e:
-					logging.warning(str(e))
-					logging.warning('Invalid message received: %s' % (str(packet)))
+				ipaddr, port = conn
+				if ipaddr in BackendConfig.blacklist:
+					# DONT DO ANYTHING WHEN THE IP IS BLACKLISTED
+					pass
+				else:
+					self.__resp_to = conn
+
+					try:
+						self.__comm.process_response(packet)
+					except Exception as e:
+						logging.warning(str(e))
+						logging.warning('Invalid message received: %s' % (str(packet)))
 		except Exception as e:
 			# Error occured
 			logging.error("The discovery protocol aborted. Reason: %s" % str(e))

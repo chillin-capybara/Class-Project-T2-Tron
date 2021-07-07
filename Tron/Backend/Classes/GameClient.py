@@ -2,6 +2,8 @@ from .BasicComm import BasicComm
 from .Lobby import Lobby
 from ..Core.globals import *
 from .HumanPlayer import HumanPlayer
+from .MatchClient import MatchClient
+from ..Core.Event import Event
 
 import logging
 import socket
@@ -10,6 +12,9 @@ from typing import List
 class GameClient(object):
 	"""
 	Main client object for Tron Game
+
+	Events:
+		OnMatchesUpdate(sender, matches): is called when the list of matches gets updated
 	"""
 
 	__comm : BasicComm = None
@@ -17,6 +22,13 @@ class GameClient(object):
 	__lobbies : List[Lobby]  = None
 
 	__me : HumanPlayer = None
+	__entered_lobby : Lobby = None
+
+	EError : Event = None # Event to be called, when an error happens
+	EMatchJoined : Event = None
+	EMatchStarted : Event = None
+	EMatchEnded : Event = None
+	OnMatchesUpdate: Event = None # Event to be called when the list of matches is updated
 
 	def __init__(self):
 		"""
@@ -28,6 +40,16 @@ class GameClient(object):
 
 		# Initialize the list of the lobbies
 		self.__lobbies = []
+
+		# Initialize local events
+		self.EError = Event('msg')
+		self.EMatchJoined = Event('matchname')
+		self.EMatchStarted = Event()
+		self.EMatchEnded = Event('reason')
+		self.OnMatchesUpdate = Event('matches')
+
+		# Append the lobby event handler to the comm
+		self.__comm.ELobby += self.handle_lobby
 
 		# Initialize the client Player
 		self.__me = HumanPlayer()
@@ -50,6 +72,61 @@ class GameClient(object):
 		"""
 		return self.__lobbies
 	
+	@property
+	def lobby(self) -> Lobby:
+		"""
+		Entered lobby, when in a lobby
+		"""
+		return self.__entered_lobby
+	
+	@property
+	def match(self) -> MatchClient:
+		"""
+		Selected match to enter
+		"""
+		return self.lobby.match
+	
+	def enter_lobby(self, index: int):
+		"""
+		Index of the lobby in the list of the lobbies to enter.
+		
+		Args:
+			index (int): Index of the lobby
+		"""
+		# Say hello to the lobby
+		self.__lobbies[index].say_hello()
+
+		try:
+			# Remove the previous event handler from the latest joined lobby
+			self.lobby.OnMatchesUpdate -= self.on_matches_updated
+		except:
+			# Error of the handler removal can be ignored
+			pass
+
+		# Set the entered lobby
+		self.__entered_lobby = self.__lobbies[index]
+
+		# Attach the lobby update event to the client
+		self.lobby.OnMatchesUpdate += self.on_matches_updated
+
+	def join_match(self, index:int):
+		"""
+		Join the selected match from the client
+		
+		Args:
+			index (int): Index of the selected match
+		"""
+		self.lobby.join_match(index)
+	
+	def godmode_on(self):
+		"""
+		Turn on the godmode, to control all players in a game.
+
+		NOTE:
+			This has to be turned of each time. The setting will not remain.
+		"""
+		self.match.godmode_on()
+
 	def get_me(self):
 		"""
 		Hook, to get the client's player object
@@ -61,6 +138,9 @@ class GameClient(object):
 		Request the servers to list the lobbies on the network.
 		"""
 		try:
+			# Empty the list
+			self.__lobbies.clear()
+
 			logging.info("Discovering lobbies...")
 			# Create socket
 			sockfd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -70,9 +150,6 @@ class GameClient(object):
 			#sockfd.bind(("", LOBBY_DISCOVERY_PORT))
 
 			packet = self.__comm.discover_lobby()
-
-			# Append the lobby event handler to the comm
-			self.__comm.ELobby += self.handle_lobby
 
 			# Send out the discovery packet
 			sockfd.sendto(packet, ('<broadcast>', LOBBY_DISCOVERY_PORT))
@@ -96,8 +173,23 @@ class GameClient(object):
 			host (str): IP adress of the lobby's server
 			port (int): Port of the lobby
 		"""
-		self.__lobbies.append(Lobby(host, port, self.get_me))
+		lobby = Lobby(host, port, self.get_me)
+		lobby.EError += self.handle_EError # Add callback to the error handler
+		lobby.EMatchJoined += self.handle_EMatchJoined # Add callback for match joins
+		lobby.EMatchStarted += self.handle_match_started
+		lobby.EMatchEnded += self.on_match_ended
+		self.__lobbies.append(lobby)
 
+	def handle_EError(self, sender, msg: str):
+		"""
+		Handle errors from the lobby objects
+		
+		Args:
+			sender ([type]): Lobby that has error
+			msg (str): Error message
+		"""
+		# Pass along the event
+		self.EError(self, msg=msg)
 
 	def handle_lobby(self, sender, port: int):
 		"""
@@ -109,7 +201,63 @@ class GameClient(object):
 		"""
 		self.__add_lobby(self.__last_server, port)
 		logging.debug("New lobby discovered: %s:%d" % (self.__last_server, port))
-
-
-
+	
+	def handle_EMatchJoined(self, sender, matchname: str):
+		"""
+		Handle the event of the Lobby, when the client can join into a match
+		
+		Args:
+			sender ([type]): Caller of the event
+			player_id (int): Player ID on the server
+		"""
+		logging.info("Notifying the user, that to wait for the match start.")
+		self.EMatchJoined(self, matchname=matchname)
+	
+	def handle_match_started(self, sender):
+		logging.info("Tell the UI to start the match.")
+		self.EMatchStarted(self)
+	
+	def close(self):
+		"""
+		Close the game client with closing all the lobby threads
+		"""
+		# Close the lobby
+		self.lobby.close()
+	
+	def leave_match(self):
+		"""
+		Leave the joined match (if there is a joined match)
+		"""
+		try:
+			self.lobby.leave_match()
+		except Exception as exc:
+			logging.warning("Cannot leave match. Reason: %s", str(exc))
+	
+	def i_am_ready(self):
+		"""
+		Send a signal to the server that you are ready to paly
+		"""
+		self.lobby.i_am_ready()	
+		
+	def on_match_ended(self, sender, reason):
+		"""
+		Handle when a match was ended by the server
+		
+		Args:
+			sender (MatchClient): Caller of the Event
+			reason (str): Reason of the match's end
+		"""
+		# Pass the Event along
+		self.EMatchEnded(self, reason=reason)
+	
+	def on_matches_updated(self, sender: Lobby, matches: List[MatchClient]):
+		"""
+		Event handler of the Lobby.OnMatchesUpdated event
+		
+		Args:
+			sender (Lobby): Caller of the event
+			matches (List[MatchClient]): Updated list of matches
+		"""
+		# Pass the event along to the client
+		self.OnMatchesUpdate(self, matches=matches)
 
